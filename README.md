@@ -92,7 +92,7 @@ MIT License — bkz. [LICENSE](LICENSE)
 
 ---
 
-## 🔗 İlgili Projekte
+## 🔗 İlgili Projeler
 
 - [Agent Reach (Python)](https://github.com/Panniantong/agent-reach) — Orijinal implementasyon
 - [ZOPAY](https://github.com/Ercaner1988/zotero-zero-mcp) — Zotero MCP server (Rust)

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "task-1",
+    "channel": "web",
+    "action": "read",
+    "args": ["https://example.com"],
+    "metadata": {
+      "description": "Test web channel with example.com"
+    }
+  },
+  {
+    "id": "task-2",
+    "channel": "web",
+    "action": "read",
+    "args": ["https://rust-lang.org"],
+    "metadata": {
+      "description": "Test web channel with Rust website"
+    }
+  }
+]
