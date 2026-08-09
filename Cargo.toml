@@ -1,0 +1,65 @@
+[workspace]
+members = [
+    "crates/agent-reach-core",
+    "crates/agent-reach-channels",
+    "crates/agent-reach-mcp",
+    "crates/agent-reach-cli",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+license = "MIT"
+authors = ["Ercan ER <ercan@example.com>"]
+repository = "https://github.com/Ercaner1988/agent-reach-rs"
+homepage = "https://github.com/Ercaner1988/agent-reach-rs"
+
+[workspace.dependencies]
+# Async runtime
+tokio = { version = "1.40", features = ["full"] }
+async-trait = "0.1"
+
+# HTTP client
+reqwest = { version = "0.12", features = ["json", "cookies", "stream"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+
+# CLI
+clap = { version = "4.5", features = ["derive", "env", "unicode"] }
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Terminal output
+console = "0.15"
+indicatif = "0.17"
+owo-colors = "4.0"
+
+# RSS/Atom
+rss = "2.0"
+atom_syndication = "0.12"
+
+# Config
+directories = "5.0"
+
+# Date/time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Process execution
+subprocess = "0.2"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
