@@ -1,0 +1,30 @@
+{
+  "total_duration_ms": 1062,
+  "results": [
+    {
+      "task_id": "task-1",
+      "success": true,
+      "channel": "web",
+      "backend": "jina-reader",
+      "duration_ms": 624,
+      "output": {
+        "text": "Title: Example Domain\n\nURL Source: https://example.com/\n\nPublished Time: Sat, 08 Aug 2026 20:05:49 GMT\n\nWarning: This is a cached snapshot of the original page, consider retry with caching opt-out.\n\nMarkdown Content:\nThis domain is for use in documentation examples without needing permission. Avoid use in operations.\n\n[Learn more](https://iana.org/domains/example)\n",
+        "url": "https://example.com"
+      },
+      "error": null
+    },
+    {
+      "task_id": "task-2",
+      "success": true,
+      "channel": "web",
+      "backend": "jina-reader",
+      "duration_ms": 431,
+      "output": {
+        "text": "Title: Rust Programming Language\n\nURL Source: https://rust-lang.org/\n\nPublished Time: Sun, 09 Aug 2026 01:48:11 GMT\n\nMarkdown Content:\n## A language empowering everyone \n\n to build reliable and efficient software.\n\n## Why Rust?\n\n### Performance\n\nRust is blazingly fast and memory-efficient: with no runtime or garbage collector, it can power performance-critical services, run on embedded devices, and easily integrate with other languages.\n\n### Reliability\n\nRust’s rich type system and ownership model guarantee memory-safety and thread-safety — enabling you to eliminate many classes of bugs at compile-time.\n\n### Productivity\n\nRust has great documentation, a friendly compiler with useful error messages, and top-notch tooling — an integrated package manager and build tool, smart multi-editor support with auto-completion and type inspections, an auto-formatter, and more.\n\n## Build it in Rust\n\nIn 2018, the Rust community decided to improve the programming experience for a few distinct domains (see [the 2018 roadmap](https://blog.rust-lang.org/2018/03/12/roadmap.html)). For these, you can find many high-quality crates and some awesome guides on how to get started.\n\n![Image 1: terminal](https://rust-lang.org/static/images/cli.svg)\n\n### Command Line\n\nWhip up a CLI tool quickly with Rust’s robust ecosystem. Rust helps you maintain your app with confidence and distribute it with ease.\n\n[Building Tools](https://rust-lang.org/what/cli)\n\n![Image 2: gear with puzzle piece elements](https://rust-lang.org/static/images/webassembly.svg)\n\n### WebAssembly\n\nUse Rust to supercharge your JavaScript, one module at a time. Publish to npm, bundle with webpack, and you’re off to the races.\n\n[Writing Web Apps](https://rust-lang.org/what/wasm)\n\n![Image 3: a cloud with nodes](https://rust-lang.org/static/images/networking.svg)\n\n### Networking\n\nPredictable performance. Tiny resource footprint. Rock-solid reliability. Rust is great for network services.\n\n[Working On Servers](https://rust-lang.org/what/networking)\n\n![Image 4: an embedded device chip](https://rust-lang.org/static/images/embedded.svg)\n\n### Embedded\n\nTargeting low-resource devices? Need low-level control without giving up high-level conveniences? Rust has you covered.\n\n[Starting With Embedded](https://rust-lang.org/what/embedded)\n\n## Rust in production\n\nHundreds of companies around the world are using Rust in production today for fast, low-resource, cross-platform solutions. **From startups to large corporations, from embedded devices to scalable web services, Rust is a great fit.**\n\n## Get involved\n\n### Read Rust\n\nWe love documentation! Take a look at the books available online, as well as key blog posts and user guides.\n\n[Read the book](https://rust-lang.org/learn)\n\n### Watch Rust\n\nThe Rust community has a dedicated YouTube channel collecting a huge range of presentations and tutorials.\n\n[Watch the Videos](https://www.youtube.com/channel/UCaYhcUwRBNscFNUKTjgPFiA)\n\n### Contribute code\n\nRust is truly a community effort, and we welcome contribution from hobbyists and production users, from newcomers and seasoned professionals. Come help us make the Rust experience even better!\n\n[Read Contribution Guide](https://rustc-dev-guide.rust-lang.org/getting-started.html)\n\n## Thanks\n\nRust would not exist without the generous contributions of time, work, and resources from individuals and companies. We are very grateful for the support!\n\n### Individuals\n\nRust is a community project and is very thankful for the many community contributions it receives.\n\n[See individual contributors](https://thanks.rust-lang.org/)\n",
+        "url": "https://rust-lang.org"
+      },
+      "error": null
+    }
+  ],
+  "success": true
+}
