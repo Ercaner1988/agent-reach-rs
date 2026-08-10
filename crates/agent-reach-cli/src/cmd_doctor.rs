@@ -1,6 +1,8 @@
 //! Doctor subcommand — check platform availability and health
 
-use agent_reach_channels::{GitHubChannel, RssChannel, TwitterChannel, WebChannel, YouTubeChannel};
+use agent_reach_channels::{
+    GitHubChannel, RedditChannel, RssChannel, TwitterChannel, WebChannel, YouTubeChannel,
+};
 use agent_reach_core::{BackendStatus, Channel, Config};
 use anyhow::Result;
 use serde_json::json;
@@ -17,6 +19,7 @@ pub async fn doctor(json_output: bool) -> Result<()> {
     let twitter_status = TwitterChannel::new().health_check(&config).await;
     let youtube_status = YouTubeChannel::new().health_check(&config).await;
     let github_status = GitHubChannel::new().health_check(&config).await;
+    let reddit_status = RedditChannel::new().health_check(&config).await;
 
     let mut results = HashMap::new();
     results.insert("web".to_string(), web_status);
@@ -24,6 +27,7 @@ pub async fn doctor(json_output: bool) -> Result<()> {
     results.insert("twitter".to_string(), twitter_status);
     results.insert("youtube".to_string(), youtube_status);
     results.insert("github".to_string(), github_status);
+    results.insert("reddit".to_string(), reddit_status);
 
     let total_duration_ms = start.elapsed().as_millis() as u64;
 
