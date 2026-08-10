@@ -6,8 +6,8 @@
 pub mod rss;
 pub mod twitter;
 pub mod web;
+pub mod youtube;
 // Future channels (to be implemented):
-// pub mod youtube;
 // pub mod github;
 // pub mod reddit;
 // pub mod bilibili;
@@ -21,3 +21,4 @@ pub mod web;
 pub use rss::RssChannel;
 pub use twitter::TwitterChannel;
 pub use web::WebChannel;
+pub use youtube::YouTubeChannel;
