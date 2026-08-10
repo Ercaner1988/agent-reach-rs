@@ -16,8 +16,8 @@
 
 ### قيد التطوير
 - [ ] **13 قناة** — Twitter, Reddit, YouTube, GitHub, Bilibili, Xiaohongshu, LinkedIn, V2EX, Xueqiu, Xiaoyuzhou, بحث Exa
-- [x] **واجهة سطر الأوامر** — `install` و`configure` و`doctor` و`skill`؛ يدعم `transcribe` واجهات Groq/OpenAI المتوافقة مع Whisper
-- [ ] **خادم MCP** — stdio JSON-RPC (أداة Exa)
+- [x] **واجهة سطر الأوامر** — `install` و`configure` و`doctor` و`skill` و`transcribe` (Groq/OpenAI Whisper)
+- [x] **خادم MCP** — خادم stdio JSON-RPC مع 4 أدوات: `web_read` و`rss_fetch` و`rss_parse` و`exa_search`
 - [ ] **ملف تنفيذي متعدد المنصات** — Windows/Linux/macOS
 - [ ] **خط تكامل/نشر مستمر** — GitHub Actions
 

@@ -16,8 +16,8 @@
 
 ### In Progress
 - [ ] **13 channels** — Twitter, Reddit, YouTube, GitHub, Bilibili, Xiaohongshu, LinkedIn, V2EX, Xueqiu, Xiaoyuzhou, Exa Search
-- [x] **CLI** — `install`, `configure`, `doctor`, `skill`; `transcribe` supports Groq/OpenAI Whisper-compatible APIs
-- [ ] **MCP server** — stdio JSON-RPC (Exa tool)
+- [x] **CLI** — `install`, `configure`, `doctor`, `skill`, `transcribe` (Groq/OpenAI Whisper)
+- [x] **MCP server** — stdio JSON-RPC server with 4 tools: `web_read`, `rss_fetch`, `rss_parse`, `exa_search`
 - [ ] **Multi-platform binary** — Windows/Linux/macOS
 - [ ] **CI/CD pipeline** — GitHub Actions
 
