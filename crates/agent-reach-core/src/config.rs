@@ -41,7 +41,10 @@ impl Config {
     /// Load config from a specific file
     pub fn load_from(path: &PathBuf) -> crate::Result<Self> {
         if !path.exists() {
-            tracing::debug!("Config file not found at {}, using defaults", path.display());
+            tracing::debug!(
+                "Config file not found at {}, using defaults",
+                path.display()
+            );
             return Ok(Self::default());
         }
 
@@ -72,8 +75,7 @@ impl Config {
             })?;
         }
 
-        let yaml = serde_yaml::to_string(self)
-            .context("Failed to serialize config to YAML")?;
+        let yaml = serde_yaml::to_string(self).context("Failed to serialize config to YAML")?;
 
         fs::write(path, yaml)
             .with_context(|| format!("Failed to write config to {}", path.display()))?;
@@ -118,7 +120,8 @@ impl Config {
             "exa_api_key" => self.exa_api_key = Some(value),
             "proxy" => self.proxy = Some(value),
             _ => {
-                self.extra.insert(key.to_string(), serde_json::Value::String(value));
+                self.extra
+                    .insert(key.to_string(), serde_json::Value::String(value));
             }
         }
     }

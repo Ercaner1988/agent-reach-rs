@@ -43,7 +43,11 @@ impl fmt::Display for Status {
 
 impl HealthStatus {
     /// Create a new health status report
-    pub fn new(channel: String, backends: HashMap<String, BackendStatus>, duration_ms: u64) -> Self {
+    pub fn new(
+        channel: String,
+        backends: HashMap<String, BackendStatus>,
+        duration_ms: u64,
+    ) -> Self {
         let (status, message) = Self::derive_status(&backends);
         Self {
             channel,
@@ -67,10 +71,7 @@ impl HealthStatus {
         if available {
             (Status::Ok, "At least one backend is available".into())
         } else if all_require_config {
-            (
-                Status::Warning,
-                "All backends require configuration".into(),
-            )
+            (Status::Warning, "All backends require configuration".into())
         } else {
             (Status::Unavailable, "No backends available".into())
         }
@@ -80,5 +81,8 @@ impl HealthStatus {
 /// Health check trait for channels
 pub trait HealthCheck {
     /// Run health check and return status
-    fn check(&self, config: &crate::Config) -> impl std::future::Future<Output = HealthStatus> + Send;
+    fn check(
+        &self,
+        config: &crate::Config,
+    ) -> impl std::future::Future<Output = HealthStatus> + Send;
 }

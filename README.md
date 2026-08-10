@@ -11,10 +11,11 @@
 ### Completed
 - [x] **Workspace skeleton** — 4 crates (core/channels/mcp/cli) + traits
 - [x] **Web channel** — Jina Reader (r.jina.ai) integration
+- [x] **RSS channel** — RSS 2.0 and Atom feed fetch/parse (`fetch` + `parse`)
 - [x] **SkillOptOrchestrator integration** — `agent-reach execute` subcommand, task JSON interface
 
 ### In Progress
-- [ ] **14 channels** — Twitter, Reddit, YouTube, RSS, GitHub, Bilibili, Xiaohongshu, LinkedIn, V2EX, Xueqiu, Xiaoyuzhou, Exa Search
+- [ ] **13 channels** — Twitter, Reddit, YouTube, GitHub, Bilibili, Xiaohongshu, LinkedIn, V2EX, Xueqiu, Xiaoyuzhou, Exa Search
 - [ ] **CLI** — `agent-reach install/configure/doctor/skill/transcribe`
 - [ ] **MCP server** — stdio JSON-RPC (Exa tool)
 - [ ] **Multi-platform binary** — Windows/Linux/macOS
@@ -195,7 +196,7 @@ cargo clippy --all -- -D warnings
 
 ### Channel Docs
 - **[Web Channel](docs/channels/web.md)** — Jina Reader integration, usage examples
-- **[RSS Channel](docs/channels/rss.md)** — Feed reading (planned)
+- **[RSS Channel](docs/channels/rss.md)** — RSS 2.0/Atom parsing, usage examples
 - **[YouTube Channel](docs/channels/youtube.md)** — Video metadata + transcripts (planned)
 
 ### Integration Guides

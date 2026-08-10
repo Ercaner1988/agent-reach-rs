@@ -19,6 +19,8 @@ Thumbs.db
 
 # Testing
 *.profraw
+*_test_tasks.json
+*_execution_log.json
 
 # Documentation build
 /book/

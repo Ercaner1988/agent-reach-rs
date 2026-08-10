@@ -34,15 +34,15 @@ impl Backend for JinaReaderBackend {
             return Err(Error::UnsupportedAction("web".into(), action.into()));
         }
 
-        let url = args
-            .first()
-            .ok_or_else(|| Error::BackendExecution(self.name().into(), "Missing URL argument".into()))?;
+        let url = args.first().ok_or_else(|| {
+            Error::BackendExecution(self.name().into(), "Missing URL argument".into())
+        })?;
 
         let jina_url = format!("https://r.jina.ai/{}", url);
-        
+
         // Build client with optional proxy
-        let mut client_builder = reqwest::Client::builder()
-            .timeout(std::time::Duration::from_secs(30));
+        let mut client_builder =
+            reqwest::Client::builder().timeout(std::time::Duration::from_secs(30));
 
         if let Some(proxy_url) = &config.proxy {
             let proxy = reqwest::Proxy::all(proxy_url)
@@ -63,7 +63,11 @@ impl Backend for JinaReaderBackend {
         if !response.status().is_success() {
             return Err(Error::BackendExecution(
                 self.name().into(),
-                format!("HTTP {}: {}", response.status(), response.status().canonical_reason().unwrap_or("Unknown")),
+                format!(
+                    "HTTP {}: {}",
+                    response.status(),
+                    response.status().canonical_reason().unwrap_or("Unknown")
+                ),
             ));
         }
 
@@ -141,10 +145,7 @@ impl Channel for WebChannel {
         }
 
         Err(last_error.unwrap_or_else(|| {
-            Error::BackendUnavailable(
-                self.platform().into(),
-                "No backends available".into(),
-            )
+            Error::BackendUnavailable(self.platform().into(), "No backends available".into())
         }))
     }
 

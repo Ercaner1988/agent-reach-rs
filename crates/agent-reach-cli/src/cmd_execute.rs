@@ -1,6 +1,6 @@
 //! Execute subcommand — run tasks from JSON file (SkillOptOrchestrator integration)
 
-use agent_reach_channels::WebChannel;
+use agent_reach_channels::{RssChannel, WebChannel};
 use agent_reach_core::{Channel, Config};
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
@@ -82,7 +82,10 @@ pub async fn execute_tasks(
 
     for task in tasks {
         if verbose {
-            println!("Executing task {}: {} {} {:?}", task.id, task.channel, task.action, task.args);
+            println!(
+                "Executing task {}: {} {} {:?}",
+                task.id, task.channel, task.action, task.args
+            );
         }
 
         let task_result = execute_single_task(&task, &config, verbose).await;
@@ -106,8 +109,8 @@ pub async fn execute_tasks(
     };
 
     // Write execution log to JSON file
-    let log_json = serde_json::to_string_pretty(&log)
-        .context("Failed to serialize execution log")?;
+    let log_json =
+        serde_json::to_string_pretty(&log).context("Failed to serialize execution log")?;
 
     fs::write(output_file, log_json)
         .with_context(|| format!("Failed to write execution log to {}", output_file))?;
@@ -133,7 +136,11 @@ async fn execute_single_task(task: &Task, config: &Config, verbose: bool) -> Tas
             let channel = WebChannel::new();
             channel.execute(&task.action, &task.args, config).await
         }
-        // TODO: Add other channels (youtube, rss, twitter, etc.)
+        "rss" => {
+            let channel = RssChannel::new();
+            channel.execute(&task.action, &task.args, config).await
+        }
+        // TODO: Add other channels (youtube, twitter, etc.)
         _ => {
             return TaskResult {
                 task_id: task.id.clone(),
@@ -150,7 +157,10 @@ async fn execute_single_task(task: &Task, config: &Config, verbose: bool) -> Tas
     match result {
         Ok(output) => {
             if verbose {
-                println!("  ✓ {} via {} ({}ms)", task.id, output.backend, output.duration_ms);
+                println!(
+                    "  ✓ {} via {} ({}ms)",
+                    task.id, output.backend, output.duration_ms
+                );
             }
             TaskResult {
                 task_id: task.id.clone(),

@@ -3,10 +3,10 @@
 //! Each channel module implements the `Channel` trait and orchestrates
 //! multiple backends (CLI, API, browser automation) with fallback logic.
 
+pub mod rss;
 pub mod web;
 // Future channels (to be implemented):
 // pub mod youtube;
-// pub mod rss;
 // pub mod github;
 // pub mod twitter;
 // pub mod reddit;
@@ -18,4 +18,5 @@ pub mod web;
 // pub mod xiaoyuzhou;
 // pub mod exa_search;
 
+pub use rss::RssChannel;
 pub use web::WebChannel;

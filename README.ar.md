@@ -11,10 +11,11 @@
 ### المكتمل
 - [x] **هيكل مساحة العمل** — 4 صناديق (النواة/القنوات/mcp/cli) + السمات
 - [x] **قناة الويب** — تكامل Jina Reader (r.jina.ai)
+- [x] **قناة RSS** — جلب وتحليل تغذيات RSS 2.0 وAtom (`fetch` + `parse`)
 - [x] **تكامل SkillOptOrchestrator** — أمر فرعي `agent-reach execute`، واجهة JSON للمهام
 
 ### قيد التطوير
-- [ ] **14 قناة** — Twitter, Reddit, YouTube, RSS, GitHub, Bilibili, Xiaohongshu, LinkedIn, V2EX, Xueqiu, Xiaoyuzhou, بحث Exa
+- [ ] **13 قناة** — Twitter, Reddit, YouTube, GitHub, Bilibili, Xiaohongshu, LinkedIn, V2EX, Xueqiu, Xiaoyuzhou, بحث Exa
 - [ ] **واجهة سطر الأوامر** — `agent-reach install/configure/doctor/skill/transcribe`
 - [ ] **خادم MCP** — stdio JSON-RPC (أداة Exa)
 - [ ] **ملف تنفيذي متعدد المنصات** — Windows/Linux/macOS
@@ -195,7 +196,7 @@ cargo clippy --all -- -D warnings
 
 ### وثائق القنوات
 - **[قناة الويب](docs/channels/web.md)** — تكامل Jina Reader، أمثلة الاستخدام
-- **[قناة RSS](docs/channels/rss.md)** — قراءة التغذيات (مخطط)
+- **[قناة RSS](docs/channels/rss.md)** — تحليل RSS 2.0/Atom، أمثلة الاستخدام
 - **[قناة YouTube](docs/channels/youtube.md)** — البيانات الوصفية للفيديو + النسخ (مخطط)
 
 ### أدلة التكامل

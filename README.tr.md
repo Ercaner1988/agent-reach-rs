@@ -11,10 +11,11 @@
 ### Tamamlananlar
 - [x] **Çalışma alanı iskeleti** — 4 sandık (çekirdek/kanallar/mcp/cli) + özellikler
 - [x] **Ağ kanalı** — Jina Reader (r.jina.ai) bütünleşmesi
+- [x] **RSS kanalı** — RSS 2.0 ve Atom besleme okuma/çözümleme (`fetch` + `parse`)
 - [x] **SkillOptOrchestrator bütünleşmesi** — `agent-reach execute` alt komutu, görev JSON arayüzü
 
 ### Devam Edenler
-- [ ] **14 kanal** — Twitter, Reddit, YouTube, RSS, GitHub, Bilibili, Xiaohongshu, LinkedIn, V2EX, Xueqiu, Xiaoyuzhou, Exa Arama
+- [ ] **13 kanal** — Twitter, Reddit, YouTube, GitHub, Bilibili, Xiaohongshu, LinkedIn, V2EX, Xueqiu, Xiaoyuzhou, Exa Arama
 - [ ] **Komut satırı arayüzü** — `agent-reach install/configure/doctor/skill/transcribe`
 - [ ] **MCP sunucusu** — stdio JSON-RPC (Exa aracı)
 - [ ] **Çok düzlemli ikili** — Windows/Linux/macOS
@@ -195,7 +196,7 @@ cargo clippy --all -- -D warnings
 
 ### Kanal Belgeleri
 - **[Ağ Kanalı](docs/channels/web.md)** — Jina Reader bütünleşmesi, kullanım örnekleri
-- **[RSS Kanalı](docs/channels/rss.md)** — Besleme okuma (planlanan)
+- **[RSS Kanalı](docs/channels/rss.md)** — RSS 2.0/Atom çözümleme, kullanım örnekleri
 - **[YouTube Kanalı](docs/channels/youtube.md)** — Video üstverisi + transkript (planlanan)
 
 ### Bütünleşme Kılavuzları
