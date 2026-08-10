@@ -14,10 +14,17 @@
 - [x] **RSS channel** — RSS 2.0 and Atom feed fetch/parse (`fetch` + `parse`)
 - [x] **SkillOptOrchestrator integration** — `agent-reach execute` subcommand, task JSON interface
 
+### Completed
+- [x] **Web and RSS** — jina-reader, rss-parser backends
+- [x] **Twitter** — twitter-cli (auth), nitter (anonymous) backends
+- [x] **YouTube** — yt-dlp (full-featured), rustube (library) backends
+- [x] **GitHub** — gh CLI, GitHub REST API backends
+- [x] **Reddit** — PRAW (Python), Reddit API (OAuth2) backends
+- [x] **CLI** — `install`, `configure`, `doctor`, `skill`, `transcribe`
+- [x] **MCP server** — stdio JSON-RPC, 4 tools (`web_read`, `rss_fetch`, `rss_parse`, `exa_search`)
+
 ### In Progress
-- [ ] **13 channels** — Twitter, Reddit, YouTube, GitHub, Bilibili, Xiaohongshu, LinkedIn, V2EX, Xueqiu, Xiaoyuzhou, Exa Search
-- [x] **CLI** — `install`, `configure`, `doctor`, `skill`, `transcribe` (Groq/OpenAI Whisper)
-- [x] **MCP server** — stdio JSON-RPC server with 4 tools: `web_read`, `rss_fetch`, `rss_parse`, `exa_search`
+- [ ] **7 channels** — Bilibili, Xiaohongshu, LinkedIn, V2EX, Xueqiu, Xiaoyuzhou, Exa Search
 - [ ] **Multi-platform binary** — Windows/Linux/macOS
 - [ ] **CI/CD pipeline** — GitHub Actions
 

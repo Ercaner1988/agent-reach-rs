@@ -14,10 +14,17 @@
 - [x] **RSS kanalı** — RSS 2.0 ve Atom besleme okuma/çözümleme (`fetch` + `parse`)
 - [x] **SkillOptOrchestrator bütünleşmesi** — `agent-reach execute` alt komutu, görev JSON arayüzü
 
+### Tamamlananlar
+- [x] **Web ve RSS** — jina-reader, rss-parser backend'leri
+- [x] **Twitter** — twitter-cli (auth), nitter (anonim) backend'leri
+- [x] **YouTube** — yt-dlp (tam özellik), rustube (kütüphane) backend'leri
+- [x] **GitHub** — gh CLI, GitHub REST API backend'leri
+- [x] **Reddit** — PRAW (Python), Reddit API (OAuth2) backend'leri
+- [x] **Komut satırı arayüzü** — `install`, `configure`, `doctor`, `skill`, `transcribe`
+- [x] **MCP sunucusu** — stdio JSON-RPC, 4 araç (`web_read`, `rss_fetch`, `rss_parse`, `exa_search`)
+
 ### Devam Edenler
-- [ ] **13 kanal** — Twitter, Reddit, YouTube, GitHub, Bilibili, Xiaohongshu, LinkedIn, V2EX, Xueqiu, Xiaoyuzhou, Exa Arama
-- [x] **Komut satırı arayüzü** — `install`, `configure`, `doctor`, `skill`, `transcribe` (Groq/OpenAI Whisper)
-- [x] **MCP sunucusu** — stdio JSON-RPC sunucusu, 4 araç: `web_read`, `rss_fetch`, `rss_parse`, `exa_search`
+- [ ] **7 kanal** — Bilibili, Xiaohongshu, LinkedIn, V2EX, Xueqiu, Xiaoyuzhou, Exa Arama
 - [ ] **Çok düzlemli ikili** — Windows/Linux/macOS
 - [ ] **Sürekli bütünleşme/dağıtım hattı** — GitHub Actions
 

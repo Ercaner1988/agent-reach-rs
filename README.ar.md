@@ -14,10 +14,17 @@
 - [x] **قناة RSS** — جلب وتحليل تغذيات RSS 2.0 وAtom (`fetch` + `parse`)
 - [x] **تكامل SkillOptOrchestrator** — أمر فرعي `agent-reach execute`، واجهة JSON للمهام
 
+### مكتمل
+- [x] **الويب وRSS** — واجهات jina-reader و rss-parser الخلفية
+- [x] **تويتر** — واجهات twitter-cli (مصادقة) و nitter (مجهول) الخلفية
+- [x] **يوتيوب** — واجهات yt-dlp (كامل الميزات) و rustube (مكتبة) الخلفية
+- [x] **GitHub** — واجهات gh CLI و GitHub REST API الخلفية
+- [x] **Reddit** — واجهات PRAW (Python) و Reddit API (OAuth2) الخلفية
+- [x] **واجهة سطر الأوامر** — `install` و`configure` و`doctor` و`skill` و`transcribe`
+- [x] **خادم MCP** — stdio JSON-RPC مع 4 أدوات (`web_read` و`rss_fetch` و`rss_parse` و`exa_search`)
+
 ### قيد التطوير
-- [ ] **13 قناة** — Twitter, Reddit, YouTube, GitHub, Bilibili, Xiaohongshu, LinkedIn, V2EX, Xueqiu, Xiaoyuzhou, بحث Exa
-- [x] **واجهة سطر الأوامر** — `install` و`configure` و`doctor` و`skill` و`transcribe` (Groq/OpenAI Whisper)
-- [x] **خادم MCP** — خادم stdio JSON-RPC مع 4 أدوات: `web_read` و`rss_fetch` و`rss_parse` و`exa_search`
+- [ ] **7 قنوات** — Bilibili و Xiaohongshu و LinkedIn و V2EX و Xueqiu و Xiaoyuzhou وبحث Exa
 - [ ] **ملف تنفيذي متعدد المنصات** — Windows/Linux/macOS
 - [ ] **خط تكامل/نشر مستمر** — GitHub Actions
 
