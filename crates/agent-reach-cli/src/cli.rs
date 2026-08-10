@@ -38,11 +38,19 @@ pub enum Commands {
 
     /// Set a config value or auto-extract from browser
     Configure {
-        /// Config key to set
+        /// Config key to read, set, or unset
         key: Option<String>,
 
-        /// Config value
+        /// Config value to set
         value: Option<String>,
+
+        /// Remove the selected key instead of reading or setting it
+        #[arg(long)]
+        unset: bool,
+
+        /// Show config values as JSON
+        #[arg(long)]
+        json: bool,
 
         /// Auto-extract cookies from browser
         #[arg(long, value_name = "BROWSER")]

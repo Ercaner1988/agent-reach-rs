@@ -1,5 +1,10 @@
 mod cli;
+mod cmd_configure;
+mod cmd_doctor;
 mod cmd_execute;
+mod cmd_install;
+mod cmd_skill;
+mod cmd_transcribe;
 
 use clap::Parser;
 use cli::{Cli, Commands};
@@ -25,21 +30,36 @@ async fn main() -> anyhow::Result<()> {
         } => {
             cmd_execute::execute_tasks(&task_file, &output, continue_on_error, verbose).await?;
         }
-        Commands::Install { .. } => {
-            println!("Install subcommand not yet implemented");
-            println!("See: https://github.com/Ercaner1988/agent-reach-rs");
+        Commands::Install {
+            env,
+            proxy,
+            safe,
+            dry_run,
+            channels,
+        } => {
+            cmd_install::install(env, proxy, safe, dry_run, channels).await?;
         }
-        Commands::Configure { .. } => {
-            println!("Configure subcommand not yet implemented");
+        Commands::Configure {
+            key,
+            value,
+            unset,
+            json,
+            from_browser,
+        } => {
+            cmd_configure::configure(key, value, unset, json, from_browser).await?;
         }
-        Commands::Doctor { .. } => {
-            println!("Doctor subcommand not yet implemented");
+        Commands::Doctor { json } => {
+            cmd_doctor::doctor(json).await?;
         }
-        Commands::Skill { .. } => {
-            println!("Skill subcommand not yet implemented");
+        Commands::Skill { install, uninstall } => {
+            cmd_skill::skill(install, uninstall).await?;
         }
-        Commands::Transcribe { .. } => {
-            println!("Transcribe subcommand not yet implemented");
+        Commands::Transcribe {
+            source,
+            provider,
+            output,
+        } => {
+            cmd_transcribe::transcribe(source, provider, output).await?;
         }
     }
 

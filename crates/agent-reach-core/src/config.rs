@@ -45,7 +45,9 @@ impl Config {
                 "Config file not found at {}, using defaults",
                 path.display()
             );
-            return Ok(Self::default());
+            let mut config = Self::default();
+            config.apply_env_overrides();
+            return Ok(config);
         }
 
         let content = fs::read_to_string(path)
@@ -126,6 +128,20 @@ impl Config {
         }
     }
 
+    /// Remove a config value by key. Returns whether a value was removed.
+    pub fn unset(&mut self, key: &str) -> bool {
+        match key.to_lowercase().as_str() {
+            "twitter_auth_token" => self.twitter_auth_token.take().is_some(),
+            "twitter_ct0" => self.twitter_ct0.take().is_some(),
+            "groq_api_key" => self.groq_api_key.take().is_some(),
+            "openai_api_key" => self.openai_api_key.take().is_some(),
+            "github_token" => self.github_token.take().is_some(),
+            "exa_api_key" => self.exa_api_key.take().is_some(),
+            "proxy" => self.proxy.take().is_some(),
+            _ => self.extra.remove(key).is_some(),
+        }
+    }
+
     /// Apply environment variable overrides
     fn apply_env_overrides(&mut self) {
         if let Ok(val) = std::env::var("TWITTER_AUTH_TOKEN") {
@@ -185,5 +201,14 @@ mod tests {
         let mut config = Config::default();
         config.set("custom_key", "custom_value".into());
         assert_eq!(config.get("custom_key"), Some("custom_value".into()));
+    }
+
+    #[test]
+    fn test_config_unset() {
+        let mut config = Config::default();
+        config.set("custom_key", "custom_value".into());
+        assert!(config.unset("custom_key"));
+        assert!(!config.unset("custom_key"));
+        assert_eq!(config.get("custom_key"), None);
     }
 }

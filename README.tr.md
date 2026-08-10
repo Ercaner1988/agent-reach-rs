@@ -16,7 +16,7 @@
 
 ### Devam Edenler
 - [ ] **13 kanal** — Twitter, Reddit, YouTube, GitHub, Bilibili, Xiaohongshu, LinkedIn, V2EX, Xueqiu, Xiaoyuzhou, Exa Arama
-- [ ] **Komut satırı arayüzü** — `agent-reach install/configure/doctor/skill/transcribe`
+- [x] **Komut satırı arayüzü** — `install`, `configure`, `doctor`, `skill`; `transcribe` Groq/OpenAI Whisper uyumlu uçları destekler
 - [ ] **MCP sunucusu** — stdio JSON-RPC (Exa aracı)
 - [ ] **Çok düzlemli ikili** — Windows/Linux/macOS
 - [ ] **Sürekli bütünleşme/dağıtım hattı** — GitHub Actions
