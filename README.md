@@ -23,7 +23,9 @@
 - [x] **Chinese Social & Finance** — Bilibili, Xiaohongshu, V2EX, Xueqiu, Xiaoyuzhou
 - [x] **Professional & Search** — LinkedIn, Exa Search
 - [x] **CLI** — `install`, `configure`, `doctor`, `skill`, `transcribe`
-- [x] **MCP server** — stdio JSON-RPC, 4 tools (`web_read`, `rss_fetch`, `rss_parse`, `exa_search`)
+- [x] **MCP server** — stdio JSON-RPC with `agent_reach_execute` bridging all channels
+- [x] **Multi-platform binary** — Windows/Linux/macOS (cargo-dist)
+- [x] **CI/CD Pipeline** — GitHub Actions CI & Releases
 
 ### In Progress
 - [ ] **Multi-platform binary** — Windows/Linux/macOS
@@ -259,8 +261,8 @@ MIT License — see [LICENSE](LICENSE)
 
 ## 📊 Status and Statistics
 
-**Development Status:** 🟡 Active development (v0.1.0-pre)  
-**Last Update:** 2026-08-09  
+**Development Status:** 🟢 Completed (v0.1.0)
+**Last Update:** 2026-08-11
 **Author:** Ercan ER  
 
 **Code Statistics:**

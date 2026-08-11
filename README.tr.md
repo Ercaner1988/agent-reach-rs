@@ -23,11 +23,12 @@
 - [x] **Çin Sosyal Medyası ve Finans** — Bilibili, Xiaohongshu, V2EX, Xueqiu, Xiaoyuzhou
 - [x] **Profesyonel ve Arama** — LinkedIn, Exa Search
 - [x] **Komut satırı arayüzü** — `install`, `configure`, `doctor`, `skill`, `transcribe`
-- [x] **MCP sunucusu** — stdio JSON-RPC, 4 araç (`web_read`, `rss_fetch`, `rss_parse`, `exa_search`)
+- [x] **MCP sunucusu** — stdio JSON-RPC, `agent_reach_execute` aracı ile tüm 13 kanala erişim
+- [x] **Çok düzlemli ikili** — Windows/Linux/macOS (cargo-dist)
+- [x] **Sürekli bütünleşme/dağıtım hattı** — GitHub Actions ve sürüm dağıtımı
 
 ### Devam Edenler
-- [ ] **Çok düzlemli ikili** — Windows/Linux/macOS
-- [ ] **Sürekli bütünleşme/dağıtım hattı** — GitHub Actions
+(Kalan görev yok)
 
 Ayrıntılı harita: [`docs/HARITA.md`](docs/HARITA.md) (Yolbulucu yapısı)
 
@@ -259,8 +260,8 @@ MIT License — bkz. [LICENSE](LICENSE)
 
 ## 📊 Durum ve İstatistikler
 
-**Geliştirme Durumu:** 🟡 Etkin geliştirme (v0.1.0-ön)  
-**Son Güncelleme:** 2026-08-09  
+**Geliştirme Durumu:** 🟢 Tamamlandı (v0.1.0)
+**Son Güncelleme:** 2026-08-11
 **Yazar:** Ercan ER  
 
 **Kod İstatistikleri:**
