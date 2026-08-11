@@ -3,6 +3,7 @@
 //! Each channel module implements the `Channel` trait and orchestrates
 //! multiple backends (CLI, API, browser automation) with fallback logic.
 
+pub mod bilibili;
 pub mod github;
 pub mod reddit;
 pub mod rss;
@@ -19,6 +20,7 @@ pub mod youtube;
 // pub mod xiaoyuzhou;
 // pub mod exa_search;
 
+pub use bilibili::BilibiliChannel;
 pub use github::GitHubChannel;
 pub use reddit::RedditChannel;
 pub use rss::RssChannel;
