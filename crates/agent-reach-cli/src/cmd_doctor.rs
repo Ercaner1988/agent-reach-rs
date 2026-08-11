@@ -2,7 +2,7 @@
 
 use agent_reach_channels::{
     BilibiliChannel, GitHubChannel, LinkedinChannel, RedditChannel, RssChannel, TwitterChannel,
-    V2exChannel, WebChannel, XiaohongshuChannel, YouTubeChannel,
+    V2exChannel, WebChannel, XiaohongshuChannel, XueqiuChannel, YouTubeChannel,
 };
 use agent_reach_core::{BackendStatus, Channel, Config};
 use anyhow::Result;
@@ -25,6 +25,7 @@ pub async fn doctor(json_output: bool) -> Result<()> {
     let xiaohongshu_status = XiaohongshuChannel::new().health_check(&config).await;
     let linkedin_status = LinkedinChannel::new().health_check(&config).await;
     let v2ex_status = V2exChannel::new().health_check(&config).await;
+    let xueqiu_status = XueqiuChannel::new().health_check(&config).await;
 
     let mut results = HashMap::new();
     results.insert("web".to_string(), web_status);
@@ -37,6 +38,7 @@ pub async fn doctor(json_output: bool) -> Result<()> {
     results.insert("xiaohongshu".to_string(), xiaohongshu_status);
     results.insert("linkedin".to_string(), linkedin_status);
     results.insert("v2ex".to_string(), v2ex_status);
+    results.insert("xueqiu".to_string(), xueqiu_status);
 
     let total_duration_ms = start.elapsed().as_millis() as u64;
 
