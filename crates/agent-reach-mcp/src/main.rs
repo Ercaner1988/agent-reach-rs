@@ -1,4 +1,8 @@
-use agent_reach_channels::{RssChannel, WebChannel};
+use agent_reach_channels::{
+    BilibiliChannel, ExaChannel, GitHubChannel, LinkedinChannel, RedditChannel, RssChannel,
+    TwitterChannel, V2exChannel, WebChannel, XiaohongshuChannel, XiaoyuzhouChannel, XueqiuChannel,
+    YouTubeChannel,
+};
 use agent_reach_core::{Channel, Config};
 use anyhow::{bail, Context, Result};
 use serde::{Deserialize, Serialize};
@@ -125,7 +129,7 @@ fn tools_list_result() -> Value {
         "tools": [
             {
                 "name": "web_read",
-                "description": "Read a web page through the Agent Reach web channel.",
+                "description": "Read a web page via Agent Reach.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {"url": {"type": "string"}},
@@ -134,7 +138,7 @@ fn tools_list_result() -> Value {
             },
             {
                 "name": "rss_fetch",
-                "description": "Fetch and parse an RSS 2.0 or Atom feed URL.",
+                "description": "Fetch and parse an RSS/Atom feed URL.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {"url": {"type": "string"}},
@@ -142,17 +146,8 @@ fn tools_list_result() -> Value {
                 }
             },
             {
-                "name": "rss_parse",
-                "description": "Parse RSS 2.0 or Atom XML supplied as text.",
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {"xml": {"type": "string"}},
-                    "required": ["xml"]
-                }
-            },
-            {
                 "name": "exa_search",
-                "description": "Search the web through Exa API using exa_api_key from Agent Reach config.",
+                "description": "Semantic web search via Exa AI.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -160,6 +155,29 @@ fn tools_list_result() -> Value {
                         "num_results": {"type": "integer", "minimum": 1, "maximum": 10}
                     },
                     "required": ["query"]
+                }
+            },
+            {
+                "name": "agent_reach_execute",
+                "description": "Execute an action (e.g. search, user, timeline, video) on a specific channel (bilibili, github, linkedin, reddit, twitter, v2ex, xiaohongshu, xiaoyuzhou, xueqiu, youtube).",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "channel": {
+                            "type": "string",
+                            "enum": ["bilibili", "github", "linkedin", "reddit", "twitter", "v2ex", "xiaohongshu", "xiaoyuzhou", "xueqiu", "youtube"]
+                        },
+                        "action": {
+                            "type": "string",
+                            "description": "Action name (e.g. search, user, timeline, repo, hot, quote, video)"
+                        },
+                        "args": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Positional string arguments for the action"
+                        }
+                    },
+                    "required": ["channel", "action", "args"]
                 }
             }
         ]
@@ -192,14 +210,95 @@ async fn call_tool(params: Value) -> Result<Value> {
                 .await?
                 .data
         }
-        "rss_parse" => {
-            let xml = required_string(&arguments, "xml")?;
-            RssChannel::new()
-                .execute("parse", &[xml], &config)
+        "exa_search" => {
+            let query = required_string(&arguments, "query")?;
+            let num = arguments
+                .get("num_results")
+                .and_then(Value::as_u64)
+                .unwrap_or(5);
+            let num_str = num.to_string();
+            ExaChannel::new()
+                .execute("search", &[query, num_str], &config)
                 .await?
                 .data
         }
-        "exa_search" => exa_search(&arguments, &config).await?,
+        "agent_reach_execute" => {
+            let channel_name = required_string(&arguments, "channel")?;
+            let action = required_string(&arguments, "action")?;
+            let args_array = arguments
+                .get("args")
+                .and_then(Value::as_array)
+                .context("args must be an array of strings")?;
+
+            let mut str_args = Vec::new();
+            for arg in args_array {
+                str_args.push(arg.as_str().unwrap_or_default().to_string());
+            }
+
+            match channel_name.as_str() {
+                "bilibili" => {
+                    BilibiliChannel::new()
+                        .execute(&action, &str_args, &config)
+                        .await?
+                        .data
+                }
+                "github" => {
+                    GitHubChannel::new()
+                        .execute(&action, &str_args, &config)
+                        .await?
+                        .data
+                }
+                "linkedin" => {
+                    LinkedinChannel::new()
+                        .execute(&action, &str_args, &config)
+                        .await?
+                        .data
+                }
+                "reddit" => {
+                    RedditChannel::new()
+                        .execute(&action, &str_args, &config)
+                        .await?
+                        .data
+                }
+                "twitter" => {
+                    TwitterChannel::new()
+                        .execute(&action, &str_args, &config)
+                        .await?
+                        .data
+                }
+                "v2ex" => {
+                    V2exChannel::new()
+                        .execute(&action, &str_args, &config)
+                        .await?
+                        .data
+                }
+                "xiaohongshu" => {
+                    XiaohongshuChannel::new()
+                        .execute(&action, &str_args, &config)
+                        .await?
+                        .data
+                }
+                "xiaoyuzhou" => {
+                    XiaoyuzhouChannel::new()
+                        .execute(&action, &str_args, &config)
+                        .await?
+                        .data
+                }
+                "xueqiu" => {
+                    XueqiuChannel::new()
+                        .execute(&action, &str_args, &config)
+                        .await?
+                        .data
+                }
+                "youtube" => {
+                    YouTubeChannel::new()
+                        .execute(&action, &str_args, &config)
+                        .await?
+                        .data
+                }
+                other => bail!("unknown channel: {other}"),
+            }
+        }
         other => bail!("unknown tool: {other}"),
     };
 
@@ -215,36 +314,4 @@ fn required_string(arguments: &Value, key: &str) -> Result<String> {
         .and_then(Value::as_str)
         .map(ToString::to_string)
         .with_context(|| format!("missing required string argument: {key}"))
-}
-
-async fn exa_search(arguments: &Value, config: &Config) -> Result<Value> {
-    let api_key = config
-        .exa_api_key
-        .clone()
-        .context("exa_api_key is not configured")?;
-    let query = required_string(arguments, "query")?;
-    let num_results = arguments
-        .get("num_results")
-        .and_then(Value::as_u64)
-        .unwrap_or(5)
-        .clamp(1, 10);
-
-    let response = reqwest::Client::new()
-        .post("https://api.exa.ai/search")
-        .header("x-api-key", api_key)
-        .json(&json!({"query": query, "numResults": num_results}))
-        .send()
-        .await
-        .context("Exa request failed")?;
-    let status = response.status();
-    let body = response
-        .text()
-        .await
-        .context("failed to read Exa response")?;
-
-    if !status.is_success() {
-        bail!("Exa API returned HTTP {}: {}", status, body);
-    }
-
-    serde_json::from_str(&body).context("Exa API returned invalid JSON")
 }
