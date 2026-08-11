@@ -5,6 +5,7 @@
 
 pub mod bilibili;
 pub mod github;
+pub mod linkedin;
 pub mod reddit;
 pub mod rss;
 pub mod twitter;
@@ -20,6 +21,7 @@ pub mod youtube;
 
 pub use bilibili::BilibiliChannel;
 pub use github::GitHubChannel;
+pub use linkedin::LinkedinChannel;
 pub use reddit::RedditChannel;
 pub use rss::RssChannel;
 pub use twitter::TwitterChannel;

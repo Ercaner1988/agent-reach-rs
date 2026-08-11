@@ -28,6 +28,10 @@ pub struct Config {
     pub reddit_client_secret: Option<String>,
     /// Reddit user agent string
     pub reddit_user_agent: Option<String>,
+    /// LinkedIn username
+    pub linkedin_username: Option<String>,
+    /// LinkedIn password
+    pub linkedin_password: Option<String>,
     /// Exa API key (semantic search)
     pub exa_api_key: Option<String>,
     /// Network proxy (http://user:pass@ip:port)
@@ -104,6 +108,8 @@ impl Config {
             "reddit_client_id" => self.reddit_client_id.clone(),
             "reddit_client_secret" => self.reddit_client_secret.clone(),
             "reddit_user_agent" => self.reddit_user_agent.clone(),
+            "linkedin_username" => self.linkedin_username.clone(),
+            "linkedin_password" => self.linkedin_password.clone(),
             "exa_api_key" => self.exa_api_key.clone(),
             "proxy" => self.proxy.clone(),
             _ => self
@@ -131,6 +137,8 @@ impl Config {
             "reddit_client_id" => self.reddit_client_id = Some(value),
             "reddit_client_secret" => self.reddit_client_secret = Some(value),
             "reddit_user_agent" => self.reddit_user_agent = Some(value),
+            "linkedin_username" => self.linkedin_username = Some(value),
+            "linkedin_password" => self.linkedin_password = Some(value),
             "exa_api_key" => self.exa_api_key = Some(value),
             "proxy" => self.proxy = Some(value),
             _ => {
@@ -151,6 +159,8 @@ impl Config {
             "reddit_client_id" => self.reddit_client_id.take().is_some(),
             "reddit_client_secret" => self.reddit_client_secret.take().is_some(),
             "reddit_user_agent" => self.reddit_user_agent.take().is_some(),
+            "linkedin_username" => self.linkedin_username.take().is_some(),
+            "linkedin_password" => self.linkedin_password.take().is_some(),
             "exa_api_key" => self.exa_api_key.take().is_some(),
             "proxy" => self.proxy.take().is_some(),
             _ => self.extra.remove(key).is_some(),
@@ -182,6 +192,12 @@ impl Config {
         }
         if let Ok(val) = std::env::var("REDDIT_USER_AGENT") {
             self.reddit_user_agent = Some(val);
+        }
+        if let Ok(val) = std::env::var("LINKEDIN_USERNAME") {
+            self.linkedin_username = Some(val);
+        }
+        if let Ok(val) = std::env::var("LINKEDIN_PASSWORD") {
+            self.linkedin_password = Some(val);
         }
         if let Ok(val) = std::env::var("EXA_API_KEY") {
             self.exa_api_key = Some(val);
