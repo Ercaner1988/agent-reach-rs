@@ -9,11 +9,9 @@ pub mod reddit;
 pub mod rss;
 pub mod twitter;
 pub mod web;
+pub mod xiaohongshu;
 pub mod youtube;
 // Future channels (to be implemented):
-// pub mod bilibili;
-// pub mod bilibili;
-// pub mod xiaohongshu;
 // pub mod linkedin;
 // pub mod v2ex;
 // pub mod xueqiu;
@@ -26,4 +24,5 @@ pub use reddit::RedditChannel;
 pub use rss::RssChannel;
 pub use twitter::TwitterChannel;
 pub use web::WebChannel;
+pub use xiaohongshu::XiaohongshuChannel;
 pub use youtube::YouTubeChannel;
