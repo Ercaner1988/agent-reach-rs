@@ -20,11 +20,12 @@
 - [x] **YouTube** — yt-dlp (full-featured), rustube (library) backends
 - [x] **GitHub** — gh CLI, GitHub REST API backends
 - [x] **Reddit** — PRAW (Python), Reddit API (OAuth2) backends
+- [x] **Chinese Social & Finance** — Bilibili, Xiaohongshu, V2EX, Xueqiu, Xiaoyuzhou
+- [x] **Professional & Search** — LinkedIn, Exa Search
 - [x] **CLI** — `install`, `configure`, `doctor`, `skill`, `transcribe`
 - [x] **MCP server** — stdio JSON-RPC, 4 tools (`web_read`, `rss_fetch`, `rss_parse`, `exa_search`)
 
 ### In Progress
-- [ ] **7 channels** — Bilibili, Xiaohongshu, LinkedIn, V2EX, Xueqiu, Xiaoyuzhou, Exa Search
 - [ ] **Multi-platform binary** — Windows/Linux/macOS
 - [ ] **CI/CD pipeline** — GitHub Actions
 

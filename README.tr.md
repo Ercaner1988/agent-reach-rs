@@ -20,11 +20,12 @@
 - [x] **YouTube** — yt-dlp (tam özellik), rustube (kütüphane) backend'leri
 - [x] **GitHub** — gh CLI, GitHub REST API backend'leri
 - [x] **Reddit** — PRAW (Python), Reddit API (OAuth2) backend'leri
+- [x] **Çin Sosyal Medyası ve Finans** — Bilibili, Xiaohongshu, V2EX, Xueqiu, Xiaoyuzhou
+- [x] **Profesyonel ve Arama** — LinkedIn, Exa Search
 - [x] **Komut satırı arayüzü** — `install`, `configure`, `doctor`, `skill`, `transcribe`
 - [x] **MCP sunucusu** — stdio JSON-RPC, 4 araç (`web_read`, `rss_fetch`, `rss_parse`, `exa_search`)
 
 ### Devam Edenler
-- [ ] **7 kanal** — Bilibili, Xiaohongshu, LinkedIn, V2EX, Xueqiu, Xiaoyuzhou, Exa Arama
 - [ ] **Çok düzlemli ikili** — Windows/Linux/macOS
 - [ ] **Sürekli bütünleşme/dağıtım hattı** — GitHub Actions
 

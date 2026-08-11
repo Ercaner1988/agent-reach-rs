@@ -20,11 +20,12 @@
 - [x] **يوتيوب** — واجهات yt-dlp (كامل الميزات) و rustube (مكتبة) الخلفية
 - [x] **GitHub** — واجهات gh CLI و GitHub REST API الخلفية
 - [x] **Reddit** — واجهات PRAW (Python) و Reddit API (OAuth2) الخلفية
+- [x] **وسائل التواصل الصينية والمالية** — Bilibili و Xiaohongshu و V2EX و Xueqiu و Xiaoyuzhou
+- [x] **المهنية والبحث** — LinkedIn و Exa Search
 - [x] **واجهة سطر الأوامر** — `install` و`configure` و`doctor` و`skill` و`transcribe`
 - [x] **خادم MCP** — stdio JSON-RPC مع 4 أدوات (`web_read` و`rss_fetch` و`rss_parse` و`exa_search`)
 
 ### قيد التطوير
-- [ ] **7 قنوات** — Bilibili و Xiaohongshu و LinkedIn و V2EX و Xueqiu و Xiaoyuzhou وبحث Exa
 - [ ] **ملف تنفيذي متعدد المنصات** — Windows/Linux/macOS
 - [ ] **خط تكامل/نشر مستمر** — GitHub Actions
 
