@@ -68,7 +68,9 @@ impl Backend for GhCliBackend {
                     .arg("view")
                     .arg(repo)
                     .arg("--json")
-                    .arg("name,description,url,stargazersCount,forksCount,updatedAt");
+                    // `gh repo view` tekil alan adlari kullanir (stargazerCount/forkCount);
+                    // cogul olanlar yalnizca `gh search repos` icin gecerlidir (bkz. "search" kolu).
+                    .arg("name,description,url,stargazerCount,forkCount,updatedAt");
             }
             "issue" => {
                 let repo = args.first().ok_or_else(|| {
