@@ -40,6 +40,27 @@ impl fmt::Display for BackendStatus {
     }
 }
 
+/// Build the error for "every backend was skipped".
+///
+/// `is_available` already computes exactly why a backend cannot run —
+/// `RequiresConfig { missing }`, `NotInstalled { command }`, and so on. Channels
+/// used to log that to `tracing::debug!` and then return a bare
+/// `"No backends available"`, so the one fact the caller needed never reached
+/// them: an unset `exa_api_key` looked identical to a network outage. Fold the
+/// statuses into the message instead — they already know how to print themselves.
+pub fn unavailable(platform: &str, skipped: &[(String, BackendStatus)]) -> crate::Error {
+    let detail = if skipped.is_empty() {
+        "no backends registered".to_string()
+    } else {
+        skipped
+            .iter()
+            .map(|(name, status)| format!("{name} {status}"))
+            .collect::<Vec<_>>()
+            .join("; ")
+    };
+    crate::Error::BackendUnavailable(platform.into(), detail)
+}
+
 /// Backend trait — execution strategy for a platform
 #[async_trait]
 pub trait Backend: Send + Sync {

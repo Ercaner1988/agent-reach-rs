@@ -135,10 +135,12 @@ impl Channel for XueqiuChannel {
         let start = Instant::now();
 
         let mut last_error = None;
+        let mut skipped = Vec::new();
         for backend in &self.backends {
             let status = backend.is_available(config).await;
             if !matches!(status, BackendStatus::Available) {
                 tracing::debug!("Backend {} not available: {}", backend.name(), status);
+                skipped.push((backend.name().to_string(), status));
                 continue;
             }
 
@@ -164,7 +166,7 @@ impl Channel for XueqiuChannel {
         }
 
         Err(last_error.unwrap_or_else(|| {
-            Error::BackendUnavailable(self.platform().into(), "No backends available".into())
+            agent_reach_core::backend::unavailable(self.platform(), &skipped)
         }))
     }
 
