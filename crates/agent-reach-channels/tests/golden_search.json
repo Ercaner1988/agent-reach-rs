@@ -2,97 +2,81 @@
   {
     "id": 1,
     "query": "a sqlite reimplementation written in rust",
-    "target": "cursor/minisqlite",
-    "stars": 270
+    "target": "cursor/minisqlite"
   },
   {
     "id": 2,
     "query": "sqlite compatible database written in rust",
-    "target": "tursodatabase/libsql",
-    "stars": 23897
+    "target": "tursodatabase/turso"
   },
   {
     "id": 3,
     "query": "control headless chrome from rust",
-    "target": "rust-headless-chrome/rust-headless-chrome",
-    "stars": 2946
+    "target": "rust-headless-chrome/rust-headless-chrome"
   },
   {
     "id": 4,
     "query": "chrome devtools protocol rust api",
-    "target": "mattsse/chromiumoxide",
-    "stars": 1367
+    "target": "mattsse/chromiumoxide"
   },
   {
     "id": 5,
     "query": "sqlite bindings for rust",
-    "target": "rusqlite/rusqlite",
-    "stars": 4360
+    "target": "rusqlite/rusqlite"
   },
   {
     "id": 6,
     "query": "webdriver client library for rust",
-    "target": "jonhoo/fantoccini",
-    "stars": 2015
+    "target": "jonhoo/fantoccini"
   },
   {
     "id": 7,
     "query": "rust http client library",
-    "target": "seanmonstar/reqwest",
-    "stars": 11781
+    "target": "seanmonstar/reqwest"
   },
   {
     "id": 8,
     "query": "exa mcp server for web search",
-    "target": "exa-labs/exa-mcp-server",
-    "stars": 4877
+    "target": "exa-labs/exa-mcp-server"
   },
   {
     "id": 9,
     "query": "hızlı metin arama ripgrep",
-    "target": "burntsushi/ripgrep",
-    "stars": 52000
+    "target": "burntsushi/ripgrep"
   },
   {
     "id": 10,
     "query": "fd find replacement",
-    "target": "sharkdp/fd",
-    "stars": 35000
+    "target": "sharkdp/fd"
   },
   {
     "id": 11,
     "query": "bat cat clone rust",
-    "target": "sharkdp/bat",
-    "stars": 51000
+    "target": "sharkdp/bat"
   },
   {
     "id": 12,
     "query": "dust disk usaage",
-    "target": "bootandy/dust",
-    "stars": 9000
+    "target": "bootandy/dust"
   },
   {
     "id": 13,
     "query": "uv fast python package manager",
-    "target": "astral-sh/uv",
-    "stars": 32000
+    "target": "astral-sh/uv"
   },
   {
     "id": 14,
     "query": "polars dataframe rust python",
-    "target": "pola-rs/polars",
-    "stars": 32000
+    "target": "pola-rs/polars"
   },
   {
     "id": 15,
     "query": "build smaller faster cross platform desktop apps with web frontend",
-    "target": "tauri-apps/tauri",
-    "stars": 88000
+    "target": "tauri-apps/tauri"
   },
   {
     "id": 16,
     "query": "Deno JavaScript TypeScript runtime",
-    "target": "denoland/deno",
-    "stars": 98000
+    "target": "denoland/deno"
   }
 ]

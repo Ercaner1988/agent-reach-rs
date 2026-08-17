@@ -60,7 +60,7 @@ impl Backend for ExaApiBackend {
                 let client = reqwest::Client::new();
                 let body = serde_json::json!({
                     "query": query,
-                    "numResults": 10,
+                    "numResults": args.get(1).and_then(|s| s.parse::<u64>().ok()).unwrap_or(10),
                     "useAutoprompt": true
                 });
 
@@ -178,6 +178,12 @@ impl Backend for ExaMcpBackend {
         let query = args.first().ok_or_else(|| {
             Error::BackendExecution(self.name().into(), "Missing search query argument".into())
         })?;
+        // The MCP tool passes num_results as args[1]; both backends used to ignore
+        // it and always ask for 10, so the parameter was documented but inert.
+        let num_results = args
+            .get(1)
+            .and_then(|s| s.parse::<u64>().ok())
+            .unwrap_or(10);
 
         let client = reqwest::Client::new();
         let (session, _) = Self::rpc(
@@ -210,7 +216,7 @@ impl Backend for ExaMcpBackend {
             Some(&session),
             serde_json::json!({
                 "jsonrpc": "2.0", "id": 2, "method": "tools/call",
-                "params": { "name": "web_search_exa", "arguments": { "query": query, "numResults": 20 } }
+                "params": { "name": "web_search_exa", "arguments": { "query": query, "numResults": num_results } }
             }),
         )
         .await?;
@@ -227,25 +233,16 @@ impl Backend for ExaMcpBackend {
             .pointer("/result/content")
             .and_then(|c| c.as_array())
             .map(|items| {
-                let mut repos = Vec::new();
-                let re = regex::Regex::new(r"github\.com/([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)")
-                    .expect("valid regex");
-                
-                for item in items {
-                    if let Some(text_str) = item.get("text").and_then(|t| t.as_str()) {
-                        for cap in re.captures_iter(text_str) {
-                            if let Some(repo) = cap.get(1) {
-                                let normalized = repo.as_str()
-                                    .trim_end_matches(".git")
-                                    .trim_end_matches('/')
-                                    .to_string();
-                                repos.push(normalized);
-                            }
-                        }
-                    }
-                }
-                
-                repos.join("\n")
+                // Return what the engine returned. An earlier revision reduced this
+                // to a list of github.com slugs so a repo-finding benchmark would
+                // score more easily; that turned a general web search tool into a
+                // GitHub lookup and made every non-code query fail with
+                // "empty result content". The benchmark is not the caller.
+                items
+                    .iter()
+                    .filter_map(|i| i.get("text").and_then(|t| t.as_str()))
+                    .collect::<Vec<_>>()
+                    .join("\n")
             })
             .unwrap_or_default();
         if text.is_empty() {
@@ -329,9 +326,8 @@ impl Channel for ExaChannel {
             }
         }
 
-        Err(last_error.unwrap_or_else(|| {
-            agent_reach_core::backend::unavailable(self.platform(), &skipped)
-        }))
+        Err(last_error
+            .unwrap_or_else(|| agent_reach_core::backend::unavailable(self.platform(), &skipped)))
     }
 
     async fn health_check(&self, config: &Config) -> HealthStatus {
@@ -358,7 +354,8 @@ mod tests {
     #[test]
     fn test_parse_sse_json() {
         // What mcp.exa.ai actually sends: an event line, then the payload.
-        let framed = "event: message\ndata: {\"jsonrpc\":\"2.0\",\"id\":2,\"result\":{\"ok\":true}}\n\n";
+        let framed =
+            "event: message\ndata: {\"jsonrpc\":\"2.0\",\"id\":2,\"result\":{\"ok\":true}}\n\n";
         assert_eq!(parse_sse_json(framed).unwrap()["result"]["ok"], true);
         // Plain JSON is also legal for streamable HTTP.
         assert_eq!(parse_sse_json("{\"id\":1}").unwrap()["id"], 1);

@@ -211,9 +211,8 @@ impl Channel for LinkedinChannel {
             }
         }
 
-        Err(last_error.unwrap_or_else(|| {
-            agent_reach_core::backend::unavailable(self.platform(), &skipped)
-        }))
+        Err(last_error
+            .unwrap_or_else(|| agent_reach_core::backend::unavailable(self.platform(), &skipped)))
     }
 
     async fn health_check(&self, config: &Config) -> HealthStatus {

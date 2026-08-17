@@ -1,7 +1,7 @@
 use agent_reach_channels::{
-    BilibiliChannel, ExaChannel, GitHubChannel, LinkedinChannel, RedditChannel, RssChannel,
-    TwitterChannel, V2exChannel, WebChannel, XiaohongshuChannel, XiaoyuzhouChannel, XueqiuChannel,
-    YouTubeChannel,
+    BilibiliChannel, DuckDuckGoChannel, ExaChannel, GitHubChannel, LinkedinChannel, RedditChannel,
+    RssChannel, TwitterChannel, V2exChannel, WebChannel, XiaohongshuChannel, XiaoyuzhouChannel,
+    XueqiuChannel, YouTubeChannel,
 };
 use agent_reach_core::{Channel, Config};
 use anyhow::{bail, Context, Result};
@@ -159,13 +159,13 @@ fn tools_list_result() -> Value {
             },
             {
                 "name": "agent_reach_execute",
-                "description": "Execute an action (e.g. search, user, timeline, video) on a specific channel (bilibili, github, linkedin, reddit, twitter, v2ex, xiaohongshu, xiaoyuzhou, xueqiu, youtube).",
+                "description": "Execute an action (e.g. search, user, timeline, video) on a specific channel (bilibili, duckduckgo, github, linkedin, reddit, twitter, v2ex, xiaohongshu, xiaoyuzhou, xueqiu, youtube).",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
                         "channel": {
                             "type": "string",
-                            "enum": ["bilibili", "github", "linkedin", "reddit", "twitter", "v2ex", "xiaohongshu", "xiaoyuzhou", "xueqiu", "youtube"]
+                            "enum": ["bilibili", "duckduckgo", "github", "linkedin", "reddit", "twitter", "v2ex", "xiaohongshu", "xiaoyuzhou", "xueqiu", "youtube"]
                         },
                         "action": {
                             "type": "string",
@@ -292,6 +292,12 @@ async fn call_tool(params: Value) -> Result<Value> {
                 }
                 "youtube" => {
                     YouTubeChannel::new()
+                        .execute(&action, &str_args, &config)
+                        .await?
+                        .data
+                }
+                "duckduckgo" => {
+                    DuckDuckGoChannel::new()
                         .execute(&action, &str_args, &config)
                         .await?
                         .data

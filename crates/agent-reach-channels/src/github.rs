@@ -4,49 +4,119 @@
 //! 1. gh CLI (subprocess) — requires GitHub auth (gh auth login)
 //! 2. GitHub REST API (HTTP) — requires github_token config
 
-// Query relaxation: 3-stage fallback (exact → noise-cleaned → core terms)
+/// Query relaxation ladder for natural-language repository search.
+///
+/// `gh search repos` ANDs its terms over name+description, so one word the
+/// target does not carry returns nothing at all. A previous revision handled
+/// this by deleting a hand-written list of "noise" phrases — but that list was
+/// transcribed from the golden test set, typo included (`usaage`), and it threw
+/// away the discriminating words (`headless`, `webdriver`, `api`) along with the
+/// filler. Fitting the query cleaner to the answer key measures nothing.
+///
+/// What actually moves the number, measured against `gh` directly: drop only
+/// grammatical function words, lift the language name out of the query into
+/// `--language`, and sort by stars. That is the whole mechanism.
 mod relaxation {
-    pub(super) fn stage_2(query: &str) -> String {
-        let noise = [
-            "written in", "compatible database", "framework", "control", "headless",
-            "devtools protocol", "api", "webdriver", "fast",
-            "dataframe", "build", "smaller", "faster",
-            "cross platform", "desktop apps", "with web frontend", "runtime",
-            "reimplementation", "replacement", "clone", "disk", "usaage",
-            // Turkish filler words
-            "hızlı", "metin", "arama"
-        ];
-        let mut cleaned = query.to_lowercase();
-        for phrase in noise {
-            cleaned = cleaned.replace(phrase, " ");
-        }
-        // Special handling: "for rust" → "rust" (preserve "rust")
-        cleaned = cleaned.replace("for rust", "rust");
-        cleaned = cleaned.replace("for ", " ");
-        
-        cleaned.split_whitespace().collect::<Vec<_>>().join(" ")
+    /// One rung of the ladder.
+    pub(super) struct Stage {
+        pub query: String,
+        pub language: Option<String>,
+        pub sort_stars: bool,
     }
 
-    pub(super) fn stage_3(query: &str) -> String {
-        let lower = query.to_lowercase();
-        let generic = ["the", "a", "an", "in", "on", "at", "for", "with", "from", "to", "and", "or"];
-        let words: Vec<&str> = lower
+    /// Grammatical function words only. Nothing here carries topic meaning, so
+    /// removing them cannot remove the signal — that is the whole test for
+    /// whether a word belongs on this list.
+    const FUNCTION_WORDS: &[&str] = &[
+        "a", "an", "the", "for", "with", "from", "to", "in", "on", "at", "of", "and", "or", "is",
+        "are", "be", "written", "that", "this", "your", "my", "it", "as", "by",
+    ];
+
+    /// Names `gh search repos --language` understands. Left in the query text
+    /// they act as an extra AND term; lifted out they act as a filter.
+    const LANGUAGES: &[&str] = &[
+        "rust",
+        "python",
+        "go",
+        "javascript",
+        "typescript",
+        "java",
+        "ruby",
+        "php",
+        "swift",
+        "kotlin",
+        "zig",
+        "haskell",
+        "scala",
+        "elixir",
+        "lua",
+        "dart",
+    ];
+
+    fn tokens(query: &str) -> Vec<String> {
+        query
             .split_whitespace()
-            .filter(|w| !generic.contains(w))
+            .map(|w| {
+                w.trim_matches(|c: char| !c.is_alphanumeric() && c != '+' && c != '#')
+                    .to_lowercase()
+            })
+            .filter(|w| !w.is_empty())
+            .collect()
+    }
+
+    /// Build the ladder. Rung 1 is the query untouched; later rungs only ever
+    /// remove function words and move the language into a flag.
+    pub(super) fn ladder(query: &str) -> Vec<Stage> {
+        let toks = tokens(query);
+        let language = toks
+            .iter()
+            .find(|t| LANGUAGES.contains(&t.as_str()))
+            .cloned();
+        let content: Vec<&String> = toks
+            .iter()
+            .filter(|t| !FUNCTION_WORDS.contains(&t.as_str()))
+            .filter(|t| Some(t.as_str()) != language.as_deref())
             .collect();
-        
-        if words.is_empty() {
-            return String::new();
+
+        let mut stages = vec![Stage {
+            query: query.to_string(),
+            language: None,
+            sort_stars: false,
+        }];
+
+        if !content.is_empty() {
+            stages.push(Stage {
+                query: content
+                    .iter()
+                    .map(|s| s.as_str())
+                    .collect::<Vec<_>>()
+                    .join(" "),
+                language: language.clone(),
+                sort_stars: true,
+            });
+
+            // Two single-term rungs, because the distinctive word sits in a
+            // different place depending on how the question was phrased: a
+            // project name usually comes first ("polars dataframe rust"), a
+            // described capability usually last ("hızlı metin arama ripgrep").
+            // Cheaper to try both than to guess which kind of query this is.
+            let first = content[0].as_str();
+            let longest = content
+                .iter()
+                .max_by_key(|t| t.len())
+                .map(|s| s.as_str())
+                .unwrap_or(first);
+            for term in [first, longest] {
+                if !stages.iter().any(|s| s.query == term) {
+                    stages.push(Stage {
+                        query: term.to_string(),
+                        language: language.clone(),
+                        sort_stars: true,
+                    });
+                }
+            }
         }
-        
-        // Strategy: first word + two longest remaining words
-        // This preserves brand names (uv, fd, bat) while keeping descriptive terms
-        let mut result = vec![words[0]];
-        let mut remaining: Vec<&str> = words[1..].to_vec();
-        remaining.sort_by(|a, b| b.len().cmp(&a.len()));
-        result.extend(remaining.into_iter().take(2));
-        
-        result.join(" ")
+        stages
     }
 }
 
@@ -145,19 +215,15 @@ impl Backend for GhCliBackend {
                 let query = args.first().ok_or_else(|| {
                     Error::BackendExecution(self.name().into(), "Missing query argument".into())
                 })?;
-                
+
                 // 3-stage fallback (clean architecture — no hardcoded rules)
-                let stages = vec![
-                    query.to_string(),
-                    relaxation::stage_2(query),
-                    relaxation::stage_3(query),
-                ];
-                
+                let stages = relaxation::ladder(query);
+
                 // Collect results from all stages separately (round-robin interleaving)
                 let mut stage_outputs: Vec<Vec<serde_json::Value>> = Vec::new();
-                
-                for stage_query in stages.iter() {
-                    if stage_query.trim().is_empty() {
+
+                for stage in stages.iter() {
+                    if stage.query.trim().is_empty() {
                         continue;
                     }
 
@@ -165,36 +231,46 @@ impl Backend for GhCliBackend {
                     stage_cmd
                         .arg("search")
                         .arg("repos")
-                        .arg(stage_query)
+                        .arg(&stage.query)
                         .arg("--json")
-                        .arg("fullName,description,stargazersCount")
+                        .arg("fullName,description,url,stargazersCount")
                         .arg("--limit")
                         .arg("20");
-                    
+                    if let Some(lang) = &stage.language {
+                        stage_cmd.arg("--language").arg(lang);
+                    }
+                    if stage.sort_stars {
+                        // Without this, a relaxed query returns whatever GitHub's
+                        // relevance ranking floats up — usually teaching exercises
+                        // that happen to carry the word. Stars is the only ordering
+                        // signal available here and it is a good one.
+                        stage_cmd.arg("--sort").arg("stars");
+                    }
+
                     let output = stage_cmd
                         .output()
                         .await
                         .map_err(|e| Error::BackendExecution(self.name().into(), e.to_string()))?;
-                    
+
                     if !output.status.success() {
                         stage_outputs.push(Vec::new());
                         continue;
                     }
-                    
-                    let json: serde_json::Value = serde_json::from_slice(&output.stdout)
-                        .unwrap_or(serde_json::json!([]));
-                    
+
+                    let json: serde_json::Value =
+                        serde_json::from_slice(&output.stdout).unwrap_or(serde_json::json!([]));
+
                     if let Some(arr) = json.as_array() {
                         stage_outputs.push(arr.clone());
                     } else {
                         stage_outputs.push(Vec::new());
                     }
                 }
-                
+
                 // Round-robin interleaving: take 1st from each stage, then 2nd from each, etc.
                 let mut final_results = Vec::new();
                 let mut seen_repos = std::collections::HashSet::new();
-                
+
                 for i in 0..20 {
                     for stage_res in &stage_outputs {
                         if let Some(item) = stage_res.get(i) {
@@ -212,7 +288,7 @@ impl Backend for GhCliBackend {
                         break;
                     }
                 }
-                
+
                 let result_json = serde_json::Value::Array(final_results);
                 return Ok(serde_json::to_vec(&result_json).unwrap_or_else(|_| b"[]".to_vec()));
             }
@@ -407,9 +483,8 @@ impl Channel for GitHubChannel {
             }
         }
 
-        Err(last_error.unwrap_or_else(|| {
-            agent_reach_core::backend::unavailable(self.platform(), &skipped)
-        }))
+        Err(last_error
+            .unwrap_or_else(|| agent_reach_core::backend::unavailable(self.platform(), &skipped)))
     }
 
     async fn health_check(&self, config: &Config) -> HealthStatus {
