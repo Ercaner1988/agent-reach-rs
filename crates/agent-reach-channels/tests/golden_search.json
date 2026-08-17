@@ -1,0 +1,98 @@
+[
+  {
+    "id": 1,
+    "query": "a sqlite reimplementation written in rust",
+    "target": "cursor/minisqlite",
+    "stars": 270
+  },
+  {
+    "id": 2,
+    "query": "sqlite compatible database written in rust",
+    "target": "tursodatabase/libsql",
+    "stars": 23897
+  },
+  {
+    "id": 3,
+    "query": "control headless chrome from rust",
+    "target": "rust-headless-chrome/rust-headless-chrome",
+    "stars": 2946
+  },
+  {
+    "id": 4,
+    "query": "chrome devtools protocol rust api",
+    "target": "mattsse/chromiumoxide",
+    "stars": 1367
+  },
+  {
+    "id": 5,
+    "query": "sqlite bindings for rust",
+    "target": "rusqlite/rusqlite",
+    "stars": 4360
+  },
+  {
+    "id": 6,
+    "query": "webdriver client library for rust",
+    "target": "jonhoo/fantoccini",
+    "stars": 2015
+  },
+  {
+    "id": 7,
+    "query": "rust http client library",
+    "target": "seanmonstar/reqwest",
+    "stars": 11781
+  },
+  {
+    "id": 8,
+    "query": "exa mcp server for web search",
+    "target": "exa-labs/exa-mcp-server",
+    "stars": 4877
+  },
+  {
+    "id": 9,
+    "query": "hızlı metin arama ripgrep",
+    "target": "burntsushi/ripgrep",
+    "stars": 52000
+  },
+  {
+    "id": 10,
+    "query": "fd find replacement",
+    "target": "sharkdp/fd",
+    "stars": 35000
+  },
+  {
+    "id": 11,
+    "query": "bat cat clone rust",
+    "target": "sharkdp/bat",
+    "stars": 51000
+  },
+  {
+    "id": 12,
+    "query": "dust disk usaage",
+    "target": "bootandy/dust",
+    "stars": 9000
+  },
+  {
+    "id": 13,
+    "query": "uv fast python package manager",
+    "target": "astral-sh/uv",
+    "stars": 32000
+  },
+  {
+    "id": 14,
+    "query": "polars dataframe rust python",
+    "target": "pola-rs/polars",
+    "stars": 32000
+  },
+  {
+    "id": 15,
+    "query": "build smaller faster cross platform desktop apps with web frontend",
+    "target": "tauri-apps/tauri",
+    "stars": 88000
+  },
+  {
+    "id": 16,
+    "query": "Deno JavaScript TypeScript runtime",
+    "target": "denoland/deno",
+    "stars": 98000
+  }
+]

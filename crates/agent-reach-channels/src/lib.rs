@@ -4,6 +4,7 @@
 //! multiple backends (CLI, API, browser automation) with fallback logic.
 
 pub mod bilibili;
+pub mod duckduckgo;
 pub mod exa;
 pub mod github;
 pub mod linkedin;
@@ -24,6 +25,7 @@ pub mod youtube;
 // pub mod exa_search;
 
 pub use bilibili::BilibiliChannel;
+pub use duckduckgo::DuckDuckGoChannel;
 pub use exa::ExaChannel;
 pub use github::GitHubChannel;
 pub use linkedin::LinkedinChannel;

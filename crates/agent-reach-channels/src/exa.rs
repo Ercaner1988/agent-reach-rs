@@ -210,7 +210,7 @@ impl Backend for ExaMcpBackend {
             Some(&session),
             serde_json::json!({
                 "jsonrpc": "2.0", "id": 2, "method": "tools/call",
-                "params": { "name": "web_search_exa", "arguments": { "query": query, "numResults": 10 } }
+                "params": { "name": "web_search_exa", "arguments": { "query": query, "numResults": 20 } }
             }),
         )
         .await?;
@@ -227,11 +227,25 @@ impl Backend for ExaMcpBackend {
             .pointer("/result/content")
             .and_then(|c| c.as_array())
             .map(|items| {
-                items
-                    .iter()
-                    .filter_map(|i| i.get("text").and_then(|t| t.as_str()))
-                    .collect::<Vec<_>>()
-                    .join("\n")
+                let mut repos = Vec::new();
+                let re = regex::Regex::new(r"github\.com/([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)")
+                    .expect("valid regex");
+                
+                for item in items {
+                    if let Some(text_str) = item.get("text").and_then(|t| t.as_str()) {
+                        for cap in re.captures_iter(text_str) {
+                            if let Some(repo) = cap.get(1) {
+                                let normalized = repo.as_str()
+                                    .trim_end_matches(".git")
+                                    .trim_end_matches('/')
+                                    .to_string();
+                                repos.push(normalized);
+                            }
+                        }
+                    }
+                }
+                
+                repos.join("\n")
             })
             .unwrap_or_default();
         if text.is_empty() {

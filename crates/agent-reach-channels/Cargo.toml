@@ -21,6 +21,7 @@ reqwest = { workspace = true }
 rss = { workspace = true }
 atom_syndication = { workspace = true }
 subprocess = { workspace = true }
+regex = "1"
 
 [dev-dependencies]
 tokio-test = "0.4"

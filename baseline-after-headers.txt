@@ -1,0 +1,122 @@
+   Compiling agent-reach-channels v0.1.0 (C:\Users\buzbe\OneDrive\Masaüstü\Github\agent-reach-rs\crates\agent-reach-channels)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.13s
+     Running tests\search_gauntlet.rs (target\debug\deps\search_gauntlet-40386e800fed2f08.exe)
+
+running 1 test
+
+=== Search Gauntlet (16 test cases) ===
+
+#1 | Query: "a sqlite reimplementation written in rust"
+     Target: cursor/minisqlite
+     ✗ GitHub: MISS
+     ✗ Exa: MISS
+     ⚠ ZERO RESULTS (both channels failed)
+
+#2 | Query: "sqlite compatible database written in rust"
+     Target: tursodatabase/libsql
+     ✗ GitHub: MISS
+     ✗ Exa: MISS
+     ⚠ ZERO RESULTS (both channels failed)
+
+#3 | Query: "control headless chrome from rust"
+     Target: rust-headless-chrome/rust-headless-chrome
+     ✗ GitHub: MISS
+     ✗ Exa: MISS
+     ⚠ ZERO RESULTS (both channels failed)
+
+#4 | Query: "chrome devtools protocol rust api"
+     Target: mattsse/chromiumoxide
+     ✓ GitHub: FOUND
+     ✗ Exa: MISS
+
+#5 | Query: "sqlite bindings for rust"
+     Target: rusqlite/rusqlite
+     ✗ GitHub: MISS
+     ✗ Exa: MISS
+     ⚠ ZERO RESULTS (both channels failed)
+
+#6 | Query: "webdriver client library for rust"
+     Target: jonhoo/fantoccini
+     ✗ GitHub: MISS
+     ✗ Exa: MISS
+     ⚠ ZERO RESULTS (both channels failed)
+
+#7 | Query: "rust http client library"
+     Target: seanmonstar/reqwest
+     ✗ GitHub: MISS
+     ✗ Exa: MISS
+     ⚠ ZERO RESULTS (both channels failed)
+
+#8 | Query: "exa mcp server for web search"
+     Target: exa-labs/exa-mcp-server
+     ✗ GitHub: MISS
+     ✗ Exa: MISS
+     ⚠ ZERO RESULTS (both channels failed)
+
+#9 | Query: "hızlı metin arama ripgrep"
+     Target: burntsushi/ripgrep
+     ✗ GitHub: MISS
+     ✗ Exa: MISS
+     ⚠ ZERO RESULTS (both channels failed)
+
+#10 | Query: "fd find replacement"
+     Target: sharkdp/fd
+     ✗ GitHub: MISS
+     ✗ Exa: MISS
+     ⚠ ZERO RESULTS (both channels failed)
+
+#11 | Query: "bat cat clone rust"
+     Target: sharkdp/bat
+     ✗ GitHub: MISS
+     ✗ Exa: MISS
+     ⚠ ZERO RESULTS (both channels failed)
+
+#12 | Query: "dust disk usaage"
+     Target: bootandy/dust
+     ✗ GitHub: MISS
+     ✗ Exa: MISS
+     ⚠ ZERO RESULTS (both channels failed)
+
+#13 | Query: "uv fast python package manager"
+     Target: astral-sh/uv
+     ✗ GitHub: MISS
+     ✗ Exa: MISS
+     ⚠ ZERO RESULTS (both channels failed)
+
+#14 | Query: "polars dataframe rust python"
+     Target: pola-rs/polars
+     ✗ GitHub: MISS
+     ✗ Exa: MISS
+     ⚠ ZERO RESULTS (both channels failed)
+
+#15 | Query: "build smaller faster cross platform desktop apps with web frontend"
+     Target: tauri-apps/tauri
+     ✗ GitHub: MISS
+     ✗ Exa: MISS
+     ⚠ ZERO RESULTS (both channels failed)
+
+#16 | Query: "Deno JavaScript TypeScript runtime"
+     Target: denoland/deno
+     ✗ GitHub: MISS
+     ✗ Exa: MISS
+     ⚠ ZERO RESULTS (both channels failed)
+
+=== Final Metrics ===
+GitHub recall@10:   1/16 (6.2%)
+Exa recall@10:      0/16 (0.0%)
+Combined recall@10: 1/16 (6.2%)
+Zero-result queries: 15/16
+
+thread 'search_gauntlet' (29240) panicked at crates\agent-reach-channels\tests\search_gauntlet.rs:117:5:
+Combined recall@10 must be ≥ 15/16 (got 1/16)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test search_gauntlet ... FAILED
+
+failures:
+
+failures:
+    search_gauntlet
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.60s
+
+error: test failed, to rerun pass `-p agent-reach-channels --test search_gauntlet`
