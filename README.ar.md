@@ -1,33 +1,32 @@
-# 👁️ Agent Reach (Rust)
-
-**طبقة قراءة إنترنت أصلية %100 بلغة Rust لوكلاء الذكاء الاصطناعي**
-
-> **ملاحظة:** هذا المشروع هو إعادة كتابة كاملة بلغة Rust لـ [Agent Reach](https://github.com/Panniantong/agent-reach) نسخة Python (ليس مساهمة في المجرى الأعلى، بل تطبيق جديد). الهدف: صفر تبعيات Python، ملف تنفيذي واحد، تثبيت سريع.
+[ **Türkçe** ](README.tr.md) | [ **العربية** ](README.ar.md) | [ **English** ](README.md) | [ **日本語** ](README.ja.md)
 
 ---
 
-## 🎯 خارطة الطريق
+# 👁️ Agent Reach (Rust)
 
-### المكتمل
-- [x] **هيكل مساحة العمل** — 4 صناديق (النواة/القنوات/mcp/cli) + السمات
-- [x] **قناة الويب** — تكامل Jina Reader (r.jina.ai)
+**طبقة قراءة إنترنت وبحث دلالي أصلية %100 بلغة Rust لوكلاء الذكاء الاصطناعي**
+
+> **ملاحظة:** هذا المشروع هو إعادة كتابة كاملة بلغة Rust لـ [Agent Reach](https://github.com/Panniantong/agent-reach) نسخة Python (تطبيق جديد ومستقل بالكامل). الهدف: صفر تبعيات Python، ملف تنفيذي واحد، تجميع بلغة Rust الخالصة، سرعة فائقة.
+
+---
+
+## 🎯 خارطة الطريق والميزات المكتملة
+
+### المكونات الأساسية المكتملة
+- [x] **هيكل مساحة العمل** — 5 صناديق (`core` و`channels` و`graph` و`mcp` و`cli`)
+- [x] **قناة الويب** — تكامل Jina Reader (`r.jina.ai`)
 - [x] **قناة RSS** — جلب وتحليل تغذيات RSS 2.0 وAtom (`fetch` + `parse`)
-- [x] **تكامل SkillOptOrchestrator** — أمر فرعي `agent-reach execute`، واجهة JSON للمهام
-
-### مكتمل
-- [x] **الويب وRSS** — واجهات jina-reader و rss-parser الخلفية
-- [x] **تويتر** — واجهات twitter-cli (مصادقة) و nitter (مجهول) الخلفية
-- [x] **يوتيوب** — واجهات yt-dlp (كامل الميزات) و rustube (مكتبة) الخلفية
-- [x] **GitHub** — واجهات gh CLI و GitHub REST API الخلفية
-- [x] **Reddit** — واجهات PRAW (Python) و Reddit API (OAuth2) الخلفية
+- [x] **تويتر** — `twitter-cli` (مصادقة)، Nitter (مجهول)
+- [x] **يوتيوب** — `yt-dlp` (استخراج كامل)، `rustube` (بيانات وصفية)
+- [x] **GitHub** — `gh` CLI (سلم التخفيف ثلاثي المراحل)، GitHub REST API
+- [x] **Reddit** — PRAW (Python)، Reddit API (OAuth2)
 - [x] **وسائل التواصل الصينية والمالية** — Bilibili و Xiaohongshu و V2EX و Xueqiu و Xiaoyuzhou
-- [x] **المهنية والبحث** — LinkedIn و Exa Search
-- [x] **واجهة سطر الأوامر** — `install` و`configure` و`doctor` و`skill` و`transcribe`
-- [x] **خادم MCP** — stdio JSON-RPC مع 4 أدوات (`web_read` و`rss_fetch` و`rss_parse` و`exa_search`)
-
-### قيد التطوير
-- [ ] **ملف تنفيذي متعدد المنصات** — Windows/Linux/macOS
-- [ ] **خط تكامل/نشر مستمر** — GitHub Actions
+- [x] **المهنية والبحث** — LinkedIn و Exa Search و DuckDuckGo (بحث HTML)
+- [x] **الخريطة الذهنية الدلالية** — `agent-reach-graph` (محرك ناقلات معرفية خماسي الأبعاد بلغة Rust الخالصة)
+- [x] **واجهة سطر الأوامر** — `install` و`configure` و`doctor` و`skill` و`transcribe` و`execute`
+- [x] **خادم MCP** — واجهة stdio JSON-RPC مع الوصول إلى 14 قناة
+- [x] **التجميع متعدد المنصات** — Windows و Linux و macOS (`cargo-dist`)
+- [x] **خط النشر والتكامل المستمر** — GitHub Actions CI/CD وبوابات الاختبار الآلية (`harness/kapilar.ps1`)
 
 الخريطة التفصيلية: [`docs/HARITA.md`](docs/HARITA.md) (بنية Yolbulucu/Wayfinder)
 
@@ -38,35 +37,28 @@
 ```
 agent-reach-rs/
 ├── crates/
-│   ├── agent-reach-core/      # التكوين، سمات Backend/Channel، Doctor
-│   ├── agent-reach-channels/  # 14 قارئ منصة (web، youtube، twitter، ...)
-│   ├── agent-reach-mcp/       # خادم MCP stdio (أداة exa_search)
-│   └── agent-reach-cli/       # Clap CLI (التثبيت، التكوين، الفحص، المهارة)
+│   ├── agent-reach-core/      # التكوين، سمات Backend/Channel، التخزين المؤقت للشريط
+│   ├── agent-reach-channels/  # 14 قارئ منصة (web، youtube، twitter، github، ...)
+│   ├── agent-reach-graph/     # محرك الرسم البياني الدلالي والناقلات المعرفية
+│   ├── agent-reach-mcp/       # خادم MCP stdio JSON-RPC
+│   └── agent-reach-cli/       # Clap CLI (التثبيت، الفحص، المهارة، التنفيذ)
+├── harness/                   # بوابات الفحص الآلي والتخزين المؤقت
 └── Cargo.toml                 # جذر مساحة العمل
 ```
 
 ### استراتيجية Backend
 
 كل قناة تحدد backends متعددة (الخيار الأول + الاحتياطي):
-- **Twitter:** `twitter-cli` → احتياطي: `OpenCLI`
-- **Reddit:** `OpenCLI` → احتياطي: `rdt-cli`
-- **YouTube:** `rustube` (البيانات الوصفية) + `yt-dlp` عملية فرعية (استخراج كامل)
-
-### إدارة التكوين
-
-```yaml
-# ~/.agent-reach/config.yaml
-backends:
-  jina_reader:
-    api_key: ${JINA_API_KEY}  # متغير بيئة أو قيمة مباشرة
-    base_url: "https://r.jina.ai"
-```
+- **Twitter:** `twitter-cli` $\rightarrow$ احتياطي: `Nitter`
+- **Reddit:** `Reddit API` $\rightarrow$ احتياطي: `PRAW`
+- **YouTube:** `rustube` (بيانات وصفية) + `yt-dlp` عملية فرعية (استخراج كامل)
+- **GitHub:** `gh` CLI (تقسيم المصطلحات بدون علامات تنصيص) $\rightarrow$ احتياطي: `GitHub REST API`
 
 ---
 
 ## 🚀 التثبيت
 
-### الوضع الحالي (التطوير)
+### التجميع من المصدر
 
 ```bash
 git clone https://github.com/Ercaner1988/agent-reach-rs.git
@@ -75,22 +67,21 @@ cargo build --release
 ./target/release/agent-reach --help
 ```
 
-### المخطط (الإصدار المستقر)
+### التثبيت المستقر
 
 ```bash
 cargo install agent-reach-cli
 agent-reach install --env=auto
-agent-reach doctor  # فحص الصحة
+agent-reach doctor  # فحص الصحة والتبعيات
 ```
 
 ---
 
-## 📖 الاستخدام
+## 📖 الاستخدام والتنفيذ
 
-### قناة الويب — قراءة رابط واحد
+### قناة الويب — قراءة صفحة واحدة
 
 ```bash
-# قراءة صفحة باستخدام Jina Reader
 agent-reach execute --task-file - <<EOF
 [
   {
@@ -103,187 +94,42 @@ agent-reach execute --task-file - <<EOF
 EOF
 ```
 
-### تكامل SkillOptOrchestrator
+### تنفيذ المهام الجماعية (`tasks.json`)
 
 ```bash
-# تحضير ملف المهام
 cat > tasks.json <<EOF
 [
   {
     "id": "read-rust-docs",
     "channel": "web",
     "action": "read",
-    "args": ["https://doc.rust-lang.org"],
-    "metadata": {
-      "description": "قراءة وثائق Rust"
-    }
+    "args": ["https://doc.rust-lang.org"]
   },
   {
-    "id": "read-hermes-docs",
-    "channel": "web",
-    "action": "read",
-    "args": ["https://hermes-agent.nousresearch.com/docs"]
+    "id": "search-github",
+    "channel": "github",
+    "action": "search",
+    "args": ["http client library"]
   }
 ]
 EOF
 
-# التنفيذ وتسجيل السجل
-agent-reach execute \
-  --task-file tasks.json \
-  --output execution_log.json \
-  --verbose
-
-# فحص السجل
-cat execution_log.json
-```
-
-**مثال الإخراج:**
-```json
-{
-  "total_duration_ms": 1500,
-  "success": true,
-  "results": [
-    {
-      "task_id": "read-rust-docs",
-      "success": true,
-      "channel": "web",
-      "backend": "jina-reader",
-      "duration_ms": 844,
-      "output": {
-        "text": "محتوى وثائق Rust...",
-        "url": "https://doc.rust-lang.org",
-        "title": "The Rust Programming Language"
-      },
-      "error": null
-    }
-  ]
-}
+agent-reach execute --task-file tasks.json --output execution_log.json --verbose
 ```
 
 ---
 
-## 🧪 التطوير
+## 🛡️ بوابات الاختبار الآلية
 
-### البناء والاختبار
+تخضع كل إضافية جديدة للمشروع لـ 6 بوابات اختبار مجانية (`harness/kapilar.ps1`):
 
 ```bash
-# بناء جميع الصناديق
-cargo build --all
-
-# تشغيل الاختبارات
-cargo test --all
-
-# فحص التنسيق
-cargo fmt --all -- --check
-
-# فحص Clippy
-cargo clippy --all -- -D warnings
+pwsh -File harness/kapilar.ps1
 ```
 
-### التحقق
-
-```bash
-# اختبار قناة الويب
-./target/debug/agent-reach execute \
-  --task-file test_tasks.json \
-  --output test_log.json \
-  --verbose
-
-# فحص الصحة (مخطط)
-./target/debug/agent-reach doctor
-```
-
----
-
-## 📚 التوثيق
-
-### وثائق البنية
-- **[تفاصيل المعمارية](docs/architecture.md)** — توجيه Backend، التكوين، نظام الفحص
-- **[خريطة Yolbulucu](docs/HARITA.md)** — تنسيق متعدد الجلسات، نظام التذاكر
-- **[جدول التبعيات](docs/dependencies.md)** — تطابق حزم Python → صناديق Rust
-
-### وثائق القنوات
-- **[قناة الويب](docs/channels/web.md)** — تكامل Jina Reader، أمثلة الاستخدام
-- **[قناة RSS](docs/channels/rss.md)** — تحليل RSS 2.0/Atom، أمثلة الاستخدام
-- **[قناة YouTube](docs/channels/youtube.md)** — البيانات الوصفية للفيديو + النسخ (مخطط)
-
-### أدلة التكامل
-- **[SkillOptOrchestrator](docs/integration/skilloptorchestrator.md)** — تنفيذ المهارات الأصلية في Hermes
-- **[خادم MCP](docs/integration/mcp.md)** — بروتوكول stdio JSON-RPC (مخطط)
-
----
-
-## 🌍 التوثيق متعدد اللغات
-
-عمق متساوٍ، محتوى كامل:
-- **التركية (الأساسية):** [`README.tr.md`](README.tr.md)
-- **العربية:** هذا الملف
-- **الإنجليزية:** [`README.md`](README.md)
-
----
-
-## 🤝 المساهمة
-
-المشروع قيد التطوير النشط. طلبات السحب وتقارير المشكلات مرحب بها.
-
-### إرشادات المساهمة
-1. **التفريع:** إنشاء فرع جديد من `main` (مثل: `feature/rss-channel`)
-2. **التغييرات:** إضافة الكود + الاختبارات + التوثيق معًا
-3. **الاختبار:** يجب أن ينجح `cargo test --all` و `cargo clippy --all`
-4. **الالتزام:** رسالة commit بالعربية، موجزة ووصفية
-5. **طلب السحب:** شرح التغييرات، الإشارة إلى المشكلة ذات الصلة
-
-### قواعد البرمجة
-- **أسماء السمات:** تعليقات عربية، كود إنجليزي (معايير Rust)
-- **رسائل الخطأ:** عربية (المستخدم النهائي) + إنجليزية (وضع المطور)
-- **التوثيق:** العربية أولاً، التركية والإنجليزية تحديث متزامن
-
-**مهم:** للمساهمة في Agent Reach Python الأصلي، انتقل إلى [المستودع الأصلي](https://github.com/Panniantong/agent-reach). هذا المستودع خاص بالتطبيق الأصلي لـ Rust فقط.
-
----
-
-## 📜 الترخيص
-
-MIT License — راجع [LICENSE](LICENSE)
-
----
-
-## 🔗 المشاريع ذات الصلة
-
-- **[Agent Reach (Python)](https://github.com/Panniantong/agent-reach)** — التطبيق الأصلي
-- **[ZOPAY](https://github.com/Ercaner1988/zotero-zero-mcp)** — خادم Zotero MCP (Rust)
-- **[Hermes Agent](https://github.com/NousResearch/hermes-agent)** — إطار عمل وكيل الذكاء الاصطناعي
-- **[SkillOpt](https://github.com/THUDM/SkillOpt)** — إطار عمل تحسين المهارات
-
----
-
-## 📊 الحالة والإحصائيات
-
-**حالة التطوير:** 🟢 مكتمل (v0.1.0)
-**آخر تحديث:** 2026-08-11
-**المؤلف:** Ercan ER  
-
-**إحصائيات الكود:**
-- عدد الأسطر: ~2,500 (Rust)
-- الصناديق: 4
-- القنوات: 1/14 (الويب)
-- تغطية الاختبار: %85+
-- تحذيرات Clippy: 0
-
-**مقاييس الأداء:**
-- متوسط زمن استجابة قناة الويب: ~500-800ms (Jina Reader)
-- استخدام الذاكرة: <10MB (في وضع الخمول)
-- حجم الملف التنفيذي: ~8MB (إصدار release، مجرد)
-
----
-
-## 🙏 شكر وتقدير
-
-- **[Panniantong](https://github.com/Panniantong)** — للتطبيق الأصلي لـ Agent Reach Python
-- **[Jina AI](https://jina.ai)** — لخدمة Jina Reader
-- **[Nous Research](https://nousresearch.com)** — لإطار عمل Hermes Agent
-- **مجتمع Rust** — للأدوات والصناديق الممتازة
-
----
-
-**ملاحظة:** هذا المشروع مستقل عن مستودع Agent Reach Python الأصلي. إنه ليس مساهمة أو تصحيحًا للمجرى الأعلى، بل إعادة كتابة من الصفر بلغة Rust. للمساهمة في النسخة Python، يُرجى الرجوع إلى [المستودع الأصلي](https://github.com/Panniantong/agent-reach).
+- **البوابة 1 (التجميع):** `cargo build --workspace`
+- **البوابة 2 (Clippy):** `cargo clippy --workspace --all-targets -- -D warnings`
+- **البوابة 3 (اختبارات الوحدة):** `cargo test --workspace`
+- **البوابة 4 (التنسيق):** `cargo fmt --check`
+- **البوابة 5 (فحص الإجابات):** فحص آلي لمنع تسرب كلمات الإجابة إلى الكود
+- **البوابة 6 (حارس الحد):** التحقق من مرجع git لملفات الحكم

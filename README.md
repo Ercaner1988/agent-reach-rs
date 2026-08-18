@@ -1,35 +1,32 @@
-# 👁️ Agent Reach (Rust)
-
-**100% Rust-native internet reading layer for AI agents**
-
-> **Note:** This project is a complete Rust rewrite of [Agent Reach](https://github.com/Panniantong/agent-reach) Python version (not an upstream contribution, but a new implementation). Goal: zero Python dependencies, single binary, fast installation.
+[ **Türkçe** ](README.tr.md) | [ **العربية** ](README.ar.md) | [ **English** ](README.md) | [ **日本語** ](README.ja.md)
 
 ---
 
-## 🎯 Roadmap
+# 👁️ Agent Reach (Rust)
 
-### Completed
-- [x] **Workspace skeleton** — 4 crates (core/channels/mcp/cli) + traits
-- [x] **Web channel** — Jina Reader (r.jina.ai) integration
-- [x] **RSS channel** — RSS 2.0 and Atom feed fetch/parse (`fetch` + `parse`)
-- [x] **SkillOptOrchestrator integration** — `agent-reach execute` subcommand, task JSON interface
+**100% Rust-native internet reading & semantic search layer for AI agents**
 
-### Completed
-- [x] **Web and RSS** — jina-reader, rss-parser backends
-- [x] **Twitter** — twitter-cli (auth), nitter (anonymous) backends
-- [x] **YouTube** — yt-dlp (full-featured), rustube (library) backends
-- [x] **GitHub** — gh CLI, GitHub REST API backends
-- [x] **Reddit** — PRAW (Python), Reddit API (OAuth2) backends
+> **Note:** This project is a complete Rust rewrite of [Agent Reach](https://github.com/Panniantong/agent-reach) Python version (not an upstream contribution, but a standalone new implementation). Goal: zero Python dependencies, single binary, pure Rust compilation, high performance.
+
+---
+
+## 🎯 Roadmap & Completed Components
+
+### Completed Core Components
+- [x] **Workspace skeleton** — 5 crates (`core`, `channels`, `graph`, `mcp`, `cli`)
+- [x] **Web channel** — Jina Reader (`r.jina.ai`) integration
+- [x] **RSS channel** — RSS 2.0 and Atom feed fetch & parse (`fetch` + `parse`)
+- [x] **Twitter** — `twitter-cli` (authenticated), Nitter (anonymous)
+- [x] **YouTube** — `yt-dlp` (full extraction), `rustube` (metadata)
+- [x] **GitHub** — `gh` CLI (3-stage relaxation ladder), GitHub REST API
+- [x] **Reddit** — PRAW (Python), Reddit API (OAuth2)
 - [x] **Chinese Social & Finance** — Bilibili, Xiaohongshu, V2EX, Xueqiu, Xiaoyuzhou
-- [x] **Professional & Search** — LinkedIn, Exa Search
-- [x] **CLI** — `install`, `configure`, `doctor`, `skill`, `transcribe`
-- [x] **MCP server** — stdio JSON-RPC with `agent_reach_execute` bridging all channels
-- [x] **Multi-platform binary** — Windows/Linux/macOS (cargo-dist)
-- [x] **CI/CD Pipeline** — GitHub Actions CI & Releases
-
-### In Progress
-- [ ] **Multi-platform binary** — Windows/Linux/macOS
-- [ ] **CI/CD pipeline** — GitHub Actions
+- [x] **Professional & Search** — LinkedIn, Exa Search, DuckDuckGo (HTML search)
+- [x] **Semantic Mind Map** — `agent-reach-graph` (Pure-Rust 5-dimensional epistemic vector engine)
+- [x] **CLI** — `install`, `configure`, `doctor`, `skill`, `transcribe`, `execute`
+- [x] **MCP server** — stdio JSON-RPC interface with 14-channel access
+- [x] **Multi-platform build** — Windows, Linux, macOS (`cargo-dist`)
+- [x] **CI/CD Pipeline** — GitHub Actions CI/CD & automated test gates (`harness/kapilar.ps1`)
 
 Detailed map: [`docs/HARITA.md`](docs/HARITA.md) (Yolbulucu/Wayfinder architecture)
 
@@ -40,35 +37,28 @@ Detailed map: [`docs/HARITA.md`](docs/HARITA.md) (Yolbulucu/Wayfinder architectu
 ```
 agent-reach-rs/
 ├── crates/
-│   ├── agent-reach-core/      # Config, Backend/Channel traits, Doctor
-│   ├── agent-reach-channels/  # 14 platform readers (web, youtube, twitter, ...)
-│   ├── agent-reach-mcp/       # MCP stdio server (exa_search tool)
-│   └── agent-reach-cli/       # Clap CLI (install, configure, doctor, skill)
+│   ├── agent-reach-core/      # Configuration, Backend/Channel traits, Cassette Cache
+│   ├── agent-reach-channels/  # 14 platform readers (web, youtube, twitter, github, ...)
+│   ├── agent-reach-graph/     # Pure-Rust Semantic Graph & Epistemic Vector Engine
+│   ├── agent-reach-mcp/       # MCP stdio JSON-RPC server
+│   └── agent-reach-cli/       # Clap CLI (install, doctor, skill, execute)
+├── harness/                   # Automated audit gates and cassette cache store
 └── Cargo.toml                 # Workspace root
 ```
 
 ### Backend Strategy
 
 Each channel defines multiple backends (first choice + fallback):
-- **Twitter:** `twitter-cli` → fallback: `OpenCLI`
-- **Reddit:** `OpenCLI` → fallback: `rdt-cli`
+- **Twitter:** `twitter-cli` $\rightarrow$ fallback: `Nitter`
+- **Reddit:** `Reddit API` $\rightarrow$ fallback: `PRAW`
 - **YouTube:** `rustube` (metadata) + `yt-dlp` subprocess (full extraction)
-
-### Configuration Management
-
-```yaml
-# ~/.agent-reach/config.yaml
-backends:
-  jina_reader:
-    api_key: ${JINA_API_KEY}  # Environment variable or direct value
-    base_url: "https://r.jina.ai"
-```
+- **GitHub:** `gh` CLI (unquoted term splitting) $\rightarrow$ fallback: `GitHub REST API`
 
 ---
 
 ## 🚀 Installation
 
-### Current Status (Development)
+### Building from Source
 
 ```bash
 git clone https://github.com/Ercaner1988/agent-reach-rs.git
@@ -77,22 +67,21 @@ cargo build --release
 ./target/release/agent-reach --help
 ```
 
-### Planned (Stable Release)
+### Stable Release Installation
 
 ```bash
 cargo install agent-reach-cli
 agent-reach install --env=auto
-agent-reach doctor  # Health check
+agent-reach doctor  # Health and dependency check
 ```
 
 ---
 
-## 📖 Usage
+## 📖 Usage & Execution
 
-### Web Channel — Single URL Read
+### Web Channel — Single Page Read
 
 ```bash
-# Read a page with Jina Reader
 agent-reach execute --task-file - <<EOF
 [
   {
@@ -105,187 +94,42 @@ agent-reach execute --task-file - <<EOF
 EOF
 ```
 
-### SkillOptOrchestrator Integration
+### Batch Task Execution (`tasks.json`)
 
 ```bash
-# Prepare task file
 cat > tasks.json <<EOF
 [
   {
     "id": "read-rust-docs",
     "channel": "web",
     "action": "read",
-    "args": ["https://doc.rust-lang.org"],
-    "metadata": {
-      "description": "Read Rust documentation"
-    }
+    "args": ["https://doc.rust-lang.org"]
   },
   {
-    "id": "read-hermes-docs",
-    "channel": "web",
-    "action": "read",
-    "args": ["https://hermes-agent.nousresearch.com/docs"]
+    "id": "search-github",
+    "channel": "github",
+    "action": "search",
+    "args": ["http client library"]
   }
 ]
 EOF
 
-# Execute and log
-agent-reach execute \
-  --task-file tasks.json \
-  --output execution_log.json \
-  --verbose
-
-# Inspect log
-cat execution_log.json
-```
-
-**Example output:**
-```json
-{
-  "total_duration_ms": 1500,
-  "success": true,
-  "results": [
-    {
-      "task_id": "read-rust-docs",
-      "success": true,
-      "channel": "web",
-      "backend": "jina-reader",
-      "duration_ms": 844,
-      "output": {
-        "text": "Rust documentation content...",
-        "url": "https://doc.rust-lang.org",
-        "title": "The Rust Programming Language"
-      },
-      "error": null
-    }
-  ]
-}
+agent-reach execute --task-file tasks.json --output execution_log.json --verbose
 ```
 
 ---
 
-## 🧪 Development
+## 🛡️ Automated Test Gates
 
-### Build and Test
+Every addition to the project passes through 6 free test gates (`harness/kapilar.ps1`):
 
 ```bash
-# Build all crates
-cargo build --all
-
-# Run tests
-cargo test --all
-
-# Format check
-cargo fmt --all -- --check
-
-# Clippy check
-cargo clippy --all -- -D warnings
+pwsh -File harness/kapilar.ps1
 ```
 
-### Verification
-
-```bash
-# Web channel test
-./target/debug/agent-reach execute \
-  --task-file test_tasks.json \
-  --output test_log.json \
-  --verbose
-
-# Health check (planned)
-./target/debug/agent-reach doctor
-```
-
----
-
-## 📚 Documentation
-
-### Architecture Docs
-- **[Architecture Details](docs/architecture.md)** — Backend routing, config, doctor system
-- **[Yolbulucu Map](docs/HARITA.md)** — Multi-session orchestration, ticket system
-- **[Dependency Table](docs/dependencies.md)** — Python package → Rust crate mappings
-
-### Channel Docs
-- **[Web Channel](docs/channels/web.md)** — Jina Reader integration, usage examples
-- **[RSS Channel](docs/channels/rss.md)** — RSS 2.0/Atom parsing, usage examples
-- **[YouTube Channel](docs/channels/youtube.md)** — Video metadata + transcripts (planned)
-
-### Integration Guides
-- **[SkillOptOrchestrator](docs/integration/skilloptorchestrator.md)** — Hermes native skill execution
-- **[MCP Server](docs/integration/mcp.md)** — stdio JSON-RPC protocol (planned)
-
----
-
-## 🌍 Multilingual Documentation
-
-Equal depth, full content:
-- **Turkish (primary):** [`README.tr.md`](README.tr.md)
-- **Arabic:** [`README.ar.md`](README.ar.md)
-- **English:** This file
-
----
-
-## 🤝 Contributing
-
-Project under active development. Pull requests and issue reports welcome.
-
-### Contribution Guidelines
-1. **Branch:** Create new branch from `main` (e.g., `feature/rss-channel`)
-2. **Changes:** Add code + tests + docs together
-3. **Testing:** `cargo test --all` and `cargo clippy --all` must pass
-4. **Commit:** English commit message, concise and descriptive
-5. **Pull Request:** Explain changes, reference related issue
-
-### Coding Standards
-- **Trait names:** English comments, English code (Rust standards)
-- **Error messages:** English (end-user) + debug mode (developer)
-- **Documentation:** English first, Turkish and Arabic synchronized updates
-
-**Important:** For contributions to upstream Python Agent Reach, go to [original repo](https://github.com/Panniantong/agent-reach). This repo is Rust-native implementation only.
-
----
-
-## 📜 License
-
-MIT License — see [LICENSE](LICENSE)
-
----
-
-## 🔗 Related Projects
-
-- **[Agent Reach (Python)](https://github.com/Panniantong/agent-reach)** — Original implementation
-- **[ZOPAY](https://github.com/Ercaner1988/zotero-zero-mcp)** — Zotero MCP server (Rust)
-- **[Hermes Agent](https://github.com/NousResearch/hermes-agent)** — AI agent framework
-- **[SkillOpt](https://github.com/THUDM/SkillOpt)** — Skill optimization framework
-
----
-
-## 📊 Status and Statistics
-
-**Development Status:** 🟢 Completed (v0.1.0)
-**Last Update:** 2026-08-11
-**Author:** Ercan ER  
-
-**Code Statistics:**
-- Lines of code: ~2,500 (Rust)
-- Crates: 4
-- Channels: 1/14 (web)
-- Test coverage: 85%+
-- Clippy warnings: 0
-
-**Performance Metrics:**
-- Web channel average latency: ~500-800ms (Jina Reader)
-- Memory usage: <10MB (idle)
-- Binary size: ~8MB (release, stripped)
-
----
-
-## 🙏 Acknowledgments
-
-- **[Panniantong](https://github.com/Panniantong)** — For original Agent Reach Python implementation
-- **[Jina AI](https://jina.ai)** — For Jina Reader service
-- **[Nous Research](https://nousresearch.com)** — For Hermes Agent framework
-- **Rust Community** — For excellent tools and crates
-
----
-
-**Note:** This project is independent of the original Agent Reach Python repository. It is not a contribution or patch to upstream, but a from-scratch Rust rewrite. For contributions to the Python version, please refer to [original repo](https://github.com/Panniantong/agent-reach).
+- **Gate 1 (Build):** `cargo build --workspace`
+- **Gate 2 (Clippy):** `cargo clippy --workspace --all-targets -- -D warnings`
+- **Gate 3 (Unit Tests):** `cargo test --workspace`
+- **Gate 4 (Formatting):** `cargo fmt --check`
+- **Gate 5 (Cheat Grep):** Automated scan preventing answer key phrases from leaking into source
+- **Gate 6 (Gatekeeper):** Git reference validation of referee files
