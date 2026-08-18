@@ -48,7 +48,8 @@ fn main() -> std::process::ExitCode {
                 "usage:\n  \
                  harness gates\n  \
                  harness run --ticket <A|B|C> [--referee <ref>] [--model <m>] \\\n    \
-                 [--reviewer <provider>] [--reviewer-model <m>] [--dry-run]"
+                 [--session <id>] [--reviewer <provider>] [--reviewer-model <m>] \\\n    \
+                 [--dry-run]"
             );
             2
         }
@@ -245,6 +246,7 @@ struct Opts {
     ticket: String,
     referee: String,
     model: Option<String>,
+    session: String,
     reviewer: String,
     reviewer_model: String,
     dry_run: bool,
@@ -254,12 +256,15 @@ fn parse_opts(args: &[String]) -> Result<Opts, String> {
     let mut o = Opts {
         ticket: String::new(),
         referee: "hakem".into(),
-        // Not the configured default. `auto/best-coding` answered a 5KB ticket
-        // twice with a plan and no tool call at all — 320 output tokens, finish
-        // reason "stop", an empty diff both times — while calling tools happily
-        // on short prompts. `auto/coding:reliable` was handed the same ticket and
-        // used its tools. Override with --model.
-        model: Some("auto/coding:reliable".into()),
+        // Left to the session. Two rounds were lost to model-shopping inside
+        // the `auto/*` namespace: `auto/best-coding` and `auto/coding:reliable`
+        // both resolve to antigravity/gemini-3.6-flash-high, so swapping them
+        // changed the label and nothing else. Pinning a model here would also
+        // override whatever the resumed session is already working under.
+        model: None,
+        // The standing agent-reach-rs session. 1067 messages of this project's
+        // history, and calling tools in this repository throughout.
+        session: "20260817_183532_59ccce".into(),
         // Measured and working. `dsh` is installed but wants DEEPSEEK_API_KEY;
         // once it is set, `--reviewer dsh` takes the other branch.
         reviewer: "custom:kervan".into(),
@@ -271,6 +276,7 @@ fn parse_opts(args: &[String]) -> Result<Opts, String> {
         let mut next = || it.next().cloned().ok_or(format!("{a} needs a value"));
         match a.as_str() {
             "--ticket" => o.ticket = next()?,
+            "--session" => o.session = next()?,
             "--referee" => o.referee = next()?,
             "--model" => o.model = Some(next()?),
             "--reviewer" => o.reviewer = next()?,
@@ -302,6 +308,7 @@ fn run_round(root: &Path, args: &[String]) -> u8 {
         return 2;
     }
     let round_start = git_head(root);
+    recover_stashed_cwd(root);
 
     section(&format!(
         "Ticket {} · referee {} · start {}",
@@ -348,10 +355,18 @@ fn run_round(root: &Path, args: &[String]) -> u8 {
         // same reason: the shell would stay in the root while the worktree it made
         // went unscored.
         let saved_cwd = hermes_cwd();
+        stash_cwd(root, saved_cwd.as_deref());
         set_hermes_cwd(&root.display().to_string());
 
         let mut cmd = Command::new("hermes");
         cmd.arg("-z").arg(&prompt);
+        // Resume the standing session rather than opening a fresh one. A new
+        // session arrives with none of this project's history and gets routed
+        // wherever the table sends it that minute; the standing one already
+        // knows the repository and has been calling tools in it for two days.
+        if !opts.session.is_empty() {
+            cmd.arg("--resume").arg(&opts.session).arg("--in").arg(root);
+        }
         if let Some(m) = &opts.model {
             cmd.arg("-m").arg(m);
         }
@@ -363,6 +378,7 @@ fn run_round(root: &Path, args: &[String]) -> u8 {
         if let Some(prev) = &saved_cwd {
             set_hermes_cwd(prev);
         }
+        stash_cwd(root, None);
         if let Ok(s) = status {
             if !s.success() {
                 eprintln!("  agent exited non-zero: {s}");
@@ -540,6 +556,39 @@ fn hermes_cwd() -> Option<String> {
         .ok()?;
     let value = String::from_utf8_lossy(&out.stdout).trim().to_string();
     (out.status.success() && !value.is_empty() && !value.contains('\n')).then_some(value)
+}
+
+fn cwd_stash(root: &Path) -> PathBuf {
+    root.join("harness/.onceki_cwd")
+}
+
+/// Remember the value to put back, on disk, because a killed round never
+/// reaches its own restore — measured: one interrupted round left the setting
+/// pointing at this repository, which would silently follow the user into their
+/// next unrelated session. `None` clears the note once the restore has happened.
+fn stash_cwd(root: &Path, previous: Option<&str>) {
+    let path = cwd_stash(root);
+    match previous {
+        Some(p) => {
+            let _ = std::fs::write(path, p);
+        }
+        None => {
+            let _ = std::fs::remove_file(path);
+        }
+    }
+}
+
+fn recover_stashed_cwd(root: &Path) {
+    let path = cwd_stash(root);
+    let Ok(previous) = std::fs::read_to_string(&path) else {
+        return;
+    };
+    let previous = previous.trim();
+    if !previous.is_empty() {
+        eprintln!("  a previous round did not finish; putting terminal.cwd back");
+        set_hermes_cwd(previous);
+    }
+    let _ = std::fs::remove_file(path);
 }
 
 fn set_hermes_cwd(dir: &str) {
