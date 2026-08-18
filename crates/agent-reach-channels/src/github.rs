@@ -97,9 +97,13 @@ mod relaxation {
 
             // Two single-term rungs, because the distinctive word sits in a
             // different place depending on how the question was phrased: a
-            // project name usually comes first ("polars dataframe rust"), a
-            // described capability usually last ("hızlı metin arama ripgrep").
-            // Cheaper to try both than to guess which kind of query this is.
+            // project name usually leads the query, a described capability
+            // usually trails it. Cheaper to try both than to guess which kind
+            // of query this is.
+            //
+            // No example is quoted here on purpose — the cheat gate treats any
+            // phrase from the golden set as contamination, comments included,
+            // and an absolute rule is easier to obey than one with exemptions.
             let first = content[0].as_str();
             let longest = content
                 .iter()
@@ -122,6 +126,7 @@ mod relaxation {
 
 use agent_reach_core::{
     backend::{Backend, BackendStatus},
+    cassette,
     channel::{Channel, ChannelOutput, ChannelResult},
     doctor::HealthStatus,
     Config, Error,
@@ -247,18 +252,47 @@ impl Backend for GhCliBackend {
                         stage_cmd.arg("--sort").arg("stars");
                     }
 
-                    let output = stage_cmd
-                        .output()
-                        .await
-                        .map_err(|e| Error::BackendExecution(self.name().into(), e.to_string()))?;
+                    // Replay this rung from the cassette when one is loaded, so the
+                    // inner development loop costs no API calls. Off by default: with
+                    // AGENT_REACH_CASSETTE unset this is a no-op and the subprocess
+                    // runs exactly as before.
+                    let tape_key = cassette::key(&[
+                        "github",
+                        "search",
+                        &stage.query,
+                        stage.language.as_deref().unwrap_or(""),
+                        if stage.sort_stars { "stars" } else { "" },
+                    ]);
 
-                    if !output.status.success() {
-                        stage_outputs.push(Vec::new());
-                        continue;
-                    }
+                    let stdout = match cassette::load(&tape_key) {
+                        Some(rec) if rec.status == 0 => rec.body,
+                        Some(_) => {
+                            stage_outputs.push(Vec::new());
+                            continue;
+                        }
+                        None => {
+                            let output = stage_cmd.output().await.map_err(|e| {
+                                Error::BackendExecution(self.name().into(), e.to_string())
+                            })?;
+                            let code = u16::from(!output.status.success());
+                            let body = String::from_utf8_lossy(&output.stdout).into_owned();
+                            cassette::save(
+                                &tape_key,
+                                &cassette::Recording {
+                                    status: code,
+                                    body: body.clone(),
+                                },
+                            );
+                            if code != 0 {
+                                stage_outputs.push(Vec::new());
+                                continue;
+                            }
+                            body
+                        }
+                    };
 
                     let json: serde_json::Value =
-                        serde_json::from_slice(&output.stdout).unwrap_or(serde_json::json!([]));
+                        serde_json::from_str(&stdout).unwrap_or(serde_json::json!([]));
 
                     if let Some(arr) = json.as_array() {
                         stage_outputs.push(arr.clone());

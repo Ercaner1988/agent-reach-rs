@@ -7,6 +7,7 @@
 //! - `Doctor`: health check and availability probe system
 
 pub mod backend;
+pub mod cassette;
 pub mod channel;
 pub mod config;
 pub mod doctor;

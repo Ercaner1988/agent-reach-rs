@@ -271,9 +271,9 @@ mod tests {
     fn test_unwrap_redirect() {
         assert_eq!(
             unwrap_redirect(
-                "//duckduckgo.com/l/?uddg=https%3A%2F%2Fgithub.com%2Fseanmonstar%2Freqwest&rut=abc"
+                "//duckduckgo.com/l/?uddg=https%3A%2F%2Fgithub.com%2Fexample-org%2Fexample-lib&rut=abc"
             ),
-            "https://github.com/seanmonstar/reqwest"
+            "https://github.com/example-org/example-lib"
         );
         assert_eq!(
             unwrap_redirect("https://example.com"),
@@ -286,14 +286,14 @@ mod tests {
     fn test_parse_results() {
         // Shape taken from a live html.duckduckgo.com response.
         let html = r#"
-          <a rel="nofollow" class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fgithub.com%2Fjonhoo%2Ffantoccini&amp;rut=x">
-            <b>fantoccini</b> &amp; WebDriver</a>
-          <a class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fdocs.rs%2Ffantoccini">docs.rs</a>
+          <a rel="nofollow" class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fgithub.com%2Fexample-org%2Fwidget&amp;rut=x">
+            <b>widget</b> &amp; things</a>
+          <a class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fdocs.rs%2Fwidget">docs.rs</a>
         "#;
         let hits = parse_results(html, 10);
         assert_eq!(hits.len(), 2);
-        assert_eq!(hits[0]["url"], "https://github.com/jonhoo/fantoccini");
-        assert_eq!(hits[0]["title"], "fantoccini & WebDriver");
+        assert_eq!(hits[0]["url"], "https://github.com/example-org/widget");
+        assert_eq!(hits[0]["title"], "widget & things");
     }
 
     #[test]

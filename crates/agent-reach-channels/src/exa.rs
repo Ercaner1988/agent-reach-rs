@@ -13,6 +13,7 @@
 
 use agent_reach_core::{
     backend::{Backend, BackendStatus},
+    cassette,
     channel::{Channel, ChannelOutput, ChannelResult},
     doctor::HealthStatus,
     Config, Error,
@@ -185,6 +186,23 @@ impl Backend for ExaMcpBackend {
             .and_then(|s| s.parse::<u64>().ok())
             .unwrap_or(10);
 
+        // Cassette first: a whole MCP handshake is three round trips against a
+        // free endpoint that rate limits, so replaying is worth more here than
+        // anywhere else. Recorded failures replay as failures — a stored 429 is
+        // how the "throttled, not measured" path gets exercised on demand,
+        // without waiting for a live endpoint to refuse us.
+        let tape_key = cassette::key(&["exa", "search", query, &num_results.to_string()]);
+        if let Some(rec) = cassette::load(&tape_key) {
+            return if rec.status == 200 {
+                Ok(rec.body.into_bytes())
+            } else {
+                Err(Error::BackendExecution(
+                    self.name().into(),
+                    format!("HTTP {} (replayed)", rec.status),
+                ))
+            };
+        }
+
         let client = reqwest::Client::new();
         let (session, _) = Self::rpc(
             &client,
@@ -219,7 +237,22 @@ impl Backend for ExaMcpBackend {
                 "params": { "name": "web_search_exa", "arguments": { "query": query, "numResults": num_results } }
             }),
         )
-        .await?;
+        .await
+        .map_err(|e| {
+            // Record the refusal too, with its status, so the harness can
+            // reproduce a throttled run offline. `map_err` rather than
+            // `inspect_err`: the latter is stable since 1.76 and the crate
+            // holds an MSRV of 1.75.
+            let status = if e.to_string().contains("429") { 429 } else { 503 };
+            cassette::save(
+                &tape_key,
+                &cassette::Recording {
+                    status,
+                    body: e.to_string(),
+                },
+            );
+            e
+        })?;
 
         let reply = reply.ok_or_else(|| {
             Error::BackendExecution(self.name().into(), "unparseable MCP reply".into())
@@ -251,8 +284,16 @@ impl Backend for ExaMcpBackend {
                 "empty result content".into(),
             ));
         }
-        Ok(serde_json::to_vec(&serde_json::json!({ "text": text }))
-            .map_err(|e| Error::Decode(e.to_string()))?)
+        let out = serde_json::to_vec(&serde_json::json!({ "text": text }))
+            .map_err(|e| Error::Decode(e.to_string()))?;
+        cassette::save(
+            &tape_key,
+            &cassette::Recording {
+                status: 200,
+                body: String::from_utf8_lossy(&out).into_owned(),
+            },
+        );
+        Ok(out)
     }
 }
 

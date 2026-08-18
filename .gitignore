@@ -27,3 +27,5 @@ Thumbs.db
 
 # Backup files
 *.orig
+harness/kaset/
+harness/son-denetim*.txt
