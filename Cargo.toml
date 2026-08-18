@@ -2,7 +2,6 @@
 members = [
     "crates/agent-reach-core",
     "crates/agent-reach-channels",
-    "crates/agent-reach-graph",
     "crates/agent-reach-mcp",
     "crates/agent-reach-cli",
 ]

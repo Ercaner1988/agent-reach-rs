@@ -64,7 +64,15 @@ hiçbir kelime örtüşmesi yok. Elle kural yazmak yerine bunu **öğrenmek** do
   **Beş boyut değil, bir ağırlık.**
 - Öğrenme: arama başarılı olduğunda ilgili bağın ağırlığı artar; kullanılmayan
   bağ zamanla sönümlenir.
-- Kip: **gölge.** Çıktı kullanıcıya gösterilmez, arka planda ölçülür.
+- Kip: **gölge.** Genişletilmiş sorgu kullanıcıya gösterilmez; arka planda
+  çalışır ve sonucu ölçülür.
+- **Ulaşılabilirlik şartı.** Gölge kip "ölü kod" demek değil: sandık kanaldan
+  çağrılacak ve gauntlet onu görecek. Derlenip hiçbir yerden çağrılmayan sandık
+  teslim sayılmaz — bu tam olarak geçen turun kusuruydu. Kapı 5'in bakacağı yer:
+  `crates/*/src/` içinde `agent_reach_graph` geçiyor mu.
+
+Not: `crates/agent-reach-graph` **silindi** (`191 satır, sıfır çağıran, beş
+epistemik eksen — üçü bu biletin kapsam dışı listesinde`). Sıfırdan yazılacak.
 
 ## Kabul ölçütü
 
