@@ -58,9 +58,22 @@ kurma — `Outcome::Unmeasured` ve `is_throttle` zaten var.
 çıkıp `harness/kaset/` altına yazılsın. Sonra aynı koşuyu tekrarla: ikincisi ağa
 çıkmamalı ve belirgin biçimde hızlı bitmeli.
 
+### A4 — Belirlenimciliği doğrula (açık bir sapma var)
+
+18 Ağustos'ta altı koşunun beşi `GitHub recall@10: 10/16` verdi, biri **9/16**.
+Kaset açıktı, kayıt sayısı altısında da 77'de sabit kaldı, yani yeni bir ağ
+çağrısı yapılmadı — sapmanın sebebi bulunamadı ve yeniden üretilemedi.
+
+Kaset açıkken koşu **belirlenimci olmak zorunda**; olmazsa hiçbir sayı
+karşılaştırılamaz ve bu düzeneğin varlık sebebi ortadan kalkar. Beş özdeş koşu
+yap. Sapma tekrarlarsa kovala: hangi vaka oynuyor, o vakanın hangi basamağı
+kasette yok, `gh` sıfır dışı mı dönüyor. Sapma tekrarlamazsa bunu **ölçerek**
+bildir — "görmedim" ile "beş koşuda görmedim" ayrı şeylerdir.
+
 ## Kabul ölçütü
 
-**Arka arkaya iki tam koşuda `Not measured (throttled): ... combined 0`.**
+**Arka arkaya iki tam koşuda `Not measured (throttled): ... combined 0`,
+ve beş koşuda özdeş `GitHub recall@10`.**
 
 Bu sağlanmadan hiçbir recall sayısı tartışılmaz. Sayının kendisi bu biletin konusu
 değil — Tur B'nin konusu.

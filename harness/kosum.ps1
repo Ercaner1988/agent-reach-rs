@@ -25,6 +25,13 @@ param(
     [string]$HakemRef = 'hakem',
 
     [string]$Model = '',
+
+    # Tur sonu denetciyi kosan saglayici. Hermes'te tanimli olmali:
+    #   hermes fallback list   ile bak
+    # Tanimli degilse denetim KOSULMAZ ve tur ozetinde oyle gorunur --
+    # sessizce gecmez, cunku denetlenmemis tur onaylanmis tur degildir.
+    [string]$Denetci = 'deepseek',
+
     [switch]$KuruKosu
 )
 
@@ -60,7 +67,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 $turBasi = git rev-parse HEAD
 
-Bolum "Bilet $Bilet · hakem $HakemRef · tur basi $($turBasi.Substring(0,7))"
+Bolum "Bilet $Bilet · hakem ref: $HakemRef ($(git rev-parse --short $HakemRef)) · tur basi: $($turBasi.Substring(0,7))"
 Geri-Yukle
 
 $biletYolu = Join-Path $PSScriptRoot "biletler/bilet_$Bilet.md"
@@ -124,7 +131,9 @@ foreach ($deneme in 1..2) {
 Bolum 'Deepseek denetimi'
 $fark = git diff "$turBasi..HEAD"
 if (-not $fark) { $fark = git diff }
+$denetimDurumu = 'kosulmadi'
 if (-not $fark) {
+    $denetimDurumu = 'degisiklik yok'
     Write-Host "  degisiklik yok, denetim atlandi" -ForegroundColor DarkGray
 } else {
     $denetimIstemi = @"
@@ -142,16 +151,27 @@ Ozellikle su dordunu ara:
 $fark
 "@
     $denetimIstemi | Out-File -FilePath (Join-Path $PSScriptRoot 'son-denetim-istemi.txt') -Encoding UTF8
-    & hermes -z $denetimIstemi --provider deepseek 2>&1 | Tee-Object -FilePath (Join-Path $PSScriptRoot 'son-denetim.txt')
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "  deepseek cagrilamadi; istem son-denetim-istemi.txt'e yazildi" -ForegroundColor Yellow
+    & hermes -z $denetimIstemi --provider $Denetci 2>&1 |
+        Tee-Object -FilePath (Join-Path $PSScriptRoot 'son-denetim.txt')
+    if ($LASTEXITCODE -eq 0) {
+        $denetimDurumu = "kosuldu ($Denetci)"
+    } else {
+        Write-Host "  '$Denetci' cagrilamadi. Hermes'te tanimli mi? -> hermes fallback list" -ForegroundColor Yellow
+        Write-Host "  Istem yazildi: harness/son-denetim-istemi.txt" -ForegroundColor Yellow
+        Write-Host "  Turu onaylamadan once bu istemi bir modele elle ver." -ForegroundColor Yellow
     }
 }
 
 # ── 5. Insan kapisi ───────────────────────────────────────────────────────────
 Bolum 'Tur bitti'
 Write-Host "  gauntlet : $(if ($gecti) { 'YESIL' } else { 'KIRMIZI' })" -ForegroundColor $(if ($gecti) { 'Green' } else { 'Red' })
-Write-Host "  fark     : $(git diff --stat $turBasi..HEAD | Select-Object -Last 1)"
-Write-Host "  denetim  : harness/son-denetim.txt"
+$stat = git diff --shortstat "$turBasi..HEAD"
+if (-not $stat) { $stat = git diff --shortstat }
+Write-Host "  fark     : $(if ($stat) { $stat.Trim() } else { 'yok' })"
+$denetimRengi = if ($denetimDurumu -like 'kosuldu*') { 'Green' } else { 'Yellow' }
+Write-Host "  denetim  : $denetimDurumu" -ForegroundColor $denetimRengi
+if ($denetimDurumu -eq 'kosulmadi') {
+    Write-Host "`n  UYARI: fark denetlenmedi. Denetlenmemis tur onaylanmis tur degildir." -ForegroundColor Red
+}
 Write-Host "`n  Sonraki bilet insan onayindan sonra acilir." -ForegroundColor Cyan
 exit $(if ($gecti) { 0 } else { 1 })
