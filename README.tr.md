@@ -133,3 +133,13 @@ pwsh -File harness/kapilar.ps1
 - **Kapı 4 (Biçimlendirme):** `cargo fmt --check`
 - **Kapı 5 (Hile Grep'i):** Cevap anahtarındaki kelimelerin koda sızmasını önleyen otomatik tarama
 - **Kapı 6 (Eşik Bekçisi):** Hakem dosyalarının git referansı kontrolü
+
+---
+
+## 👥 Katkıda Bulunanlar
+
+Ayrıntılı liste için [`CONTRIBUTORS.md`](CONTRIBUTORS.md) dosyasına bakabilirsiniz.
+- **Ercan ER** ([@Ercaner1988](https://github.com/Ercaner1988)) — Proje Sahibi ve Baş Mimar
+- **Kassam** (Hermes Agent / Nous Research) — Yapay Zekâ Meslektaş ve Geliştirici Ortak
+- **Mihenk** (Claude Opus 5 / Anthropic) — Hakem ve Mimari İncelemeci
+- **Devin AI** — Otomatik Geliştirici Katkıcısı

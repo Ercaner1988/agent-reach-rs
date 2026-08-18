@@ -133,3 +133,13 @@ pwsh -File harness/kapilar.ps1
 - **البوابة 4 (التنسيق):** `cargo fmt --check`
 - **البوابة 5 (فحص الإجابات):** فحص آلي لمنع تسرب كلمات الإجابة إلى الكود
 - **البوابة 6 (حارس الحد):** التحقق من مرجع git لملفات الحكم
+
+---
+
+## 👥 المساهمون
+
+للحصول على القائمة التفصيلية، يرجى مراجعة ملف [`CONTRIBUTORS.md`](CONTRIBUTORS.md).
+- **Ercan ER** ([@Ercaner1988](https://github.com/Ercaner1988)) — مالك المشروع وكبير المهندسين
+- **Kassam** (Hermes Agent / Nous Research) — زميل الذكاء الاصطناعي والمطور المشارك
+- **Mihenk** (Claude Opus 5 / Anthropic) — الحكم والمراجع المعماري
+- **Devin AI** — المطور الآلي المساهم

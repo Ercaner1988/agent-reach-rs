@@ -133,3 +133,13 @@ pwsh -File harness/kapilar.ps1
 - **Gate 4 (Formatting):** `cargo fmt --check`
 - **Gate 5 (Cheat Grep):** Automated scan preventing answer key phrases from leaking into source
 - **Gate 6 (Gatekeeper):** Git reference validation of referee files
+
+---
+
+## 👥 Contributors
+
+For the complete detailed list, see [`CONTRIBUTORS.md`](CONTRIBUTORS.md).
+- **Ercan ER** ([@Ercaner1988](https://github.com/Ercaner1988)) — Project Lead & Architect
+- **Kassam** (Hermes Agent / Nous Research) — AI Peer & Co-Developer
+- **Mihenk** (Claude Opus 5 / Anthropic) — Peer Reviewer & Referee
+- **Devin AI** — Automated Contributor

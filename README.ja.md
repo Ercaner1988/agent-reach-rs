@@ -133,3 +133,13 @@ pwsh -File harness/kapilar.ps1
 - **ゲート 4 (フォーマット):** `cargo fmt --check`
 - **ゲート 5 (カンニング防止スキャン):** 正解データのフレーズがソースコードに漏洩するのを防ぐ自動スキャン
 - **ゲート 6 (ゲートキーパー):** 審判ファイルの Git リファレンス検証
+
+---
+
+## 👥 貢献者 (Contributors)
+
+詳細なリストについては [`CONTRIBUTORS.md`](CONTRIBUTORS.md) を参照してください。
+- **Ercan ER** ([@Ercaner1988](https://github.com/Ercaner1988)) — プロジェクトリード＆アーキテクト
+- **Kassam** (Hermes Agent / Nous Research) — AIピア＆共同開発者
+- **Mihenk** (Claude Opus 5 / Anthropic) — 審判＆アーキテクチャ査読者
+- **Devin AI** — 自動化コントリビューター
