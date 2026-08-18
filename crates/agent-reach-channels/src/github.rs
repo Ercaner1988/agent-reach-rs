@@ -233,10 +233,11 @@ impl Backend for GhCliBackend {
                     }
 
                     let mut stage_cmd = tokio::process::Command::new("gh");
+                    stage_cmd.arg("search").arg("repos");
+                    for term in stage.query.split_whitespace() {
+                        stage_cmd.arg(term);
+                    }
                     stage_cmd
-                        .arg("search")
-                        .arg("repos")
-                        .arg(&stage.query)
                         .arg("--json")
                         .arg("fullName,description,url,stargazersCount")
                         .arg("--limit")
