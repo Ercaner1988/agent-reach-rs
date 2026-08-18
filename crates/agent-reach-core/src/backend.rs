@@ -61,6 +61,34 @@ pub fn unavailable(platform: &str, skipped: &[(String, BackendStatus)]) -> crate
     crate::Error::BackendUnavailable(platform.into(), detail)
 }
 
+/// Check whether a binary is on `PATH`, cross-platform (`where` on Windows, `which` elsewhere).
+pub async fn binary_on_path(command: &str) -> bool {
+    let finder = if cfg!(windows) { "where" } else { "which" };
+    matches!(
+        tokio::process::Command::new(finder)
+            .arg(command)
+            .output()
+            .await,
+        Ok(out) if out.status.success()
+    )
+}
+
+/// First Python interpreter found on `PATH` (`python3`, then `python`).
+pub async fn python_command() -> Option<&'static str> {
+    for cmd in ["python3", "python"] {
+        if let Ok(out) = tokio::process::Command::new(cmd)
+            .arg("--version")
+            .output()
+            .await
+        {
+            if out.status.success() {
+                return Some(cmd);
+            }
+        }
+    }
+    None
+}
+
 /// Backend trait — execution strategy for a platform
 #[async_trait]
 pub trait Backend: Send + Sync {

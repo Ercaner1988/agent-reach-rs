@@ -23,7 +23,12 @@ impl Backend for LinkedinApiBackend {
     }
 
     async fn is_available(&self, config: &Config) -> BackendStatus {
-        let check = tokio::process::Command::new("python3")
+        let Some(python) = agent_reach_core::backend::python_command().await else {
+            return BackendStatus::NotInstalled {
+                command: "python3".into(),
+            };
+        };
+        let check = tokio::process::Command::new(python)
             .arg("-c")
             .arg("import linkedin_api")
             .output()
@@ -31,7 +36,7 @@ impl Backend for LinkedinApiBackend {
 
         if check.is_err() || !check.unwrap().status.success() {
             return BackendStatus::NotInstalled {
-                command: "python3 -m pip install linkedin-api".into(),
+                command: format!("{} -m pip install linkedin-api", python),
             };
         }
 
@@ -65,69 +70,62 @@ impl Backend for LinkedinApiBackend {
             .as_ref()
             .ok_or_else(|| Error::Config("linkedin_password not set".into()))?;
 
+        let arg = args.first().ok_or_else(|| {
+            Error::BackendExecution(self.name().into(), "Missing argument".into())
+        })?;
+
+        // Credentials and the user argument are passed via environment variables so
+        // they are never interpolated into Python source.
         let script = match action {
             "profile" => {
-                let public_id = args.first().ok_or_else(|| {
-                    Error::BackendExecution(
-                        self.name().into(),
-                        "Missing profile public_id argument".into(),
-                    )
-                })?;
-                format!(
-                    r#"
+                r#"
 import json
+import os
 from linkedin_api import Linkedin
 
-api = Linkedin('{}', '{}')
-profile = api.get_profile('{}')
+api = Linkedin(os.environ['AR_USERNAME'], os.environ['AR_PASSWORD'])
+profile = api.get_profile(os.environ['AR_ARG'])
 print(json.dumps(profile))
-"#,
-                    username, password, public_id
-                )
+"#
             }
             "company" => {
-                let company_id = args.first().ok_or_else(|| {
-                    Error::BackendExecution(
-                        self.name().into(),
-                        "Missing company public_id argument".into(),
-                    )
-                })?;
-                format!(
-                    r#"
+                r#"
 import json
+import os
 from linkedin_api import Linkedin
 
-api = Linkedin('{}', '{}')
-company = api.get_company('{}')
+api = Linkedin(os.environ['AR_USERNAME'], os.environ['AR_PASSWORD'])
+company = api.get_company(os.environ['AR_ARG'])
 print(json.dumps(company))
-"#,
-                    username, password, company_id
-                )
+"#
             }
             "search" => {
-                let query = args.first().ok_or_else(|| {
-                    Error::BackendExecution(self.name().into(), "Missing query argument".into())
-                })?;
-                format!(
-                    r#"
+                r#"
 import json
+import os
 from linkedin_api import Linkedin
 
-api = Linkedin('{}', '{}')
-results = api.search_people(keyword_title='{}', limit=5)
+api = Linkedin(os.environ['AR_USERNAME'], os.environ['AR_PASSWORD'])
+results = api.search_people(keyword_title=os.environ['AR_ARG'], limit=5)
 print(json.dumps(results))
-"#,
-                    username, password, query
-                )
+"#
             }
             other => {
                 return Err(Error::UnsupportedAction("linkedin".into(), other.into()));
             }
         };
 
-        let output = tokio::process::Command::new("python3")
+        let python = agent_reach_core::backend::python_command()
+            .await
+            .ok_or_else(|| {
+                Error::BackendExecution(self.name().into(), "python not found on PATH".into())
+            })?;
+        let output = tokio::process::Command::new(python)
             .arg("-c")
-            .arg(&script)
+            .arg(script)
+            .env("AR_USERNAME", username)
+            .env("AR_PASSWORD", password)
+            .env("AR_ARG", arg)
             .output()
             .await
             .map_err(|e| Error::BackendExecution(self.name().into(), e.to_string()))?;

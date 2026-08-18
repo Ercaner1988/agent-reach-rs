@@ -25,7 +25,12 @@ impl Backend for PrawBackend {
 
     async fn is_available(&self, config: &Config) -> BackendStatus {
         // Check if Python and praw are available
-        let check = tokio::process::Command::new("python3")
+        let Some(python) = agent_reach_core::backend::python_command().await else {
+            return BackendStatus::NotInstalled {
+                command: "python3".into(),
+            };
+        };
+        let check = tokio::process::Command::new(python)
             .arg("-c")
             .arg("import praw")
             .output()
@@ -33,7 +38,7 @@ impl Backend for PrawBackend {
 
         if check.is_err() || !check.unwrap().status.success() {
             return BackendStatus::NotInstalled {
-                command: "python3 -m pip install praw".into(),
+                command: format!("{} -m pip install praw", python),
             };
         }
 
@@ -72,98 +77,98 @@ impl Backend for PrawBackend {
             .as_deref()
             .unwrap_or("agent-reach-rs/0.1");
 
+        let arg = args.first().ok_or_else(|| {
+            Error::BackendExecution(self.name().into(), "Missing argument".into())
+        })?;
+
+        // Credentials and the user argument are passed via environment variables so
+        // they are never interpolated into Python source.
         let script = match action {
             "subreddit" => {
-                let sub = args.first().ok_or_else(|| {
-                    Error::BackendExecution(self.name().into(), "Missing subreddit argument".into())
-                })?;
-                format!(
-                    r#"
+                r#"
+import os
 import praw
 import json
 reddit = praw.Reddit(
-    client_id='{}',
-    client_secret='{}',
-    user_agent='{}'
+    client_id=os.environ['AR_CLIENT_ID'],
+    client_secret=os.environ['AR_CLIENT_SECRET'],
+    user_agent=os.environ['AR_USER_AGENT']
 )
-sub = reddit.subreddit('{}')
-posts = [{{
+sub = reddit.subreddit(os.environ['AR_ARG'])
+posts = [{
     'title': p.title,
     'author': str(p.author),
     'score': p.score,
     'url': p.url,
     'created_utc': p.created_utc,
     'num_comments': p.num_comments
-}} for p in sub.hot(limit=10)]
+} for p in sub.hot(limit=10)]
 print(json.dumps(posts))
-"#,
-                    client_id, client_secret, user_agent, sub
-                )
+"#
             }
             "search" => {
-                let query = args.first().ok_or_else(|| {
-                    Error::BackendExecution(self.name().into(), "Missing query argument".into())
-                })?;
-                format!(
-                    r#"
+                r#"
+import os
 import praw
 import json
 reddit = praw.Reddit(
-    client_id='{}',
-    client_secret='{}',
-    user_agent='{}'
+    client_id=os.environ['AR_CLIENT_ID'],
+    client_secret=os.environ['AR_CLIENT_SECRET'],
+    user_agent=os.environ['AR_USER_AGENT']
 )
-results = [{{
+results = [{
     'title': p.title,
     'subreddit': str(p.subreddit),
     'score': p.score,
     'url': p.url
-}} for p in reddit.subreddit('all').search('{}', limit=10)]
+} for p in reddit.subreddit('all').search(os.environ['AR_ARG'], limit=10)]
 print(json.dumps(results))
-"#,
-                    client_id, client_secret, user_agent, query
-                )
+"#
             }
             "post" => {
-                let post_id = args.first().ok_or_else(|| {
-                    Error::BackendExecution(self.name().into(), "Missing post_id argument".into())
-                })?;
-                format!(
-                    r#"
+                r#"
+import os
 import praw
 import json
 reddit = praw.Reddit(
-    client_id='{}',
-    client_secret='{}',
-    user_agent='{}'
+    client_id=os.environ['AR_CLIENT_ID'],
+    client_secret=os.environ['AR_CLIENT_SECRET'],
+    user_agent=os.environ['AR_USER_AGENT']
 )
-post = reddit.submission(id='{}')
+post = reddit.submission(id=os.environ['AR_ARG'])
 post.comments.replace_more(limit=0)
-data = {{
+data = {
     'title': post.title,
     'author': str(post.author),
     'selftext': post.selftext,
     'score': post.score,
     'num_comments': post.num_comments,
-    'comments': [{{
+    'comments': [{
         'author': str(c.author),
         'body': c.body[:500],
         'score': c.score
-    }} for c in post.comments.list()[:20]]
-}}
+    } for c in post.comments.list()[:20]]
+}
 print(json.dumps(data))
-"#,
-                    client_id, client_secret, user_agent, post_id
-                )
+"#
             }
             other => {
                 return Err(Error::UnsupportedAction("reddit".into(), other.into()));
             }
         };
 
-        let output = tokio::process::Command::new("python3")
+        let python = agent_reach_core::backend::python_command()
+            .await
+            .ok_or_else(|| {
+                Error::BackendExecution(self.name().into(), "python not found on PATH".into())
+            })?;
+        let output = tokio::process::Command::new(python)
             .arg("-c")
-            .arg(&script)
+            .arg(script)
+            .env("AR_CLIENT_ID", client_id)
+            .env("AR_CLIENT_SECRET", client_secret)
+            .env("AR_USER_AGENT", user_agent)
+            .env("AR_ARG", arg)
             .output()
             .await
             .map_err(|e| Error::BackendExecution(self.name().into(), e.to_string()))?;

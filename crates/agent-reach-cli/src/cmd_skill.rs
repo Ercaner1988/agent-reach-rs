@@ -6,16 +6,27 @@ use std::path::PathBuf;
 
 const SKILL_MD: &str = r#"---
 name: agent-reach
-description: Use Agent Reach to read web pages and RSS/Atom feeds from an AI agent.
+description: Use Agent Reach to read web pages, feeds, and social platforms from an AI agent.
 ---
 
 # Agent Reach
 
-Use `agent-reach execute --task-file <tasks.json>` for batch web/RSS reading.
+Use `agent-reach execute --task-file <tasks.json>` for batch reading tasks.
 
 Supported channels in this build:
-- `web` with action `read`
-- `rss` with actions `fetch` and `parse`
+- `web` — `read`
+- `rss` — `fetch`, `parse`
+- `twitter` — `search`, `timeline`, `thread`
+- `youtube` — `metadata`, `transcript`, `search`
+- `github` — `repo`, `issue`, `pr`, `search`
+- `reddit` — `subreddit`, `search`, `post`
+- `bilibili` — `video`, `info`, `search`
+- `xiaohongshu`, `linkedin`, `v2ex`, `xueqiu`, `xiaoyuzhou`
+- `exa` — `search`
+- `duckduckgo` — `search`
+
+Some channels need credentials in `~/.agent-reach/config.yaml`
+(see `agent-reach configure` and `agent-reach doctor`).
 
 Health check:
 ```bash
