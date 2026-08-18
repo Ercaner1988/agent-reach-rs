@@ -1,0 +1,4 @@
+{
+  "status": 0,
+  "body": "[{\"description\":\"A cat(1) clone with wings.\",\"fullName\":\"sharkdp/bat\",\"stargazersCount\":60207,\"url\":\"https://github.com/sharkdp/bat\"},{\"description\":\"A cat(1) clone without that gross \\\"Rust\\\" thing.\",\"fullName\":\"Genghius/bat\",\"stargazersCount\":1,\"url\":\"https://github.com/Genghius/bat\"},{\"description\":\"A cat(1) clone with syntax highlighting and Git integration.\",\"fullName\":\"purveshpatel511/batwing\",\"stargazersCount\":1,\"url\":\"https://github.com/purveshpatel511/batwing\"},{\"description\":\"Rust clone of bat with syntax highlighting, git diff markers, markdown rendering, and a vim-style interactive TUI.\",\"fullName\":\"codedeviate/batty\",\"stargazersCount\":0,\"url\":\"https://github.com/codedeviate/batty\"}]\n"
+}

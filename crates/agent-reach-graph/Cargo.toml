@@ -1,28 +1,22 @@
 [package]
-name = "agent-reach-channels"
-version.workspace = true
-edition.workspace = true
-rust-version.workspace = true
-license.workspace = true
+name = "agent-reach-graph"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
 authors.workspace = true
 repository.workspace = true
 
 [dependencies]
 agent-reach-core = { path = "../agent-reach-core" }
-agent-reach-graph = { path = "../agent-reach-graph" }
+turso = "0.7.2"
 tokio = { workspace = true }
 async-trait = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-urlencoding = { workspace = true }
 anyhow = { workspace = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }
-reqwest = { workspace = true }
-rss = { workspace = true }
-atom_syndication = { workspace = true }
-subprocess = { workspace = true }
-regex = "1"
+directories = { workspace = true }
 
 [dev-dependencies]
 tokio-test = "0.4"

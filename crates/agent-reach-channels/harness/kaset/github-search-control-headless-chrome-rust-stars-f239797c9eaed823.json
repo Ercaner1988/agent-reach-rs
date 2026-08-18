@@ -1,0 +1,4 @@
+{
+  "status": 0,
+  "body": "[{\"description\":\"A high-level API to control headless Chrome or Chromium over the DevTools Protocol. It is the Rust equivalent of Puppeteer, a Node library maintained by the Chrome DevTools team.\",\"fullName\":\"rust-headless-chrome/rust-headless-chrome\",\"stargazersCount\":2946,\"url\":\"https://github.com/rust-headless-chrome/rust-headless-chrome\"},{\"description\":\"This Rust project appears to be a web page screener. It uses the headless_chrome crate to control a headless Chrome browser.\",\"fullName\":\"miroslaws8/screener\",\"stargazersCount\":1,\"url\":\"https://github.com/miroslaws8/screener\"},{\"description\":\"Control headless Chrome by Rust with headless_chrome\",\"fullName\":\"hpp-playground/rust_headless\",\"stargazersCount\":0,\"url\":\"https://github.com/hpp-playground/rust_headless\"}]\n"
+}
