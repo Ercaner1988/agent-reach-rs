@@ -313,13 +313,57 @@ async fn test_exa_channel(
         }
     };
 
-    // Exa returns prose with URLs embedded; match the slug anywhere in it.
+    // Exa returns prose with URLs embedded.
     let haystack = output.data.to_string().to_lowercase();
-    if haystack.contains(&format!("github.com/{}", target.to_lowercase())) {
+    if mentions_target(&haystack, target) {
         Outcome::Found
     } else {
         Outcome::Miss
     }
+}
+
+/// Does this result set name the target project, by any of its canonical
+/// addresses?
+///
+/// Scoring only `github.com/owner/repo` measured the wrong thing. Asked for a
+/// type-safe ORM in Rust, Exa returned `https://diesel.rs/` as its second
+/// result — the project's own homepage — and the run recorded a miss. The
+/// engine had answered correctly; the scorer was blind to the answer.
+///
+/// The accepted forms are **derived from the target slug**, not listed by hand
+/// after looking at results. That distinction is the whole point: fitting an
+/// implementation to the answer key is cheating, repairing an instrument that
+/// cannot see a correct answer is not. The same four rules apply to all cases.
+fn mentions_target(haystack_lower: &str, target: &str) -> bool {
+    let slug = target.to_lowercase();
+    let name = slug.rsplit('/').next().unwrap_or(&slug);
+
+    if haystack_lower.contains(&format!("github.com/{slug}")) {
+        return true;
+    }
+    // A crate's registry, docs and `<name>.rs` homepage are the project, not a
+    // neighbour of it. Bounded so `diesel` does not match `diesel-async`.
+    [
+        format!("crates.io/crates/{name}"),
+        format!("docs.rs/{name}"),
+        format!("//{name}.rs"),
+        format!("//www.{name}.rs"),
+    ]
+    .iter()
+    .any(|needle| bounded_match(haystack_lower, needle))
+}
+
+/// `haystack` contains `needle` and the character after it does not continue
+/// the identifier — so `docs.rs/diesel` does not match `docs.rs/diesel-async`.
+fn bounded_match(haystack: &str, needle: &str) -> bool {
+    haystack.match_indices(needle).any(|(i, _)| {
+        // `map_or(true, …)` rather than `is_none_or`: the latter is stable
+        // since 1.82 and this workspace holds an MSRV of 1.75.
+        haystack[i + needle.len()..]
+            .chars()
+            .next()
+            .map_or(true, |c| !c.is_alphanumeric() && c != '-' && c != '_')
+    })
 }
 
 /// Extract `owner/repo` slug from GitHub URL
@@ -332,5 +376,54 @@ fn extract_repo_slug(text: &str) -> Option<String> {
         Some(text.trim_end_matches('/').to_string())
     } else {
         None
+    }
+}
+
+#[cfg(test)]
+mod matcher_tests {
+    use super::*;
+
+    #[test]
+    fn accepts_a_project_by_any_canonical_address() {
+        let t = "diesel-rs/diesel";
+        assert!(mentions_target(
+            "see https://github.com/diesel-rs/diesel today",
+            t
+        ));
+        assert!(mentions_target(
+            "url: https://diesel.rs/ is the homepage",
+            t
+        ));
+        assert!(mentions_target("https://crates.io/crates/diesel rocks", t));
+        assert!(mentions_target("https://docs.rs/diesel/latest/", t));
+    }
+
+    #[test]
+    fn rejects_a_neighbour_that_merely_shares_a_prefix() {
+        // The rule must not turn a wrong result into a hit; that would inflate
+        // the score exactly the way the old matcher deflated it.
+        let t = "diesel-rs/diesel";
+        assert!(!mentions_target("https://docs.rs/diesel-async/latest/", t));
+        assert!(!mentions_target(
+            "https://crates.io/crates/diesel-derives",
+            t
+        ));
+        assert!(!mentions_target(
+            "https://github.com/someone/diesel-clone",
+            t
+        ));
+        assert!(!mentions_target(
+            "https://sea-ql.org/SeaORM/".to_lowercase().as_str(),
+            t
+        ));
+    }
+
+    #[test]
+    fn is_not_fooled_by_the_bare_name() {
+        // "hyper" appears in "hypervisor"; a naked substring test would pass.
+        assert!(!mentions_target(
+            "a hypervisor written in rust",
+            "hyperium/hyper"
+        ));
     }
 }
