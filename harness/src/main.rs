@@ -254,7 +254,12 @@ fn parse_opts(args: &[String]) -> Result<Opts, String> {
     let mut o = Opts {
         ticket: String::new(),
         referee: "hakem".into(),
-        model: None,
+        // Not the configured default. `auto/best-coding` answered a 5KB ticket
+        // twice with a plan and no tool call at all — 320 output tokens, finish
+        // reason "stop", an empty diff both times — while calling tools happily
+        // on short prompts. `auto/coding:reliable` was handed the same ticket and
+        // used its tools. Override with --model.
+        model: Some("auto/coding:reliable".into()),
         // Measured and working. `dsh` is installed but wants DEEPSEEK_API_KEY;
         // once it is set, `--reviewer dsh` takes the other branch.
         reviewer: "custom:kervan".into(),
