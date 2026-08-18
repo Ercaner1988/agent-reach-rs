@@ -71,7 +71,14 @@ fn gates(root: &Path) -> u8 {
         ("build", &["build", "--workspace"]),
         (
             "clippy",
-            &["clippy", "--workspace", "--all-targets", "--", "-D", "warnings"],
+            &[
+                "clippy",
+                "--workspace",
+                "--all-targets",
+                "--",
+                "-D",
+                "warnings",
+            ],
         ),
         ("unit tests", &["test", "--workspace"]),
         ("formatting", &["fmt", "--check"]),
@@ -283,7 +290,10 @@ fn run_round(root: &Path, args: &[String]) -> u8 {
     };
 
     if !git_ref_exists(root, &opts.referee) {
-        eprintln!("referee ref not found: {} (pass --referee <ref>)", opts.referee);
+        eprintln!(
+            "referee ref not found: {} (pass --referee <ref>)",
+            opts.referee
+        );
         return 2;
     }
     let round_start = git_head(root);
@@ -319,11 +329,24 @@ fn run_round(root: &Path, args: &[String]) -> u8 {
              AGENT_REACH_CASSETTE is set: search calls replay from the cassette. A new query \
              reaches the network once and is recorded. Do NOT run the live gauntlet yourself — \
              the driver runs it.\n\n\
-             Leave the referee files alone; they are restored from git before scoring:\n{}\n",
+             Leave the referee files alone; they are restored from git before scoring:\n{}\n\n\
+             Start now, with a tool call. A reply that only describes a plan ends the \
+             round with an empty diff and is scored as no work done.\n",
             REFEREE.join("\n")
         );
+        // The agent's shell does not inherit this process's directory: it starts in
+        // whatever `terminal.cwd` says, and that setting outranks both the spawned
+        // cwd and the TERMINAL_CWD environment variable (measured, all three). A
+        // round once produced a plan and an empty diff because the agent was looking
+        // at a different repository. Point the setting at the root and put it back
+        // afterwards, including when the round fails. `--worktree` is gone for the
+        // same reason: the shell would stay in the root while the worktree it made
+        // went unscored.
+        let saved_cwd = hermes_cwd();
+        set_hermes_cwd(&root.display().to_string());
+
         let mut cmd = Command::new("hermes");
-        cmd.arg("-z").arg(&prompt).arg("--worktree");
+        cmd.arg("-z").arg(&prompt);
         if let Some(m) = &opts.model {
             cmd.arg("-m").arg(m);
         }
@@ -331,6 +354,10 @@ fn run_round(root: &Path, args: &[String]) -> u8 {
             .current_dir(root)
             .env("AGENT_REACH_CASSETTE", &cassette)
             .status();
+
+        if let Some(prev) = &saved_cwd {
+            set_hermes_cwd(prev);
+        }
         if let Ok(s) = status {
             if !s.success() {
                 eprintln!("  agent exited non-zero: {s}");
@@ -398,7 +425,9 @@ fn run_round(root: &Path, args: &[String]) -> u8 {
     eprintln!("  diff     : {}", diff_stat(root, &round_start));
     eprintln!("  review   : {review}");
     if review == "not run" {
-        eprintln!("\n  WARNING: the diff was not reviewed. An unreviewed round is not an approved round.");
+        eprintln!(
+            "\n  WARNING: the diff was not reviewed. An unreviewed round is not an approved round."
+        );
     }
     eprintln!("\n  The next ticket opens after a human says so.");
     u8::from(!passed)
@@ -492,11 +521,39 @@ fn git_ref_exists(root: &Path, r: &str) -> bool {
 }
 
 fn git_head(root: &Path) -> String {
-    capture(root, "git", &["rev-parse", "HEAD"]).trim().to_string()
+    capture(root, "git", &["rev-parse", "HEAD"])
+        .trim()
+        .to_string()
+}
+
+/// Where the agent's shell will start. `None` if hermes cannot be asked, in
+/// which case the round leaves the setting alone rather than guessing at one.
+fn hermes_cwd() -> Option<String> {
+    let out = Command::new("hermes")
+        .args(["config", "get", "terminal.cwd"])
+        .output()
+        .ok()?;
+    let value = String::from_utf8_lossy(&out.stdout).trim().to_string();
+    (out.status.success() && !value.is_empty() && !value.contains('\n')).then_some(value)
+}
+
+fn set_hermes_cwd(dir: &str) {
+    let ok = Command::new("hermes")
+        .args(["config", "set", "terminal.cwd", dir])
+        .output()
+        .map(|o| o.status.success())
+        .unwrap_or(false);
+    if !ok {
+        eprintln!("  could not set terminal.cwd; the agent may be looking elsewhere");
+    }
 }
 
 fn diff_stat(root: &Path, from: &str) -> String {
-    let s = capture(root, "git", &["diff", "--shortstat", &format!("{from}..HEAD")]);
+    let s = capture(
+        root,
+        "git",
+        &["diff", "--shortstat", &format!("{from}..HEAD")],
+    );
     let s = if s.trim().is_empty() {
         capture(root, "git", &["diff", "--shortstat"])
     } else {
@@ -536,7 +593,11 @@ fn rust_sources(dir: &Path) -> Vec<PathBuf> {
         for entry in entries.flatten() {
             let p = entry.path();
             if p.is_dir() {
-                let name = p.file_name().unwrap_or_default().to_string_lossy().to_string();
+                let name = p
+                    .file_name()
+                    .unwrap_or_default()
+                    .to_string_lossy()
+                    .to_string();
                 if name != "tests" && name != "target" {
                     stack.push(p);
                 }
@@ -576,7 +637,9 @@ mod tests {
         let files = rust_sources(&root.join("crates"));
         assert!(!files.is_empty(), "expected some sources under crates/");
         assert!(
-            files.iter().all(|p| !p.components().any(|c| c.as_os_str() == "tests")),
+            files
+                .iter()
+                .all(|p| !p.components().any(|c| c.as_os_str() == "tests")),
             "walk reached a tests/ directory"
         );
     }
