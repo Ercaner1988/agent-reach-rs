@@ -65,12 +65,7 @@ impl Backend for YtDlpBackend {
     }
 
     async fn is_available(&self, _config: &Config) -> BackendStatus {
-        let check = tokio::process::Command::new("which")
-            .arg("yt-dlp")
-            .output()
-            .await;
-
-        if check.is_err() || !check.unwrap().status.success() {
+        if !agent_reach_core::backend::binary_on_path("yt-dlp").await {
             return BackendStatus::NotInstalled {
                 command: "yt-dlp".into(),
             };

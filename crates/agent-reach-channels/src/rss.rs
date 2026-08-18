@@ -107,6 +107,7 @@ impl Channel for RssChannel {
         };
 
         // Parse
+        let mut last_error = None;
         let mut skipped = Vec::new();
         for backend in &self.backends {
             let status = backend.is_available(config).await;
@@ -137,15 +138,13 @@ impl Channel for RssChannel {
                 }
                 Err(e) => {
                     tracing::warn!("Backend {} failed: {}", backend.name(), e);
-                    return Err(e);
+                    last_error = Some(e);
                 }
             }
         }
 
-        Err(agent_reach_core::backend::unavailable(
-            self.platform(),
-            &skipped,
-        ))
+        Err(last_error
+            .unwrap_or_else(|| agent_reach_core::backend::unavailable(self.platform(), &skipped)))
     }
 
     async fn health_check(&self, config: &Config) -> HealthStatus {

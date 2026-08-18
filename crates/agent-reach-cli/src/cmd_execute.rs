@@ -1,6 +1,10 @@
 //! Execute subcommand — run tasks from JSON file (SkillOptOrchestrator integration)
 
-use agent_reach_channels::{RssChannel, WebChannel};
+use agent_reach_channels::{
+    BilibiliChannel, DuckDuckGoChannel, ExaChannel, GitHubChannel, LinkedinChannel, RedditChannel,
+    RssChannel, TwitterChannel, V2exChannel, WebChannel, XiaohongshuChannel, XiaoyuzhouChannel,
+    XueqiuChannel, YouTubeChannel,
+};
 use agent_reach_core::{Channel, Config};
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
@@ -131,16 +135,21 @@ async fn execute_single_task(task: &Task, config: &Config, verbose: bool) -> Tas
     let start = Instant::now();
 
     // Route to appropriate channel
-    let result = match task.channel.as_str() {
-        "web" => {
-            let channel = WebChannel::new();
-            channel.execute(&task.action, &task.args, config).await
-        }
-        "rss" => {
-            let channel = RssChannel::new();
-            channel.execute(&task.action, &task.args, config).await
-        }
-        // TODO: Add other channels (youtube, twitter, etc.)
+    let channel: Box<dyn Channel> = match task.channel.as_str() {
+        "web" => Box::new(WebChannel::new()),
+        "rss" => Box::new(RssChannel::new()),
+        "twitter" => Box::new(TwitterChannel::new()),
+        "youtube" => Box::new(YouTubeChannel::new()),
+        "github" => Box::new(GitHubChannel::new()),
+        "reddit" => Box::new(RedditChannel::new()),
+        "bilibili" => Box::new(BilibiliChannel::new()),
+        "xiaohongshu" => Box::new(XiaohongshuChannel::new()),
+        "linkedin" => Box::new(LinkedinChannel::new()),
+        "v2ex" => Box::new(V2exChannel::new()),
+        "xueqiu" => Box::new(XueqiuChannel::new()),
+        "xiaoyuzhou" => Box::new(XiaoyuzhouChannel::new()),
+        "exa" => Box::new(ExaChannel::new()),
+        "duckduckgo" => Box::new(DuckDuckGoChannel::new()),
         _ => {
             return TaskResult {
                 task_id: task.id.clone(),
@@ -149,10 +158,11 @@ async fn execute_single_task(task: &Task, config: &Config, verbose: bool) -> Tas
                 backend: None,
                 duration_ms: start.elapsed().as_millis() as u64,
                 output: None,
-                error: Some(format!("Channel '{}' not implemented yet", task.channel)),
+                error: Some(format!("Unknown channel '{}'", task.channel)),
             };
         }
     };
+    let result = channel.execute(&task.action, &task.args, config).await;
 
     match result {
         Ok(output) => {

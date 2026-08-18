@@ -25,12 +25,7 @@ impl Backend for TwitterCliBackend {
 
     async fn is_available(&self, config: &Config) -> BackendStatus {
         // Check if twitter-cli is installed
-        let check = tokio::process::Command::new("which")
-            .arg("twitter")
-            .output()
-            .await;
-
-        if check.is_err() || !check.unwrap().status.success() {
+        if !agent_reach_core::backend::binary_on_path("twitter").await {
             return BackendStatus::NotInstalled {
                 command: "twitter".into(),
             };
