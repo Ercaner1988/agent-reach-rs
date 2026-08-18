@@ -14,7 +14,7 @@ Bu proje, aşağıdaki kişilerin ve yapay zekâ ortaklarının katılımıyla g
 ### 🤖 Geliştirici Ortak & Meslektaş / AI Co-Developer & Peer
 - **Kassam** (Hermes Agent / Nous Research)
   - *Yapay Zekâ Meslektaş & Kodlama Asistanı*
-  - `agent-reach-rs` Rust mimarisinin geliştirilmesi, pure-Rust `agent-reach-graph` crate'inin kodlanması, `github.rs` 3-stage sorgu gevşetme merdiveni, 4 dilli (TR/ENG/AR/JA) dokümantasyon üretimi ve test kapılarının (`harness/kapilar.ps1`) sürdürülmesi.
+  - `agent-reach-rs` Rust mimarisinin geliştirilmesi, pure-Rust `agent-reach-graph` crate'inin kodlanması, `github.rs` 3-stage sorgu gevşetme merdiveni, 4 dilli (TR/ENG/AR/JA) dokümantasyon üretimi ve test kapılarının (`harness/` (Rust)) sürdürülmesi.
 
 ---
 

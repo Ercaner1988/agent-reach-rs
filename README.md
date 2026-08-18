@@ -26,7 +26,7 @@
 - [x] **CLI** — `install`, `configure`, `doctor`, `skill`, `transcribe`, `execute`
 - [x] **MCP server** — stdio JSON-RPC interface with 14-channel access
 - [x] **Multi-platform build** — Windows, Linux, macOS (`cargo-dist`)
-- [x] **CI/CD Pipeline** — GitHub Actions CI/CD & automated test gates (`harness/kapilar.ps1`)
+- [x] **CI/CD Pipeline** — GitHub Actions CI/CD & automated test gates (`harness/` (Rust))
 
 Detailed map: [`docs/HARITA.md`](docs/HARITA.md) (Yolbulucu/Wayfinder architecture)
 
@@ -121,10 +121,10 @@ agent-reach execute --task-file tasks.json --output execution_log.json --verbose
 
 ## 🛡️ Automated Test Gates
 
-Every addition to the project passes through 6 free test gates (`harness/kapilar.ps1`):
+Every addition to the project passes through 7 free test gates (`harness/` (Rust)):
 
 ```bash
-pwsh -File harness/kapilar.ps1
+cargo run --manifest-path harness/Cargo.toml -- gates
 ```
 
 - **Gate 1 (Build):** `cargo build --workspace`

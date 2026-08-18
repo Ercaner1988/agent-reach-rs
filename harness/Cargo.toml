@@ -1,0 +1,20 @@
+[package]
+name = "harness"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+publish = false
+description = "Gates and loop driver for agent-reach-rs. Deliberately outside the main workspace."
+
+# NOT a member of the root workspace, and the root excludes this directory.
+#
+# The gates exist to report that the tree does not build. If this binary were a
+# workspace member, a broken tree would break the thing that reports it — the
+# gate would go down with the fault it is there to catch. Standalone, with only
+# serde_json beneath it, it keeps working when everything it inspects does not.
+[dependencies]
+serde_json = "1"
+
+[[bin]]
+name = "harness"
+path = "src/main.rs"

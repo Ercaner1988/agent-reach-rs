@@ -26,7 +26,7 @@
 - [x] **واجهة سطر الأوامر** — `install` و`configure` و`doctor` و`skill` و`transcribe` و`execute`
 - [x] **خادم MCP** — واجهة stdio JSON-RPC مع الوصول إلى 14 قناة
 - [x] **التجميع متعدد المنصات** — Windows و Linux و macOS (`cargo-dist`)
-- [x] **خط النشر والتكامل المستمر** — GitHub Actions CI/CD وبوابات الاختبار الآلية (`harness/kapilar.ps1`)
+- [x] **خط النشر والتكامل المستمر** — GitHub Actions CI/CD وبوابات الاختبار الآلية (`harness/` (Rust))
 
 الخريطة التفصيلية: [`docs/HARITA.md`](docs/HARITA.md) (بنية Yolbulucu/Wayfinder)
 
@@ -121,10 +121,10 @@ agent-reach execute --task-file tasks.json --output execution_log.json --verbose
 
 ## 🛡️ بوابات الاختبار الآلية
 
-تخضع كل إضافية جديدة للمشروع لـ 6 بوابات اختبار مجانية (`harness/kapilar.ps1`):
+تخضع كل إضافية جديدة للمشروع لـ 6 بوابات اختبار مجانية (`harness/` (Rust)):
 
 ```bash
-pwsh -File harness/kapilar.ps1
+cargo run --manifest-path harness/Cargo.toml -- gates
 ```
 
 - **البوابة 1 (التجميع):** `cargo build --workspace`

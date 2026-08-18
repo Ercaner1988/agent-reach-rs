@@ -26,7 +26,7 @@
 - [x] **CLI** — `install`, `configure`, `doctor`, `skill`, `transcribe`, `execute`
 - [x] **MCP サーバー** — stdio JSON-RPC インターフェース、14チャンネルへのアクセス
 - [x] **マルチプラットフォームビルド** — Windows, Linux, macOS (`cargo-dist`)
-- [x] **CI/CD パイプライン** — GitHub Actions CI/CD および自動テストゲート (`harness/kapilar.ps1`)
+- [x] **CI/CD パイプライン** — GitHub Actions CI/CD および自動テストゲート (`harness/` (Rust))
 
 詳細マップ: [`docs/HARITA.md`](docs/HARITA.md) (Yolbulucu/Wayfinder 構造)
 
@@ -121,10 +121,10 @@ agent-reach execute --task-file tasks.json --output execution_log.json --verbose
 
 ## 🛡️ 自動テストゲート
 
-プロジェクトへの変更はすべて、6つの完全無料テストゲート (`harness/kapilar.ps1`) を通過します：
+プロジェクトへの変更はすべて、6つの完全無料テストゲート (`harness/` (Rust)) を通過します：
 
 ```bash
-pwsh -File harness/kapilar.ps1
+cargo run --manifest-path harness/Cargo.toml -- gates
 ```
 
 - **ゲート 1 (ビルド):** `cargo build --workspace`

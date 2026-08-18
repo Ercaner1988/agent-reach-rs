@@ -6,6 +6,9 @@ members = [
     "crates/agent-reach-mcp",
     "crates/agent-reach-cli",
 ]
+# The harness builds the gates that report a broken tree; it must not be part of
+# the tree it inspects, or a broken workspace takes its own alarm down with it.
+exclude = ["harness"]
 resolver = "2"
 
 [workspace.package]

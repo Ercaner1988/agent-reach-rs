@@ -1,10 +1,24 @@
 {
-  "_": "Kabul olcutleri. Altin kumeden AYRI dosyada durur ve sebebi su: kume",
-  "__": "buyumeli (yeni vaka iyi bir seydir), esik buyumemeli. Ikisi ayni",
-  "___": "hakem dosyasindaydi; kume 16'dan 24'e cikinca etiket ilerledi ve",
-  "____": "ayni hareketle silinmis bir assert de kutsandi. Artik ayrilar.",
-  "_____": "Oran kullaniyoruz, sayi degil: payda buyuyunce cita dusmesin.",
-
-  "min_recall_ratio": 0.90,
-  "max_zero_results": 0
+  "_": "Kabul olcutleri + hile grep'inin muafiyet listesi. Altin kumeden AYRI",
+  "__": "dosyada durur: kume buyumeli, esik buyumemeli. Ikisi ayni hakem",
+  "___": "dosyasindayken kume 16'dan 24'e cikti, etiket ilerledi, ve ayni",
+  "____": "hareketle silinmis bir assert de kutsandi. Oran kullaniyoruz, sayi",
+  "_____": "degil: payda buyuyunce cita dusmesin.",
+  "min_recall_ratio": 0.9,
+  "max_zero_results": 0,
+  "______": "Siradan Ingilizce ikililer. Altin kumede de geciyorlar ama her",
+  "_______": "yazilim deposunda da geciyorlar, yani kopyalandiklarina dair hicbir",
+  "________": "sey soylemiyorlar. Bu bir HAKEM dosyasidir: denetlenen taraf",
+  "_________": "listeyi buyutemez, insan ayri bir commit'te buyutur.",
+  "generic_bigrams": [
+    "web search",
+    "for web",
+    "for rust",
+    "rust http",
+    "http client",
+    "client library",
+    "search for",
+    "in rust",
+    "package manager"
+  ]
 }

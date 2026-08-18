@@ -26,7 +26,7 @@
 - [x] **Komut satırı arayüzü** — `install`, `configure`, `doctor`, `skill`, `transcribe`, `execute`
 - [x] **MCP sunucusu** — stdio JSON-RPC arayüzü, 14 kanal erişimi
 - [x] **Çok platformlu derleme** — Windows, Linux, macOS (`cargo-dist`)
-- [x] **Sürekli bütünleşme hattı** — GitHub Actions CI/CD ve otomatik test kapıları (`harness/kapilar.ps1`)
+- [x] **Sürekli bütünleşme hattı** — GitHub Actions CI/CD ve otomatik test kapıları (`harness/` (Rust))
 
 Ayrıntılı harita: [`docs/HARITA.md`](docs/HARITA.md) (Yolbulucu yapısı)
 
@@ -121,10 +121,10 @@ agent-reach execute --task-file tasks.json --output execution_log.json --verbose
 
 ## 🛡️ Otomatik Test Kapıları
 
-Projeye yapılan her ekleme 6 ücretsiz test kapısından (`harness/kapilar.ps1`) geçer:
+Projeye yapılan her ekleme 6 ücretsiz test kapısından (`harness/` (Rust)) geçer:
 
 ```bash
-pwsh -File harness/kapilar.ps1
+cargo run --manifest-path harness/Cargo.toml -- gates
 ```
 
 - **Kapı 1 (Derleme):** `cargo build --workspace`

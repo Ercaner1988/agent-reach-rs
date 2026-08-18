@@ -29,3 +29,4 @@ Thumbs.db
 *.orig
 harness/kaset/
 harness/son-denetim*.txt
+harness/target/

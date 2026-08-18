@@ -80,7 +80,7 @@ değil — Tur B'nin konusu.
 
 ## Demir kurallar
 
-1. **Derlenmeyen kod commit edilmez.** `pwsh -File harness/kapilar.ps1` altı kapıyı
+1. **Derlenmeyen kod commit edilmez.** `cargo run --manifest-path harness/Cargo.toml -- gates` yedi kapıyı
    da koşar, bedava ve ~30 saniye. Altısı yeşil olmadan teslim etme.
 2. **Altın kümedeki hiçbir dize kaynak dosyalarda geçmez** — yorumlar dahil.
    Kapı 5 bunu makineyle denetliyor.
@@ -101,7 +101,7 @@ değil — Tur B'nin konusu.
 
 ## Teslim
 
-1. `harness/kapilar.ps1` tam çıktısı, altı kapı yeşil.
+1. `harness/` (Rust) tam çıktısı, yedi kapı yeşil.
 2. İki gauntlet koşusunun `Not measured` satırları yan yana.
 3. Eklenen sekiz vakanın listesi ve her birinin `gh repo view` doğrulaması.
 4. Hâlâ kısıtlanan uç varsa teşhisiyle — kaçırılanı bildirmek kusur değil,
