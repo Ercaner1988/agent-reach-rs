@@ -78,5 +78,45 @@
     "id": 16,
     "query": "Deno JavaScript TypeScript runtime",
     "target": "denoland/deno"
+  },
+  {
+    "id": 17,
+    "query": "type safe object relational mapping for rust",
+    "target": "diesel-rs/diesel"
+  },
+  {
+    "id": 18,
+    "query": "ergonomic web application framework built with tokio",
+    "target": "tokio-rs/axum"
+  },
+  {
+    "id": 19,
+    "query": "flexible trait object based error handling library",
+    "target": "dtolnay/anyhow"
+  },
+  {
+    "id": 20,
+    "query": "build and publish rust generated webassembly packages",
+    "target": "wasm-bindgen/wasm-pack"
+  },
+  {
+    "id": 21,
+    "query": "gorsel terminal arayuz kutuphanesi",
+    "target": "ratatui/ratatui"
+  },
+  {
+    "id": 22,
+    "query": "hızlı ve güvenilir ağ iletişim kütüphanesi",
+    "target": "hyperium/hyper"
+  },
+  {
+    "id": 23,
+    "query": "serialization framework without runtime reflection",
+    "target": "serde-rs/serde"
+  },
+  {
+    "id": 24,
+    "query": "parse atom and news site updates in rust",
+    "target": "rust-syndication/rss"
   }
 ]
