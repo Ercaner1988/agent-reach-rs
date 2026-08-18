@@ -94,9 +94,9 @@ pub enum Commands {
         verbose: bool,
     },
 
-    /// Transcribe audio/video URL or local file (Whisper via Groq/OpenAI)
+    /// Transcribe a local audio/video file (Whisper via Groq/OpenAI)
     Transcribe {
-        /// Audio/video URL or local file path
+        /// Local audio/video file path
         source: String,
 
         /// Transcription provider

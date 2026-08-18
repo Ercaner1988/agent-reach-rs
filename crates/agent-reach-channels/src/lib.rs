@@ -17,12 +17,6 @@ pub mod xiaohongshu;
 pub mod xiaoyuzhou;
 pub mod xueqiu;
 pub mod youtube;
-// Future channels (to be implemented):
-// pub mod linkedin;
-// pub mod v2ex;
-// pub mod xueqiu;
-// pub mod xiaoyuzhou;
-// pub mod exa_search;
 
 pub use bilibili::BilibiliChannel;
 pub use duckduckgo::DuckDuckGoChannel;
