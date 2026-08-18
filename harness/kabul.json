@@ -1,0 +1,10 @@
+{
+  "_": "Kabul olcutleri. Altin kumeden AYRI dosyada durur ve sebebi su: kume",
+  "__": "buyumeli (yeni vaka iyi bir seydir), esik buyumemeli. Ikisi ayni",
+  "___": "hakem dosyasindaydi; kume 16'dan 24'e cikinca etiket ilerledi ve",
+  "____": "ayni hareketle silinmis bir assert de kutsandi. Artik ayrilar.",
+  "_____": "Oran kullaniyoruz, sayi degil: payda buyuyunce cita dusmesin.",
+
+  "min_recall_ratio": 0.90,
+  "max_zero_results": 0
+}

@@ -26,11 +26,15 @@ param(
 
     [string]$Model = '',
 
-    # Tur sonu denetciyi kosan saglayici. Hermes'te tanimli olmali:
-    #   hermes fallback list   ile bak
-    # Tanimli degilse denetim KOSULMAZ ve tur ozetinde oyle gorunur --
-    # sessizce gecmez, cunku denetlenmemis tur onaylanmis tur degildir.
-    [string]$Denetci = 'deepseek',
+    # Tur sonu denetci. Isi kusur aramak, o yuzden isi YAPAN modelden BASKA
+    # bir model olmali -- kendi isini aklayan denetci denetci degildir.
+    #
+    # Olculdu ve calisiyor: custom:kervan + kervan/gemini.
+    # deepseek-harness (dsh) kurulu ama DEEPSEEK_API_KEY istiyor; bagladiginda
+    #   -Denetci dsh
+    # de gecerli olur (asagida ayri kol).
+    [string]$Denetci = 'custom:kervan',
+    [string]$DenetciModel = 'kervan/gemini',
 
     [switch]$KuruKosu
 )
@@ -39,9 +43,13 @@ $ErrorActionPreference = 'Stop'
 $Depo = Split-Path -Parent $PSScriptRoot
 Set-Location $Depo
 
+# Hakem = olcutu tutan dosyalar. Altin kume ve kosucu BURADA DEGIL: ikisi de
+# mesru olarak buyur/degisir (yeni vaka iyi bir seydir), ve ikisini de geri
+# yuklemek ya buyumeyi engeller ya da -- gecen turda oldugu gibi -- buyumeyle
+# birlikte gelen silinmis bir assert'i kutsar. Olcut ayri dosyada, oran
+# cinsinden; payda buyudu diye cita dusmez.
 $Hakem = @(
-    'crates/agent-reach-channels/tests/golden_search.json',
-    'crates/agent-reach-channels/tests/search_gauntlet.rs',
+    'harness/kabul.json',
     'harness/kapilar.ps1'
 )
 $env:AGENT_REACH_CASSETTE = Join-Path $PSScriptRoot 'kaset'
@@ -151,10 +159,16 @@ Ozellikle su dordunu ara:
 $fark
 "@
     $denetimIstemi | Out-File -FilePath (Join-Path $PSScriptRoot 'son-denetim-istemi.txt') -Encoding UTF8
-    & hermes -z $denetimIstemi --provider $Denetci 2>&1 |
-        Tee-Object -FilePath (Join-Path $PSScriptRoot 'son-denetim.txt')
+    $denetimCiktisi = Join-Path $PSScriptRoot 'son-denetim.txt'
+    if ($Denetci -eq 'dsh') {
+        # DeepSeek Harness, tek gorev kipinde. DEEPSEEK_API_KEY gerekir.
+        & dsh --profile headless $denetimIstemi 2>&1 | Tee-Object -FilePath $denetimCiktisi
+    } else {
+        & hermes -z $denetimIstemi --provider $Denetci -m $DenetciModel 2>&1 |
+            Tee-Object -FilePath $denetimCiktisi
+    }
     if ($LASTEXITCODE -eq 0) {
-        $denetimDurumu = "kosuldu ($Denetci)"
+        $denetimDurumu = "kosuldu ($Denetci/$DenetciModel)"
     } else {
         Write-Host "  '$Denetci' cagrilamadi. Hermes'te tanimli mi? -> hermes fallback list" -ForegroundColor Yellow
         Write-Host "  Istem yazildi: harness/son-denetim-istemi.txt" -ForegroundColor Yellow

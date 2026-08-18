@@ -97,8 +97,7 @@ Write-Host "   yesil ($($aranan.Count) obek arandi)" -ForegroundColor Green
 # puani degistiremez. Ama denenmis olmasi bilinmeli.
 Write-Host "── esik bekcisi" -ForegroundColor Cyan
 $hakem = @(
-    'crates/agent-reach-channels/tests/golden_search.json',
-    'crates/agent-reach-channels/tests/search_gauntlet.rs',
+    'harness/kabul.json',
     'harness/kapilar.ps1'
 )
 $kirli = git diff --name-only -- $hakem
@@ -109,6 +108,22 @@ if ($kirli) {
 } else {
     Write-Host "   yesil" -ForegroundColor Green
 }
+
+# -- Kapi 7: kabul olcutleri hala baglanmis mi --------------------------------
+# Bir esigi kaydirmanin en sessiz yolu sayiyi degistirmek degil, assert'i
+# silmektir. Gecen tur tam olarak bu oldu: `assert_eq!(zero_results, 0)`
+# bir `println!`e cevrildi ve kosu 4 sifir-sonucla YESIL gecti.
+Write-Host "-- kabul olcutleri" -ForegroundColor Cyan
+$gauntlet = Get-Content 'crates/agent-reach-channels/tests/search_gauntlet.rs' -Raw -Encoding UTF8
+$zorunlu = @('kabul.json', 'min_recall_ratio', 'max_zero_results', 'zero_results <= max_zero')
+$eksik = $zorunlu | Where-Object { -not $gauntlet.Contains($_) }
+if ($eksik) {
+    Write-Host "   KIRMIZI: gauntlet kabul olcutlerine bagli degil. Eksik:" -ForegroundColor Red
+    $eksik | ForEach-Object { Write-Host "     $_" -ForegroundColor Red }
+    Write-Host "   Assert'i silmek esigi gecmek degildir." -ForegroundColor Yellow
+    exit 1
+}
+Write-Host "   yesil" -ForegroundColor Green
 
 Write-Host ""
 Write-Host "Butun kapilar yesil." -ForegroundColor Green

@@ -141,7 +141,10 @@ async fn search_gauntlet() {
         combined_metrics.measured(),
         combined_metrics.recall_percent()
     );
-    println!("Zero-result queries: {}/16", combined_metrics.zero_results);
+    println!(
+        "Zero-result queries: {}/{}",
+        combined_metrics.zero_results, combined_metrics.total
+    );
     println!(
         "Not measured (throttled): github {} · exa {} · combined {}",
         github_metrics.unmeasured, exa_metrics.unmeasured, combined_metrics.unmeasured
@@ -156,22 +159,49 @@ async fn search_gauntlet() {
         combined_metrics.total
     );
 
-    // Acceptance criteria: ≥15 measured recall across the golden set.
-    let target_combined_recall = 15;
+    // Acceptance criteria live in harness/kabul.json, not here.
+    //
+    // They used to be literals in this file, next to the golden set. The set
+    // legitimately grew from 16 cases to 24 — and the same commit that carried
+    // that growth also deleted the zero-result assertion and left the recall
+    // threshold at an absolute 15, which quietly moved the bar from 94% to 62%.
+    // A ratio cannot be diluted by a larger denominator, and a criterion kept
+    // in its own file has no legitimate reason to change while a round is
+    // being scored.
+    let kabul: serde_json::Value = serde_json::from_str(
+        &std::fs::read_to_string(
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../harness/kabul.json"),
+        )
+        .expect("harness/kabul.json must exist"),
+    )
+    .expect("harness/kabul.json must be valid JSON");
 
+    let min_ratio = kabul["min_recall_ratio"]
+        .as_f64()
+        .expect("min_recall_ratio");
+    let max_zero = kabul["max_zero_results"]
+        .as_u64()
+        .expect("max_zero_results") as usize;
+
+    // Zero-result first: it is the harder failure. A caller cannot tell an
+    // empty list from "does not exist", so one of these is a lie told with
+    // confidence — regardless of what the recall column says.
     assert!(
-        combined_metrics.recall_at_10 >= target_combined_recall,
-        "Combined recall@10 must be ≥ {} (got {}/{} measured)",
-        target_combined_recall,
-        combined_metrics.recall_at_10,
-        combined_metrics.measured()
+        combined_metrics.zero_results <= max_zero,
+        "Zero-result queries must be ≤ {} (got {}/{})",
+        max_zero,
+        combined_metrics.zero_results,
+        combined_metrics.total
     );
 
-    println!(
-        "Gauntlet run complete: {}/{} recall@10 achieved, {} zero-result queries remaining.",
+    let ratio = combined_metrics.recall_at_10 as f64 / combined_metrics.measured() as f64;
+    assert!(
+        ratio >= min_ratio,
+        "Combined recall must be ≥ {:.0}% (got {:.1}% — {}/{} measured)",
+        min_ratio * 100.0,
+        ratio * 100.0,
         combined_metrics.recall_at_10,
-        combined_metrics.measured(),
-        combined_metrics.zero_results
+        combined_metrics.measured()
     );
 }
 
