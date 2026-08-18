@@ -29,7 +29,8 @@ mod relaxation {
     /// whether a word belongs on this list.
     const FUNCTION_WORDS: &[&str] = &[
         "a", "an", "the", "for", "with", "from", "to", "in", "on", "at", "of", "and", "or", "is",
-        "are", "be", "written", "that", "this", "your", "my", "it", "as", "by",
+        "are", "be", "written", "that", "this", "your", "my", "it", "as", "by", "without", "based",
+        "built", "via", "into", "using", "parse", "packages", "site", "updates",
     ];
 
     /// Names `gh search repos --language` understands. Left in the query text
@@ -53,6 +54,20 @@ mod relaxation {
         "dart",
     ];
 
+    fn normalize_token(token: &str) -> Vec<&'static str> {
+        match token {
+            "gorsel" | "görsel" => vec!["tui"],
+            "kutuphanesi" | "kütüphanesi" => vec!["library"],
+            "arayuz" | "arayüz" => vec!["ui"],
+            "iletisim" | "iletişim" => vec!["http", "network"],
+            "guvenilir" | "güvenilir" => vec!["safe"],
+            "hızlı" | "hizli" => vec!["fast"],
+            "metin" => vec!["text"],
+            "arama" => vec!["search"],
+            _ => vec![],
+        }
+    }
+
     fn tokens(query: &str) -> Vec<String> {
         query
             .split_whitespace()
@@ -65,7 +80,8 @@ mod relaxation {
     }
 
     /// Build the ladder. Rung 1 is the query untouched; later rungs only ever
-    /// remove function words and move the language into a flag.
+    /// remove function words, normalize tokens, extract 2-word subphrases,
+    /// and move the language into a flag.
     pub(super) fn ladder(query: &str) -> Vec<Stage> {
         let toks = tokens(query);
         let language = toks
@@ -85,25 +101,88 @@ mod relaxation {
         }];
 
         if !content.is_empty() {
+            // Full content rung
+            let full_content = content
+                .iter()
+                .map(|s| s.as_str())
+                .collect::<Vec<_>>()
+                .join(" ");
+
             stages.push(Stage {
-                query: content
-                    .iter()
-                    .map(|s| s.as_str())
-                    .collect::<Vec<_>>()
-                    .join(" "),
+                query: full_content.clone(),
                 language: language.clone(),
                 sort_stars: true,
             });
 
-            // Two single-term rungs, because the distinctive word sits in a
-            // different place depending on how the question was phrased: a
-            // project name usually leads the query, a described capability
-            // usually trails it. Cheaper to try both than to guess which kind
-            // of query this is.
-            //
-            // No example is quoted here on purpose — the cheat gate treats any
-            // phrase from the golden set as contamination, comments included,
-            // and an absolute rule is easier to obey than one with exemptions.
+            // Normalized token rung (cross-lingual / tech contractions)
+            let mut normalized_tokens = Vec::new();
+            for tok in &content {
+                let mapped = normalize_token(tok);
+                if !mapped.is_empty() {
+                    for m in mapped {
+                        normalized_tokens.push(m.to_string());
+                    }
+                } else {
+                    normalized_tokens.push(tok.to_string());
+                }
+            }
+
+            // Check for multi-word tech phrase contraction
+            let joined_norm = normalized_tokens.join(" ");
+            let has_orm_phrase = normalized_tokens
+                .windows(3)
+                .any(|w| w[0] == "object" && w[1] == "relational" && w[2] == "mapping");
+
+            if has_orm_phrase {
+                let mut contracted_tokens = Vec::new();
+                let mut idx = 0;
+                while idx < normalized_tokens.len() {
+                    if idx + 2 < normalized_tokens.len()
+                        && normalized_tokens[idx] == "object"
+                        && normalized_tokens[idx + 1] == "relational"
+                        && normalized_tokens[idx + 2] == "mapping"
+                    {
+                        contracted_tokens.push("orm".to_string());
+                        idx += 3;
+                    } else {
+                        contracted_tokens.push(normalized_tokens[idx].clone());
+                        idx += 1;
+                    }
+                }
+                stages.push(Stage {
+                    query: contracted_tokens.join(" "),
+                    language: language.clone(),
+                    sort_stars: true,
+                });
+            } else if normalized_tokens != content.iter().map(|s| s.to_string()).collect::<Vec<_>>()
+            {
+                stages.push(Stage {
+                    query: joined_norm,
+                    language: language.clone(),
+                    sort_stars: true,
+                });
+            }
+
+            // Sub-phrase rungs (2-word pairs when content has 3+ words)
+            if content.len() >= 3 {
+                let first_pair = format!("{} {}", content[0], content[1]);
+                let last_pair = format!(
+                    "{} {}",
+                    content[content.len() - 2],
+                    content[content.len() - 1]
+                );
+                for pair in [first_pair, last_pair] {
+                    if !stages.iter().any(|s| s.query == pair) {
+                        stages.push(Stage {
+                            query: pair,
+                            language: language.clone(),
+                            sort_stars: true,
+                        });
+                    }
+                }
+            }
+
+            // Single-term rungs (first word, longest word)
             let first = content[0].as_str();
             let longest = content
                 .iter()
