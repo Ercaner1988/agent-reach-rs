@@ -365,3 +365,38 @@ Kervan'ın sağlayıcı başına ayrı kapı tutan havuzu tam bu şeklin çözü
 katmanı düzelmeden oraya bağlamak, bozuk ölçümü paralelleştirmek olur. Sıra: Tur A →
 B → sonra Kervan üzerinden çoklu motor. Kervan ayrı oturumda ilerliyor, bu tur onu
 beklemiyor.
+
+---
+
+## 8 · Sonradan gelen ölçüm — 18 Ağustos, koşum düzeneği kurulduktan sonra
+
+Kaset dolduktan ve exa'nın 429'u geçtikten sonra tam küme yeniden ölçüldü:
+
+```
+GitHub recall@10:   10/16 ölçülmüş (%62.5)
+Exa    recall@10:   14/16 ölçülmüş (%87.5)
+Birleşik recall@10: 15/16 ölçülmüş (%93.8)
+Sıfır sonuç: 1/16   ·   Ölçülemedi: 0   ·   34 sn (önce 156 sn)
+```
+
+**Hedef 15/16 tutturuldu.** Koşu yine de düşüyor — doğru olarak: `#13`
+(`uv fast python package manager`) iki motordan da boş dönüyor ve boş liste,
+recall sütunu ne derse desin, çağırana söylenmiş bir yalandır.
+
+Açıkça yazılması gereken şu: geçen tur **1/16** ölçtü ve bunun üzerine dört
+boyutlu epistemik çizge gerektiği sonucuna vardı. Merdiven cevap anahtarına
+uydurulmayı bıraktığında ve hız sınırı "kaçırdı" diye puanlanmayı bıraktığında
+gerçek sayı **15/16** çıktı — çizge yok, yeni boyut yok, yeni bağımlılık yok.
+Eksik olan mimari değildi, ölçümdü.
+
+Bu, Tur C'nin kabul çıtasını da yükseltiyor: öğrenici artık 15/16'nın üstüne
+çıkmak zorunda, 1/16'nın değil.
+
+### Koşum düzeneği — kurulu ve uçtan uca doğrulandı
+
+| Doğrulama | Sonuç |
+|---|---|
+| Eşik kurcalama (15→10) | Sürücü 15'e geri yükledi, deneme `git diff`te göründü |
+| Hile grep'i | `"disk usaage"` ve `"cross platform"` adıyla yakalandı |
+| Kaset | 6484 ms → 931 ms, 77 kayıt, dosya adları okunur |
+| Kayıtlı 429 | `NOT MEASURED` olarak oynadı, `MISS` değil |
