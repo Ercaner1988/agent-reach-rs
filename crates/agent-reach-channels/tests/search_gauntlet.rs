@@ -70,8 +70,8 @@ async fn search_gauntlet() {
 
     assert_eq!(
         test_cases.len(),
-        16,
-        "Golden dataset must contain exactly 16 test cases"
+        24,
+        "Golden dataset must contain exactly 24 test cases"
     );
 
     let config = Config::default();
@@ -82,7 +82,7 @@ async fn search_gauntlet() {
     let mut exa_metrics = Metrics::default();
     let mut combined_metrics = Metrics::default();
 
-    println!("\n=== Search Gauntlet (16 test cases) ===\n");
+    println!("\n=== Search Gauntlet (24 test cases) ===\n");
 
     for (i, case) in test_cases.iter().enumerate() {
         // Pace the run. Firing 16 queries back to back at a free public endpoint
