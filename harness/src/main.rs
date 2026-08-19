@@ -265,10 +265,18 @@ fn parse_opts(args: &[String]) -> Result<Opts, String> {
         // The standing agent-reach-rs session. 1067 messages of this project's
         // history, and calling tools in this repository throughout.
         session: "20260817_183532_59ccce".into(),
-        // Measured and working. `dsh` is installed but wants DEEPSEEK_API_KEY;
-        // once it is set, `--reviewer dsh` takes the other branch.
-        reviewer: "custom:kervan".into(),
-        reviewer_model: "kervan/gemini".into(),
+        // A reviewer has to be a model that did not write the code. The old
+        // default was Kervan's Gemini, which is the family the agent runs under
+        // — self-review dressed as review. This one is DeepSeek, verified at the
+        // provider level in OmniRoute's call log rather than by trusting the
+        // catalogue: `oc/deepseek-v4-flash-free` really is served by opencode as
+        // deepseek-v4-flash-free, and it is free. The neighbouring
+        // `kc/deepseek/deepseek-v4-pro-0813` answered too, but the log shows it
+        // returned nothing and the request fell through to Gemini — a right
+        // answer from the wrong model, which is the failure this whole harness
+        // exists to catch.
+        reviewer: "custom:omniroute-hermes-beyin".into(),
+        reviewer_model: "oc/deepseek-v4-flash-free".into(),
         dry_run: false,
     };
     let mut it = args.iter();
@@ -672,7 +680,12 @@ mod tests {
         let o = parse_opts(&["--ticket".into(), "A".into()]).unwrap();
         assert_eq!(o.ticket, "A");
         assert_eq!(o.referee, "hakem");
-        assert_eq!(o.reviewer, "custom:kervan");
+        assert_eq!(o.reviewer, "custom:omniroute-hermes-beyin");
+        assert_eq!(o.reviewer_model, "oc/deepseek-v4-flash-free");
+        // The point of the reviewer is that it did not write the code. The agent
+        // runs under Gemini, so a Gemini reviewer is self-review with a second
+        // name on it — the one default this must never drift back to.
+        assert!(!o.reviewer_model.contains("gemini"));
         assert!(!o.dry_run);
     }
 
