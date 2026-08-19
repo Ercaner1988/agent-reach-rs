@@ -210,7 +210,6 @@ use agent_reach_core::{
     doctor::HealthStatus,
     Config, Error,
 };
-use agent_reach_graph::Graph;
 use async_trait::async_trait;
 use std::collections::HashMap;
 use std::time::Instant;
@@ -301,24 +300,8 @@ impl Backend for GhCliBackend {
                     Error::BackendExecution(self.name().into(), "Missing query argument".into())
                 })?;
 
-                // 3-stage fallback ladder
-                let mut stages = relaxation::ladder(query);
-
-                // Epistemic single-axis shadow graph query expansion (agent-reach-graph)
-                let graph_handle = Graph::open_default().await.ok();
-                if let Some(ref graph) = graph_handle {
-                    let shadow_queries = graph.expand_shadow(query).await;
-                    let lang = stages.first().and_then(|s| s.language.clone());
-                    for sq in shadow_queries {
-                        if !stages.iter().any(|s| s.query == sq) {
-                            stages.push(relaxation::Stage {
-                                query: sq,
-                                language: lang.clone(),
-                                sort_stars: true,
-                            });
-                        }
-                    }
-                }
+                // 3-stage fallback (clean architecture — no hardcoded rules)
+                let stages = relaxation::ladder(query);
 
                 // Collect results from all stages separately (round-robin interleaving)
                 let mut stage_outputs: Vec<Vec<serde_json::Value>> = Vec::new();

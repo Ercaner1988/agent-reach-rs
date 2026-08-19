@@ -4,7 +4,6 @@ members = [
     "crates/agent-reach-channels",
     "crates/agent-reach-mcp",
     "crates/agent-reach-cli",
-    "crates/agent-reach-graph",
 ]
 # The harness builds the gates that report a broken tree; it must not be part of
 # the tree it inspects, or a broken workspace takes its own alarm down with it.
