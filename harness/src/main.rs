@@ -464,13 +464,34 @@ fn run_round(root: &Path, args: &[String]) -> u8 {
 
 /// One adversarial pass over the round's diff, by a model that did not write it.
 fn review_round(root: &Path, round_start: &str, opts: &Opts) -> String {
-    let mut diff = capture(root, "git", &["diff", &format!("{round_start}..HEAD")]);
+    // Recorded search responses are data, not work: one round carried 107 of
+    // them and the diff came to 2.2 MB, nearly all of it engine output nobody
+    // wrote. Reviewing that is both useless and impossible to fit in a prompt.
+    let exclude = ":(exclude,glob)**/kaset/**";
+    let mut diff = capture(
+        root,
+        "git",
+        &["diff", &format!("{round_start}..HEAD"), "--", ".", exclude],
+    );
     if diff.trim().is_empty() {
-        diff = capture(root, "git", &["diff"]);
+        diff = capture(root, "git", &["diff", "--", ".", exclude]);
     }
     if diff.trim().is_empty() {
         eprintln!("  no changes, review skipped");
         return "no changes".into();
+    }
+
+    // Still too large to send is a fact the round should report, not one the
+    // reviewer should silently swallow half of.
+    const MAX_DIFF: usize = 400_000;
+    if diff.len() > MAX_DIFF {
+        eprintln!(
+            "  diff is {} bytes, over the {MAX_DIFF} the reviewer is given; \
+             sending the first {MAX_DIFF} and saying so",
+            diff.len()
+        );
+        diff.truncate(MAX_DIFF);
+        diff.push_str("\n\n[TRUNCATED — the diff did not fit. Review what is here and say plainly that the rest was not seen.]");
     }
 
     let prompt = format!(
