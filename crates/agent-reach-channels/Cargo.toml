@@ -9,6 +9,7 @@ repository.workspace = true
 
 [dependencies]
 agent-reach-core = { path = "../agent-reach-core" }
+agent-reach-graph = { path = "../agent-reach-graph" }
 tokio = { workspace = true }
 async-trait = { workspace = true }
 serde = { workspace = true }
