@@ -397,7 +397,17 @@ fn run_round(root: &Path, args: &[String]) -> u8 {
     section("Gates");
     restore_referee(root, &opts.referee);
     if gates(root) != 0 {
-        eprintln!("\nGATE RED. The round does not go to review.");
+        // Red rounds used to stop here. That threw away the round's most useful
+        // hour: three consecutive red rounds were scored by the gates as one
+        // repeated fault, while the reviewer, given the same diff by hand,
+        // found two the gates cannot see — a learning loop with no caller and a
+        // "shadow" expansion pushed onto the live search path. The gates say a
+        // rule was broken; the reviewer says what else is wrong underneath.
+        eprintln!("\nGATE RED. Not an approved round — reviewing it anyway.");
+        section("Review");
+        let review = review_round(root, &round_start, &opts);
+        eprintln!("\n  review   : {review}");
+        eprintln!("  The next ticket opens after a human says so.");
         return 1;
     }
 
