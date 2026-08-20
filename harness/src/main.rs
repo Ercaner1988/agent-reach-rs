@@ -149,10 +149,34 @@ fn gate_answer_key(root: &Path) -> Result<(), u8> {
         })
         .unwrap_or_default();
 
+    // Bare project names the gate must not chase. Most targets are also ordinary
+    // dependencies — `serde`, `anyhow`, `reqwest` — or channels this tool really
+    // has. Kept in the referee file so the author being checked cannot extend it.
+    let generic_names: HashSet<String> = criteria["generic_names"]
+        .as_array()
+        .map(|a| {
+            a.iter()
+                .filter_map(|v| v.as_str())
+                .map(str::to_lowercase)
+                .collect()
+        })
+        .unwrap_or_default();
+
     let mut wanted: HashSet<String> = HashSet::new();
     for case in golden.as_array().into_iter().flatten() {
         if let Some(t) = case["target"].as_str() {
             wanted.insert(t.to_lowercase());
+            // The slug alone let one through: `record_success("tui", "ratatui")`
+            // named a target and the gate saw nothing, because it only looked for
+            // `ratatui/ratatui`. Quoted, because that is what separates the answer
+            // key from a dependency — `use serde::…` is work, `"serde"` is a
+            // string someone typed.
+            if let Some(name) = t.rsplit('/').next() {
+                let name = name.to_lowercase();
+                if !generic_names.contains(&name) {
+                    wanted.insert(format!("\"{name}\""));
+                }
+            }
         }
         if let Some(q) = case["query"].as_str() {
             let words: Vec<&str> = q.split_whitespace().collect();
@@ -174,7 +198,14 @@ fn gate_answer_key(root: &Path) -> Result<(), u8> {
         for phrase in &wanted {
             if lower.contains(phrase) {
                 let name = file.file_name().unwrap_or_default().to_string_lossy();
-                violations.push(format!("{name}: \"{phrase}\""));
+                // Bare-name phrases carry their own quotes; adding a second pair
+                // makes a working gate look like a broken one.
+                let shown = if phrase.starts_with('"') {
+                    phrase.clone()
+                } else {
+                    format!("\"{phrase}\"")
+                };
+                violations.push(format!("{name}: {shown}"));
             }
         }
     }

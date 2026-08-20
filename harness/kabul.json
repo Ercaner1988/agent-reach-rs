@@ -20,5 +20,12 @@
     "search for",
     "in rust",
     "package manager"
+  ],
+  "__________": "Ciplak proje adlari, tirnak icinde arananlardan muaf. Hedeflerin",
+  "___________": "cogu ayni zamanda siradan bir bagimlilik ya da bu araciN gercek",
+  "____________": "kanali; 'rss' ikisi birden. Muafiyet burada durur, denetlenen",
+  "_____________": "taraf uzatamasin.",
+  "generic_names": [
+    "rss"
   ]
 }
