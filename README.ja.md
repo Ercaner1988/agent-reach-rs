@@ -1,4 +1,4 @@
-[ **Türkçe** ](README.tr.md) | [ **العربية** ](README.ar.md) | [ **English** ](README.md) | [ **日本語** ](README.ja.md)
+**🌍 [Türkçe](README.md) | [English](README.en.md) | [العربية](README.ar.md) | [日本語](README.ja.md)**
 
 ---
 
