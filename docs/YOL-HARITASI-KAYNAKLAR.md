@@ -52,6 +52,7 @@ Sıralama zorluk değil **erişim biçimi**: kaynağın kendi açtığı kapı h
 | **Pew Research** | Açık rapor + veri seti indirmeleri | Giriş yok |
 | **Substack** | **Yayın başına RSS** (`<yayin>.substack.com/feed`) | **Zaten çalışıyor** — mevcut `rss` kanalı, sıfır yeni kod |
 | **DergiPark** | Açık erişim; API/OAI ucu **belirsiz** | İki tahminim `404` verdi; uç bulunmalı |
+| **Turath** (`app.turath.io`) | **Anahtarsız JSON API** — aşağıda haritası | `/search` `200`, giriş yok |
 
 Substack özellikle önemli: yeni kanal gerekmiyor, bugün `rss_fetch` ile
 okunabiliyor. Yol haritasına yazılacak tek şey, ilgilenilen yayınların listesi.
@@ -108,19 +109,52 @@ politikası — ama D için doğru ve yeterli.
 
 ---
 
-## 3 · Camelira bir kaynak değil, bir araç
+## 3 · Turath — listenin en kolayı ve en değerlisi
 
+`app.turath.io` bir SPA; arkasında **anahtarsız, girişsiz, sayfalı bir JSON
+API** var. Bugün haritasını çıkardım, hepsi ölçüldü:
+
+```
+GET /search?q=<terim>&page=N&precision=N
+    → {count, data:[{book_id, cat_id, author_id, meta, snip, text}]}
+      meta = {book_name, author_name, vol, page, page_id, headings}
+
+GET /book?id=<N>            → kitap künyesi (ad, tür, baskı, bilgi)
+GET /author?id=<N>          → yazar künyesi (ad, biyografi, vefat)
+GET /page?book_id=<N>&pg=<M> → sayfanın metni   (pg = meta.page)
+```
+
+Ölçülen örnek: `q=العلم` → `count: 1.162.955`, sayfa başına 20 kayıt.
+`api.turath.io` köke parametresiz gidildiğinde `400 {"error": true}` veriyor —
+yani uç ayakta, yalnızca doğru parametre bekliyor.
+
+**Neden listenin en değerlisi:** her isabet **cilt ve sayfa numarasıyla**
+geliyor. Bu, tez tarafındaki `atif-motoru`'nun tam ihtiyacı — sayfa uydurmadan,
+gerçek sayfayla atıf. Kaynak arama ile atıf üretimi arasındaki köprü burada
+kuruluyor.
+
+**Not:** `robots.txt` yok — SPA her yola `index.html` döndürüyor. Yani açık bir
+yasak da yok, açık bir izin de. Bu yüzden kanal **ölçülü hızda** çalışacak:
+istekler arası bekleme, sayfa başına 20 kayıt, ve kaset açıkken tekrar ağa
+çıkmama. Bir kaynağın kapısını açık bulmak, kapıdan koşarak girmeyi haklı
+çıkarmaz.
+
+## 3b · Camelira bir kaynak değil, bir araç
+
+*(Bu madde bir karıştırma sonucu listeye girmişti; kayıt olarak duruyor.)*
 `camelira.abudhabi.nyu.edu` ayakta (`200`), ama yaptığı iş arama değil:
-Arapça **morfolojik çözümleme ve belirsizlik giderme**. Yani ARR'ın "eriş ve
-oku" kanallarından biri olamaz; sözcük normalleştirme aşamasında kullanılacak
-bir **işlemci**. Tez tarafındaki Arapça metinler için değerli, ama kanal
-listesine değil, metin hattına girer.
+Arapça **morfolojik çözümleme ve belirsizlik giderme**. ARR'ın "eriş ve oku"
+kanallarından biri olamaz; sözcük normalleştirme aşamasında kullanılacak bir
+**işlemci**. Turath'tan gelen klasik Arapça metinleri normalleştirmek için
+gerçekten işe yarar — yani ikisi birbirini tamamlıyor, ama farklı katmanlarda.
 
 ---
 
 ## 4 · Sıra
 
 **Şimdi (kuşak A, düşük risk, ölçülebilir):**
+0. **Turath** — API haritası çıkarıldı, anahtar yok, giriş yok. Dört uç, tek
+   kanal. Altın kümenin github dışına çıkması da buradan olabilir.
 1. Substack — kod yok, yalnız yayın listesi.
 2. Wikipedia — REST API, tek kanal, kolay ölçülür.
 3. Stanford Encyclopedia + İslam Ansiklopedisi — statik okuyucu, ortak bir
