@@ -1,7 +1,7 @@
 # Yol haritası — yeni kaynaklar ve kaynak anahtarı
 
 **Tarih:** 20 Ağustos 2026 · **Yazan:** Mihenk (Claude Opus 5)
-**Durum:** kaynak anahtarı **kuruldu**; kaynaklar sıraya alındı
+**Durum:** kaynak anahtarı **kuruldu** · **turath kanalı yazıldı** · kalanlar sırada
 
 ---
 
@@ -52,7 +52,7 @@ Sıralama zorluk değil **erişim biçimi**: kaynağın kendi açtığı kapı h
 | **Pew Research** | Açık rapor + veri seti indirmeleri | Giriş yok |
 | **Substack** | **Yayın başına RSS** (`<yayin>.substack.com/feed`) | **Zaten çalışıyor** — mevcut `rss` kanalı, sıfır yeni kod |
 | **DergiPark** | Açık erişim; API/OAI ucu **belirsiz** | İki tahminim `404` verdi; uç bulunmalı |
-| **Turath** (`app.turath.io`) | **Anahtarsız JSON API** — aşağıda haritası | `/search` `200`, giriş yok |
+| **Turath** (`app.turath.io`) | **Anahtarsız JSON API** — aşağıda haritası | **YAZILDI** — `turath` kanalı, dört eylem |
 
 Substack özellikle önemli: yeni kanal gerekmiyor, bugün `rss_fetch` ile
 okunabiliyor. Yol haritasına yazılacak tek şey, ilgilenilen yayınların listesi.
@@ -153,8 +153,10 @@ gerçekten işe yarar — yani ikisi birbirini tamamlıyor, ama farklı katmanla
 ## 4 · Sıra
 
 **Şimdi (kuşak A, düşük risk, ölçülebilir):**
-0. **Turath** — API haritası çıkarıldı, anahtar yok, giriş yok. Dört uç, tek
-   kanal. Altın kümenin github dışına çıkması da buradan olabilir.
+0. ~~**Turath**~~ — **yazıldı.** `search · book · author · page`, kaset destekli,
+   `meta` açılmış hâlde. Canlı ölçüm: `الاجتهاد` → 80.807 isabet, ilk kayıt
+   *İbn Teymiyye, Mecmûʿu'l-Fetâvâ, c. 20, s. 204*. Kalan iş: altın kümeye
+   github dışı ilk vaka olarak girmesi.
 1. Substack — kod yok, yalnız yayın listesi.
 2. Wikipedia — REST API, tek kanal, kolay ölçülür.
 3. Stanford Encyclopedia + İslam Ansiklopedisi — statik okuyucu, ortak bir

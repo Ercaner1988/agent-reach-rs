@@ -2,8 +2,8 @@
 
 use agent_reach_channels::{
     BilibiliChannel, DuckDuckGoChannel, ExaChannel, GitHubChannel, LinkedinChannel, RedditChannel,
-    RssChannel, TwitterChannel, V2exChannel, WebChannel, XiaohongshuChannel, XiaoyuzhouChannel,
-    XueqiuChannel, YouTubeChannel,
+    RssChannel, TurathChannel, TwitterChannel, V2exChannel, WebChannel, XiaohongshuChannel,
+    XiaoyuzhouChannel, XueqiuChannel, YouTubeChannel,
 };
 use agent_reach_core::{BackendStatus, Channel, Config};
 use anyhow::Result;
@@ -30,8 +30,10 @@ pub async fn doctor(json_output: bool) -> Result<()> {
     let xiaoyuzhou_status = XiaoyuzhouChannel::new().health_check(&config).await;
     let exa_status = ExaChannel::new().health_check(&config).await;
     let duckduckgo_status = DuckDuckGoChannel::new().health_check(&config).await;
+    let turath_status = TurathChannel::new().health_check(&config).await;
 
     let mut results = HashMap::new();
+    results.insert("turath".to_string(), turath_status);
     results.insert("web".to_string(), web_status);
     results.insert("rss".to_string(), rss_status);
     results.insert("twitter".to_string(), twitter_status);
