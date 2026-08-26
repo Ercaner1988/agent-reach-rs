@@ -235,6 +235,14 @@ async fn call_tool(params: Value) -> Result<Value> {
                 str_args.push(arg.as_str().unwrap_or_default().to_string());
             }
 
+            // Same rule as the CLI: an operator switching a source off should
+            // hear that it is off, not watch the agent hunt for a fault.
+            if !config.channel_enabled(&channel_name) {
+                anyhow::bail!(
+                    "Channel '{channel_name}' is switched off in config (disabled_channels)"
+                );
+            }
+
             match channel_name.as_str() {
                 "bilibili" => {
                     BilibiliChannel::new()

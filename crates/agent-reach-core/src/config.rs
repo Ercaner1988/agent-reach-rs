@@ -36,6 +36,14 @@ pub struct Config {
     pub exa_api_key: Option<String>,
     /// Network proxy (http://user:pass@ip:port)
     pub proxy: Option<String>,
+    /// Channels to keep switched off, by name.
+    ///
+    /// A channel can be unwanted without being broken — a source whose terms the
+    /// operator would rather not touch today, or one that is noisy for the work
+    /// at hand. Turning it off here is one line of config instead of a rebuild,
+    /// and the caller is told the channel is off rather than that it failed.
+    #[serde(default)]
+    pub disabled_channels: Vec<String>,
     /// Custom key-value store for platform-specific config
     #[serde(flatten)]
     pub extra: HashMap<String, serde_json::Value>,
@@ -169,6 +177,16 @@ impl Config {
 
     /// Apply environment variable overrides
     fn apply_env_overrides(&mut self) {
+        // Comma separated, so a single shell variable can switch sources off for
+        // one run without touching the file: AGENT_REACH_DISABLED_CHANNELS=reddit,quora
+        if let Ok(val) = std::env::var("AGENT_REACH_DISABLED_CHANNELS") {
+            self.disabled_channels = val
+                .split(',')
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+                .map(str::to_string)
+                .collect();
+        }
         if let Ok(val) = std::env::var("TWITTER_AUTH_TOKEN") {
             self.twitter_auth_token = Some(val);
         }
@@ -208,6 +226,16 @@ impl Config {
     }
 
     /// Default config file path: ~/.agent-reach/config.yaml
+    /// Whether a channel may run. Compared case-insensitively and with
+    /// surrounding whitespace ignored, because this list is typed by hand.
+    pub fn channel_enabled(&self, channel: &str) -> bool {
+        let wanted = channel.trim().to_lowercase();
+        !self
+            .disabled_channels
+            .iter()
+            .any(|c| c.trim().to_lowercase() == wanted)
+    }
+
     pub fn default_config_path() -> crate::Result<PathBuf> {
         let proj_dirs = ProjectDirs::from("", "", "agent-reach")
             .ok_or_else(|| crate::Error::Config("Could not determine home directory".into()))?;
@@ -228,6 +256,31 @@ impl Config {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_channel_is_on_unless_the_list_says_otherwise() {
+        assert!(Config::default().channel_enabled("reddit"));
+
+        let config = Config {
+            disabled_channels: vec!["Reddit".into(), "  quora  ".into()],
+            ..Default::default()
+        };
+        assert!(!config.channel_enabled("reddit"), "case must not matter");
+        assert!(
+            !config.channel_enabled("quora"),
+            "stray spaces must not matter"
+        );
+        assert!(config.channel_enabled("github"), "others stay on");
+    }
+
+    #[test]
+    fn a_channel_name_is_not_matched_by_a_prefix() {
+        let config = Config {
+            disabled_channels: vec!["red".into()],
+            ..Default::default()
+        };
+        assert!(config.channel_enabled("reddit"));
+    }
 
     #[test]
     fn test_config_get_set() {

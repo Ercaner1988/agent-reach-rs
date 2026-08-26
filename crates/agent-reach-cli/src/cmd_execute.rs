@@ -134,6 +134,23 @@ pub async fn execute_tasks(
 async fn execute_single_task(task: &Task, config: &Config, verbose: bool) -> TaskResult {
     let start = Instant::now();
 
+    // "Switched off" and "broken" are different answers, and the caller acts on
+    // them differently: one is a decision, the other is a fault to chase.
+    if !config.channel_enabled(&task.channel) {
+        return TaskResult {
+            task_id: task.id.clone(),
+            success: false,
+            channel: task.channel.clone(),
+            backend: None,
+            duration_ms: start.elapsed().as_millis() as u64,
+            output: None,
+            error: Some(format!(
+                "Channel '{}' is switched off in config (disabled_channels)",
+                task.channel
+            )),
+        };
+    }
+
     // Route to appropriate channel
     let channel: Box<dyn Channel> = match task.channel.as_str() {
         "web" => Box::new(WebChannel::new()),
