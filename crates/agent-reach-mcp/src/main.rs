@@ -59,7 +59,14 @@ async fn run_stdio() -> Result<()> {
         }
 
         let response = match serde_json::from_str::<JsonRpcRequest>(&line) {
-            Ok(request) => handle_request(request).await,
+            // A message without an id is a notification: it is never answered,
+            // not even with an error. MCP's `notifications/initialized` lands
+            // here, and replying to it makes strict clients treat the session
+            // as broken.
+            Ok(request) => match handle_request(request).await {
+                Some(response) => response,
+                None => continue,
+            },
             Err(error) => JsonRpcResponse {
                 jsonrpc: "2.0",
                 id: None,
@@ -80,10 +87,10 @@ async fn run_stdio() -> Result<()> {
     Ok(())
 }
 
-async fn handle_request(request: JsonRpcRequest) -> JsonRpcResponse {
-    let id = request.id.clone();
+async fn handle_request(request: JsonRpcRequest) -> Option<JsonRpcResponse> {
+    let id = request.id.clone()?;
     if request.jsonrpc.as_deref() != Some("2.0") {
-        return error(id, -32600, "invalid JSON-RPC version");
+        return Some(error(Some(id), -32600, "invalid JSON-RPC version"));
     }
 
     let result = match request.method.as_str() {
@@ -93,15 +100,17 @@ async fn handle_request(request: JsonRpcRequest) -> JsonRpcResponse {
         other => Err(anyhow::anyhow!("method not found: {}", other)),
     };
 
-    match result {
+    Some(match result {
         Ok(value) => JsonRpcResponse {
             jsonrpc: "2.0",
-            id,
+            id: Some(id),
             result: Some(value),
             error: None,
         },
-        Err(err) => error(id, -32603, &err.to_string()),
-    }
+        // JSON-RPC reserves -32601 for an unknown method; -32603 is for errors
+        // inside a *known* method.
+        Err(err) => error(Some(id), -32601, &err.to_string()),
+    })
 }
 
 fn error(id: Option<Value>, code: i64, message: &str) -> JsonRpcResponse {
@@ -143,6 +152,15 @@ fn tools_list_result() -> Value {
                     "type": "object",
                     "properties": {"url": {"type": "string"}},
                     "required": ["url"]
+                }
+            },
+            {
+                "name": "rss_parse",
+                "description": "Parse RSS 2.0 or Atom XML supplied as text.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {"xml": {"type": "string"}},
+                    "required": ["xml"]
                 }
             },
             {
@@ -207,6 +225,13 @@ async fn call_tool(params: Value) -> Result<Value> {
             let url = required_string(&arguments, "url")?;
             RssChannel::new()
                 .execute("fetch", &[url], &config)
+                .await?
+                .data
+        }
+        "rss_parse" => {
+            let xml = required_string(&arguments, "xml")?;
+            RssChannel::new()
+                .execute("parse", &[xml], &config)
                 .await?
                 .data
         }

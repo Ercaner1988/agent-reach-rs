@@ -13,7 +13,7 @@ pub struct Cli {
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
-    /// One-shot installer with environment auto-detection
+    /// Set up the agent-reach config directory (external tools are not installed)
     Install {
         /// Environment: local, server, or auto-detect
         #[arg(long, value_name = "ENV", default_value = "auto")]
@@ -52,7 +52,7 @@ pub enum Commands {
         #[arg(long)]
         json: bool,
 
-        /// Auto-extract cookies from browser
+        /// Auto-extract cookies from browser (not implemented yet)
         #[arg(long, value_name = "BROWSER")]
         from_browser: Option<String>,
     },

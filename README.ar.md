@@ -13,22 +13,29 @@
 ## 🎯 خارطة الطريق والميزات المكتملة
 
 ### المكونات الأساسية المكتملة
-- [x] **هيكل مساحة العمل** — 5 صناديق (`core` و`channels` و`graph` و`mcp` و`cli`)
+- [x] **هيكل مساحة العمل** — 4 صناديق (`core` و`channels` و`mcp` و`cli`)
 - [x] **قناة الويب** — تكامل Jina Reader (`r.jina.ai`)
 - [x] **قناة RSS** — جلب وتحليل تغذيات RSS 2.0 وAtom (`fetch` + `parse`)
 - [x] **تويتر** — `twitter-cli` (مصادقة)، Nitter (مجهول)
-- [x] **يوتيوب** — `yt-dlp` (استخراج كامل)، `rustube` (بيانات وصفية)
-- [x] **GitHub** — `gh` CLI (سلم التخفيف ثلاثي المراحل)، GitHub REST API
-- [x] **Reddit** — PRAW (Python)، Reddit API (OAuth2)
+- [x] **يوتيوب** — `yt-dlp` (بيانات وصفية، نص الفيديو، بحث)
+- [x] **GitHub** — `gh` CLI (سلم التخفيف)، GitHub REST API
+- [x] **Reddit** — Reddit API (OAuth2)، PRAW (Python)
 - [x] **وسائل التواصل الصينية والمالية** — Bilibili و Xiaohongshu و V2EX و Xueqiu و Xiaoyuzhou
 - [x] **المهنية والبحث** — LinkedIn و Exa Search و DuckDuckGo (بحث HTML)
-- [x] **الخريطة الذهنية الدلالية** — `agent-reach-graph` (محرك ناقلات معرفية خماسي الأبعاد بلغة Rust الخالصة)
 - [x] **واجهة سطر الأوامر** — `install` و`configure` و`doctor` و`skill` و`transcribe` و`execute`
-- [x] **خادم MCP** — واجهة stdio JSON-RPC مع الوصول إلى 14 قناة
+- [x] **خادم MCP** — stdio JSON-RPC مع 5 أدوات (`web_read` و`rss_fetch` و`rss_parse` و`exa_search` و`agent_reach_execute`)
 - [x] **التجميع متعدد المنصات** — Windows و Linux و macOS (`cargo-dist`)
 - [x] **خط النشر والتكامل المستمر** — GitHub Actions CI/CD وبوابات الاختبار الآلية (`harness/` (Rust))
 
-الخريطة التفصيلية: [`docs/HARITA.md`](docs/HARITA.md) (بنية Yolbulucu/Wayfinder)
+موارد خارطة الطريق: [`docs/YOL-HARITASI-KAYNAKLAR.md`](docs/YOL-HARITASI-KAYNAKLAR.md)
+
+### القيود المعروفة (غير منفذة بعد)
+- صندوق `agent-reach-graph` (الخريطة الذهنية الدلالية) مخطط له؛ غير موجود في المستودع بعد.
+- خلفية `rustube` لليوتيوب هي عنصر نائب؛ المسار العامل هو عملية `yt-dlp` الفرعية.
+- احتياطي Nitter لتويتر يقوم باستخراج HTML بسيط على مستوى العنصر النائب.
+- `configure --from-browser` (استخراج الكوكيز من المتصفح) غير منفذ.
+- `install` يجهز دليل التكوين فقط؛ لا يثبت الأدوات الخارجية مثل `gh` و`yt-dlp` و`twitter-cli`.
+- يتطلب Reddit بيانات اعتماد OAuth2 (`reddit_client_id` و`reddit_client_secret`).
 
 ---
 
@@ -38,8 +45,7 @@
 agent-reach-rs/
 ├── crates/
 │   ├── agent-reach-core/      # التكوين، سمات Backend/Channel، التخزين المؤقت للشريط
-│   ├── agent-reach-channels/  # 14 قارئ منصة (web، youtube، twitter، github، ...)
-│   ├── agent-reach-graph/     # محرك الرسم البياني الدلالي والناقلات المعرفية
+│   ├── agent-reach-channels/  # 15 قارئ منصة (web، youtube، twitter، github، ...)
 │   ├── agent-reach-mcp/       # خادم MCP stdio JSON-RPC
 │   └── agent-reach-cli/       # Clap CLI (التثبيت، الفحص، المهارة، التنفيذ)
 ├── harness/                   # بوابات الفحص الآلي والتخزين المؤقت
@@ -51,7 +57,7 @@ agent-reach-rs/
 كل قناة تحدد backends متعددة (الخيار الأول + الاحتياطي):
 - **Twitter:** `twitter-cli` $\rightarrow$ احتياطي: `Nitter`
 - **Reddit:** `Reddit API` $\rightarrow$ احتياطي: `PRAW`
-- **YouTube:** `rustube` (بيانات وصفية) + `yt-dlp` عملية فرعية (استخراج كامل)
+- **YouTube:** `yt-dlp` عملية فرعية (بيانات وصفية، نص الفيديو، بحث)؛ خلفية `rustube` عنصر نائب
 - **GitHub:** `gh` CLI (تقسيم المصطلحات بدون علامات تنصيص) $\rightarrow$ احتياطي: `GitHub REST API`
 
 ---

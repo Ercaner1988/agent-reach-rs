@@ -13,7 +13,7 @@ description: Use Agent Reach to read web pages, feeds, and social platforms from
 
 Use `agent-reach execute --task-file <tasks.json>` for batch reading tasks.
 
-Supported channels in this build:
+Supported channels in this build (channel — actions):
 - `web` — `read`
 - `rss` — `fetch`, `parse`
 - `twitter` — `search`, `timeline`, `thread`
@@ -21,9 +21,14 @@ Supported channels in this build:
 - `github` — `repo`, `issue`, `pr`, `search`
 - `reddit` — `subreddit`, `search`, `post`
 - `bilibili` — `video`, `info`, `search`
-- `xiaohongshu`, `linkedin`, `v2ex`, `xueqiu`, `xiaoyuzhou`
+- `xiaohongshu` — `note`, `search`
+- `linkedin` — `profile`, `company`, `search`
+- `v2ex` — `topic`, `node`, `hot`, `latest`
+- `xueqiu` — `quote`, `stock`, `timeline`, `search`
+- `xiaoyuzhou` — `podcast`, `episode`
 - `exa` — `search`
 - `duckduckgo` — `search`
+- `turath` — `search`, `book`, `author`, `page`
 
 Some channels need credentials in `~/.agent-reach/config.yaml`
 (see `agent-reach configure` and `agent-reach doctor`).

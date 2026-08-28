@@ -13,22 +13,29 @@
 ## 🎯 Roadmap & Completed Components
 
 ### Completed Core Components
-- [x] **Workspace skeleton** — 5 crates (`core`, `channels`, `graph`, `mcp`, `cli`)
+- [x] **Workspace skeleton** — 4 crates (`core`, `channels`, `mcp`, `cli`)
 - [x] **Web channel** — Jina Reader (`r.jina.ai`) integration
 - [x] **RSS channel** — RSS 2.0 and Atom feed fetch & parse (`fetch` + `parse`)
 - [x] **Twitter** — `twitter-cli` (authenticated), Nitter (anonymous)
-- [x] **YouTube** — `yt-dlp` (full extraction), `rustube` (metadata)
-- [x] **GitHub** — `gh` CLI (3-stage relaxation ladder), GitHub REST API
-- [x] **Reddit** — PRAW (Python), Reddit API (OAuth2)
+- [x] **YouTube** — `yt-dlp` (metadata, transcript, search)
+- [x] **GitHub** — `gh` CLI (relaxation ladder), GitHub REST API
+- [x] **Reddit** — Reddit API (OAuth2), PRAW (Python)
 - [x] **Chinese Social & Finance** — Bilibili, Xiaohongshu, V2EX, Xueqiu, Xiaoyuzhou
 - [x] **Professional & Search** — LinkedIn, Exa Search, DuckDuckGo (HTML search)
-- [x] **Semantic Mind Map** — `agent-reach-graph` (Pure-Rust 5-dimensional epistemic vector engine)
 - [x] **CLI** — `install`, `configure`, `doctor`, `skill`, `transcribe`, `execute`
-- [x] **MCP server** — stdio JSON-RPC interface with 14-channel access
+- [x] **MCP server** — stdio JSON-RPC, 5 tools (`web_read`, `rss_fetch`, `rss_parse`, `exa_search`, `agent_reach_execute`)
 - [x] **Multi-platform build** — Windows, Linux, macOS (`cargo-dist`)
 - [x] **CI/CD Pipeline** — GitHub Actions CI/CD & automated test gates (`harness/` (Rust))
 
-Detailed map: [`docs/HARITA.md`](docs/HARITA.md) (Yolbulucu/Wayfinder architecture)
+Roadmap resources: [`docs/YOL-HARITASI-KAYNAKLAR.md`](docs/YOL-HARITASI-KAYNAKLAR.md)
+
+### Known Limitations (not yet implemented)
+- The `agent-reach-graph` (semantic mind map) crate is planned; it does not exist in the repository yet.
+- The YouTube `rustube` backend is a placeholder; the working path is the `yt-dlp` subprocess.
+- The Twitter Nitter fallback does placeholder-level simple HTML extraction.
+- `configure --from-browser` (browser cookie extraction) is not implemented.
+- `install` only prepares the configuration directory; it does not install external tools such as `gh`, `yt-dlp`, or `twitter-cli`.
+- Reddit requires OAuth2 credentials (`reddit_client_id`, `reddit_client_secret`).
 
 ---
 
@@ -38,8 +45,7 @@ Detailed map: [`docs/HARITA.md`](docs/HARITA.md) (Yolbulucu/Wayfinder architectu
 agent-reach-rs/
 ├── crates/
 │   ├── agent-reach-core/      # Configuration, Backend/Channel traits, Cassette Cache
-│   ├── agent-reach-channels/  # 14 platform readers (web, youtube, twitter, github, ...)
-│   ├── agent-reach-graph/     # Pure-Rust Semantic Graph & Epistemic Vector Engine
+│   ├── agent-reach-channels/  # 15 platform readers (web, youtube, twitter, github, ...)
 │   ├── agent-reach-mcp/       # MCP stdio JSON-RPC server
 │   └── agent-reach-cli/       # Clap CLI (install, doctor, skill, execute)
 ├── harness/                   # Automated audit gates and cassette cache store
@@ -51,7 +57,7 @@ agent-reach-rs/
 Each channel defines multiple backends (first choice + fallback):
 - **Twitter:** `twitter-cli` $\rightarrow$ fallback: `Nitter`
 - **Reddit:** `Reddit API` $\rightarrow$ fallback: `PRAW`
-- **YouTube:** `rustube` (metadata) + `yt-dlp` subprocess (full extraction)
+- **YouTube:** `yt-dlp` subprocess (metadata, transcript, search); the `rustube` backend is a placeholder
 - **GitHub:** `gh` CLI (unquoted term splitting) $\rightarrow$ fallback: `GitHub REST API`
 
 ---
@@ -121,7 +127,7 @@ agent-reach execute --task-file tasks.json --output execution_log.json --verbose
 
 ## 🛡️ Automated Test Gates
 
-Every addition to the project passes through 7 free test gates (`harness/` (Rust)):
+Every addition to the project passes through 6 free test gates (`harness/` (Rust)):
 
 ```bash
 cargo run --manifest-path harness/Cargo.toml -- gates

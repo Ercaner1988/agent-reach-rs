@@ -13,22 +13,29 @@
 ## 🎯 Varış Noktası ve Tamamlananlar
 
 ### Tamamlanan Çekirdek Bileşenler
-- [x] **Çalışma alanı iskeleti** — 5 sandık (`core`, `channels`, `graph`, `mcp`, `cli`)
+- [x] **Çalışma alanı iskeleti** — 4 sandık (`core`, `channels`, `mcp`, `cli`)
 - [x] **Ağ kanalı** — Jina Reader (`r.jina.ai`) bütünleşmesi
 - [x] **RSS kanalı** — RSS 2.0 ve Atom besleme okuma/çözümleme (`fetch` + `parse`)
 - [x] **Twitter** — `twitter-cli` (kimlik doğrulamalı), Nitter (anonim)
-- [x] **YouTube** — `yt-dlp` (tam çıkarım), `rustube` (üstveri)
-- [x] **GitHub** — `gh` CLI (3-stage gevşetme merdiveni), GitHub REST API
-- [x] **Reddit** — PRAW (Python), Reddit API (OAuth2)
+- [x] **YouTube** — `yt-dlp` (metadata, transcript, arama)
+- [x] **GitHub** — `gh` CLI (gevşetme merdiveni), GitHub REST API
+- [x] **Reddit** — Reddit API (OAuth2), PRAW (Python)
 - [x] **Çin Sosyal Medyası ve Finans** — Bilibili, Xiaohongshu, V2EX, Xueqiu, Xiaoyuzhou
 - [x] **Profesyonel ve Arama** — LinkedIn, Exa Search, DuckDuckGo (HTML arama)
-- [x] **Semantik Zihin Haritası** — `agent-reach-graph` (Pure-Rust 5-boyutlu epistemik vektör motoru)
 - [x] **Komut satırı arayüzü** — `install`, `configure`, `doctor`, `skill`, `transcribe`, `execute`
-- [x] **MCP sunucusu** — stdio JSON-RPC arayüzü, 14 kanal erişimi
+- [x] **MCP sunucusu** — stdio JSON-RPC, 5 araç (`web_read`, `rss_fetch`, `rss_parse`, `exa_search`, `agent_reach_execute`)
 - [x] **Çok platformlu derleme** — Windows, Linux, macOS (`cargo-dist`)
 - [x] **Sürekli bütünleşme hattı** — GitHub Actions CI/CD ve otomatik test kapıları (`harness/` (Rust))
 
-Ayrıntılı harita: [`docs/HARITA.md`](docs/HARITA.md) (Yolbulucu yapısı)
+Yol haritası kaynakları: [`docs/YOL-HARITASI-KAYNAKLAR.md`](docs/YOL-HARITASI-KAYNAKLAR.md)
+
+### Bilinen Sınırlar (henüz uygulanmadı)
+- `agent-reach-graph` (semantik zihin haritası) sandığı planlıdır; depoda henüz yoktur.
+- YouTube `rustube` arka ucu yer tutucudur; çalışan yol `yt-dlp` alt sürecidir.
+- Twitter Nitter yedeği yer tutucu düzeyde basit HTML ayıklama yapar.
+- `configure --from-browser` (tarayıcıdan cookie çıkarma) uygulanmadı.
+- `install` yalnızca yapılandırma klasörünü hazırlar; `gh`, `yt-dlp`, `twitter-cli` gibi dış araçları kurmaz.
+- Reddit OAuth2 kimlik bilgisi gerektirir (`reddit_client_id`, `reddit_client_secret`).
 
 ---
 
@@ -38,8 +45,7 @@ Ayrıntılı harita: [`docs/HARITA.md`](docs/HARITA.md) (Yolbulucu yapısı)
 agent-reach-rs/
 ├── crates/
 │   ├── agent-reach-core/      # Yapılandırma, Arka-uç/Kanal nitelikleri, Kaset Önbelleği
-│   ├── agent-reach-channels/  # 14 platform okuyucu (web, youtube, twitter, github, ...)
-│   ├── agent-reach-graph/     # Pure-Rust Semantik Çizge & Epistemik Vektör Motoru
+│   ├── agent-reach-channels/  # 15 platform okuyucu (web, youtube, twitter, github, ...)
 │   ├── agent-reach-mcp/       # MCP stdio JSON-RPC sunucusu
 │   └── agent-reach-cli/       # Clap CLI (kurulum, doktor, yetenek, çalıştırma)
 ├── harness/                   # Otomatik denetim kapıları ve kaset önbellek alanı
@@ -51,7 +57,7 @@ agent-reach-rs/
 Her kanal birden çok arka-uç tanımlar (ilk seçim + yedek):
 - **Twitter:** `twitter-cli` $\rightarrow$ yedek: `Nitter`
 - **Reddit:** `Reddit API` $\rightarrow$ yedek: `PRAW`
-- **YouTube:** `rustube` (üstveri) + `yt-dlp` alt-süreç (tam çıkarım)
+- **YouTube:** `yt-dlp` alt-süreç (metadata, transcript, arama); `rustube` arka ucu yer tutucu
 - **GitHub:** `gh` CLI (tırnaksız bağımsız terim ayrıştırması) $\rightarrow$ yedek: `GitHub REST API`
 
 ---

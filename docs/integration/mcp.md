@@ -8,6 +8,9 @@
 - `rss_fetch` — fetch and parse an RSS 2.0 or Atom feed URL.
 - `rss_parse` — parse RSS 2.0 or Atom XML supplied as text.
 - `exa_search` — search through Exa API; requires `exa_api_key` in Agent Reach config.
+- `agent_reach_execute` — run an action (`search`, `repo`, `timeline`, ...) on a named channel (`github`, `twitter`, `youtube`, `reddit`, `bilibili`, `xiaohongshu`, `linkedin`, `v2ex`, `xueqiu`, `xiaoyuzhou`, `duckduckgo`, `turath`). Channels switched off via `disabled_channels` are rejected with an explicit error.
+
+Notifications (messages without an `id`, such as `notifications/initialized`) are accepted silently and never answered, per JSON-RPC 2.0.
 
 ## Smoke test
 

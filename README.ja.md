@@ -13,22 +13,29 @@
 ## 🎯 ロードマップと完了項目
 
 ### 完了したコアコンポーネント
-- [x] **ワークスペース骨格** — 5クレート (`core`, `channels`, `graph`, `mcp`, `cli`)
+- [x] **ワークスペース骨格** — 4クレート (`core`, `channels`, `mcp`, `cli`)
 - [x] **Web チャンネル** — Jina Reader (`r.jina.ai`) 統合
 - [x] **RSS チャンネル** — RSS 2.0 および Atom フィードの取得と解析 (`fetch` + `parse`)
 - [x] **Twitter** — `twitter-cli` (認証対応), Nitter (匿名)
-- [x] **YouTube** — `yt-dlp` (フル抽出), `rustube` (メタデータ)
-- [x] **GitHub** — `gh` CLI (3段階検索緩和ラダー), GitHub REST API
-- [x] **Reddit** — PRAW (Python), Reddit API (OAuth2)
+- [x] **YouTube** — `yt-dlp` (メタデータ, 文字起こし, 検索)
+- [x] **GitHub** — `gh` CLI (検索緩和ラダー), GitHub REST API
+- [x] **Reddit** — Reddit API (OAuth2), PRAW (Python)
 - [x] **中国SNSおよび金融** — Bilibili, 小紅書 (Xiaohongshu), V2EX, 雪球 (Xueqiu), 小宇宙 (Xiaoyuzhou)
 - [x] **ビジネス＆検索** — LinkedIn, Exa Search, DuckDuckGo (HTML検索)
-- [x] **セマンティックマインドマップ** — `agent-reach-graph` (Pure-Rust 5次元認識論ベクトルエンジン)
 - [x] **CLI** — `install`, `configure`, `doctor`, `skill`, `transcribe`, `execute`
-- [x] **MCP サーバー** — stdio JSON-RPC インターフェース、14チャンネルへのアクセス
+- [x] **MCP サーバー** — stdio JSON-RPC、5ツール (`web_read`, `rss_fetch`, `rss_parse`, `exa_search`, `agent_reach_execute`)
 - [x] **マルチプラットフォームビルド** — Windows, Linux, macOS (`cargo-dist`)
 - [x] **CI/CD パイプライン** — GitHub Actions CI/CD および自動テストゲート (`harness/` (Rust))
 
-詳細マップ: [`docs/HARITA.md`](docs/HARITA.md) (Yolbulucu/Wayfinder 構造)
+ロードマップ資料: [`docs/YOL-HARITASI-KAYNAKLAR.md`](docs/YOL-HARITASI-KAYNAKLAR.md)
+
+### 既知の制限 (未実装)
+- `agent-reach-graph` (セマンティックマインドマップ) クレートは計画段階で、リポジトリにはまだ存在しません。
+- YouTube の `rustube` バックエンドはプレースホルダーです。動作する経路は `yt-dlp` サブプロセスです。
+- Twitter の Nitter フォールバックはプレースホルダー レベルの単純な HTML 抽出です。
+- `configure --from-browser` (ブラウザからの Cookie 抽出) は未実装です。
+- `install` は設定ディレクトリの準備のみを行い、`gh` や `yt-dlp`、`twitter-cli` などの外部ツールはインストールしません。
+- Reddit には OAuth2 認証情報 (`reddit_client_id`, `reddit_client_secret`) が必要です。
 
 ---
 
@@ -38,8 +45,7 @@
 agent-reach-rs/
 ├── crates/
 │   ├── agent-reach-core/      # 設定, バックエンド/チャンネル trait, カセットキャッシュ
-│   ├── agent-reach-channels/  # 14プラットフォームリーダー (web, youtube, twitter, github, ...)
-│   ├── agent-reach-graph/     # Pure-Rust セマンティックグラフ＆認識論ベクトルエンジン
+│   ├── agent-reach-channels/  # 15プラットフォームリーダー (web, youtube, twitter, github, ...)
 │   ├── agent-reach-mcp/       # MCP stdio JSON-RPC サーバー
 │   └── agent-reach-cli/       # Clap CLI (install, doctor, skill, execute)
 ├── harness/                   # 自動監査ゲートおよびカセットキャッシュストア
@@ -51,7 +57,7 @@ agent-reach-rs/
 各チャンネルは複数のバックエンドを定義します（優先選択肢 ＋ フォールバック）：
 - **Twitter:** `twitter-cli` $\rightarrow$ フォールバック: `Nitter`
 - **Reddit:** `Reddit API` $\rightarrow$ フォールバック: `PRAW`
-- **YouTube:** `rustube` (メタデータ) + `yt-dlp` サブプロセス (フル抽出)
+- **YouTube:** `yt-dlp` サブプロセス (メタデータ, 文字起こし, 検索); `rustube` バックエンドはプレースホルダー
 - **GitHub:** `gh` CLI (クォートなし個別単語分割) $\rightarrow$ フォールバック: `GitHub REST API`
 
 ---
