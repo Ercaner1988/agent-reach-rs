@@ -110,6 +110,7 @@ cargo test --workspace
 | **Ercan Er** | Baş Mimar ve Proje Sahibi (Rust mimarisi, Nisa 135 ilkesi) | 38 commit, Ana Kod Tabanı |
 | **Mihenk** | Kod İnceleme ve Hakem Denetçisi | Hakem Onayları & Gauntlet Denetimi |
 | **El-Kassâm** | Ajan Geliştirici (MediaInspector, Saf Rust Entegrasyonu) | 12 commit, Medya & Test Entegrasyonu |
+| **ZAI GLM 5.3** | Ajan Model Katkısı ve Kod Düzenleme | Model Zekâsı |
 | **GitHub Copilot** | İkincil Kod Tamamlama Desteği | Yardımcı Geliştirme |
 | **Hermes** | Ajan Orkestrasyonu ve Çalışma Ortamı | Ajan Yürütme Motoru |
 

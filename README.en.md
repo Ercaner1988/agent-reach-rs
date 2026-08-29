@@ -110,6 +110,7 @@ cargo test --workspace
 | **Ercan Er** | Lead Architect & Project Owner (Rust Architecture) | 38 commits, Core Codebase |
 | **Mihenk** | Code Auditor & Referee Gatekeeper | Referee Approvals & Gauntlet Audit |
 | **El-Kassâm** | Agent Developer (MediaInspector, Pure-Rust Integration) | 12 commits, Media & Test Suite |
+| **ZAI GLM 5.3** | Agent Model Contributions & Code Editing | Model Reasoning |
 | **GitHub Copilot** | Auxiliary Code Completion | Pair Assistant |
 | **Hermes** | Agent Orchestration Engine | Agent Runtime Environment |
 

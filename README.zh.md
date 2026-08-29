@@ -110,6 +110,7 @@ cargo test --workspace
 | **Ercan Er** | 首席架构师兼项目所有者 (Rust 架构) | 38 次提交，核心代码库 |
 | **Mihenk** | 代码审计员与评审关卡守护者 | 评审批准与 Gauntlet 审计 |
 | **El-Kassâm** | Agent 开发者 (MediaInspector，纯 Rust 集成) | 12 次提交，媒体与测试套件 |
+| **ZAI GLM 5.3** | Agent 模型贡献与代码编辑 | 模型推理 |
 | **GitHub Copilot** | 辅助代码补全 | 配对助手 |
 | **Hermes** | Agent 编排引擎 | Agent 运行环境 |
 

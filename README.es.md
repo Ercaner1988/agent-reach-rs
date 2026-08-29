@@ -110,6 +110,7 @@ cargo test --workspace
 | **Ercan Er** | Arquitecto Principal y Propietario (Arquitectura Rust) | 38 commits, código base principal |
 | **Mihenk** | Auditor de Código y Guardián de Puertas Árbitro | Aprobaciones de árbitro y auditoría Gauntlet |
 | **El-Kassâm** | Desarrollador Agente (MediaInspector, integración Rust puro) | 12 commits, medios y suite de pruebas |
+| **ZAI GLM 5.3** | Contribuciones del Modelo Agente y Edición de Código | Razonamiento del Modelo |
 | **GitHub Copilot** | Autocompletado de código auxiliar | Asistente de desarrollo |
 | **Hermes** | Motor de Orquestación de Agentes | Entorno de ejecución de agentes |
 
