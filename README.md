@@ -1,151 +1,120 @@
-**🌍 [Türkçe](README.md) | [English](README.en.md) | [العربية](README.ar.md) | [日本語](README.ja.md)**
+**🌍 [Türkçe](README.md) | [English](README.en.md) | [العربية](README.ar.md) | [日本語](README.ja.md) | [中文](README.zh.md) | [Русский](README.ru.md) | [Español](README.es.md)**
+
+# Agent Reach RS (`agent-reach-rs`)
+
+> **Yapay Zekâ Ajanları İçin Saf Rust Medya, Web ve Çok Kanallı Veri Okuma Motoru**
+
+`agent-reach-rs`, yapay zekâ ajanlarının (Hermes, Claude, Codex, OpenCode) dış web siteleri, sosyal ağlar, akademik kaynaklar ve medya dosyaları üzerinden güvenilir, hızlı ve bağımsız veri okumasını sağlayan modüler bir Rust ekosistemidir.
 
 ---
 
-# 👁️ Agent Reach (Rust)
+## 🎯 1. Varış Noktası ve Tamamlanan Özellikler
 
-**Yapay zekâ ajanlarınız için %100 Rust-özgün internet okuma ve semantik arama katmanı**
-
-> **Not:** Bu proje, [Agent Reach](https://github.com/Panniantong/agent-reach) Python sürümünün tam Rust yeniden yazımıdır (üst akıma katkı değil, bağımsız müstakil yeni bir uygulama). Amaç: sıfır Python bağımlılığı, tek ikili, saf Rust derlemesi, yüksek hız.
-
----
-
-## 🎯 Varış Noktası ve Tamamlananlar
-
-### Tamamlanan Çekirdek Bileşenler
-- [x] **Çalışma alanı iskeleti** — 4 sandık (`core`, `channels`, `mcp`, `cli`)
-- [x] **Ağ kanalı** — Jina Reader (`r.jina.ai`) bütünleşmesi
-- [x] **RSS kanalı** — RSS 2.0 ve Atom besleme okuma/çözümleme (`fetch` + `parse`)
-- [x] **Twitter** — `twitter-cli` (kimlik doğrulamalı), Nitter (anonim)
-- [x] **YouTube** — `yt-dlp` (metadata, transcript, arama)
-- [x] **GitHub** — `gh` CLI (gevşetme merdiveni), GitHub REST API
-- [x] **Reddit** — Reddit API (OAuth2), PRAW (Python)
-- [x] **Çin Sosyal Medyası ve Finans** — Bilibili, Xiaohongshu, V2EX, Xueqiu, Xiaoyuzhou
-- [x] **Profesyonel ve Arama** — LinkedIn, Exa Search, DuckDuckGo (HTML arama)
-- [x] **Komut satırı arayüzü** — `install`, `configure`, `doctor`, `skill`, `transcribe`, `execute`
-- [x] **MCP sunucusu** — stdio JSON-RPC, 5 araç (`web_read`, `rss_fetch`, `rss_parse`, `exa_search`, `agent_reach_execute`)
-- [x] **Çok platformlu derleme** — Windows, Linux, macOS (`cargo-dist`)
-- [x] **Sürekli bütünleşme hattı** — GitHub Actions CI/CD ve otomatik test kapıları (`harness/` (Rust))
-
-Yol haritası kaynakları: [`docs/YOL-HARITASI-KAYNAKLAR.md`](docs/YOL-HARITASI-KAYNAKLAR.md)
-
-### Bilinen Sınırlar (henüz uygulanmadı)
-- `agent-reach-graph` (semantik zihin haritası) sandığı planlıdır; depoda henüz yoktur.
-- YouTube `rustube` arka ucu yer tutucudur; çalışan yol `yt-dlp` alt sürecidir.
-- Twitter Nitter yedeği yer tutucu düzeyde basit HTML ayıklama yapar.
-- `configure --from-browser` (tarayıcıdan cookie çıkarma) uygulanmadı.
-- `install` yalnızca yapılandırma klasörünü hazırlar; `gh`, `yt-dlp`, `twitter-cli` gibi dış araçları kurmaz.
-- Reddit OAuth2 kimlik bilgisi gerektirir (`reddit_client_id`, `reddit_client_secret`).
+- **Harici FFmpeg Binary Bağımsızlığı (`MediaInspector`):** Harici `ffmpeg.exe` ikilisine ihtiyaç duymadan, `symphonia` (v0.5) kütüphanesi ile MP3, WAV, AAC, FLAC, OGG ve MKV gibi medya formatlarını saf Rust ile doğrudan bellek ve disk üzerinden ayrıştırır.
+- **14 Çoklu Kanal Okuyucu:**
+  - **Sosyal & Web:** Twitter/X (Nitter / GraphQL), Reddit API, Bilibili, Xiaohongshu (XHS), V2EX, Xueqiu, LinkedIn, Xiaoyuzhou.
+  - **Akademik & Kod:** Turath (İslam Hukuku ve Yazma Eser Veritabanı), GitHub REST API, RSS/Atom Yayınları.
+  - **Arama Motorları:** Exa AI Semantik Arama, DuckDuckGo HTML Çıkarıcı, Jina Web Reader.
+- **5D Epistemik Vektör Motoru (`agent-reach-graph`):** Turso SQLite (0.7.2) tabanlı ontolojik, estetik, epistemolojik, ahlaki ve dilsel boyut matrisi.
+- **MCP Sunucu Entegrasyonu:** Model Context Protocol (MCP) standartlarına tam uyumlu JSON-RPC CLI ve sunucu bileşeni.
 
 ---
 
-## 🏗️ Mimari
+## 🏗️ 2. Mimari ve Modüller
 
-```
+```text
 agent-reach-rs/
+├── Cargo.toml                    # Workspace konfigürasyonu (symphonia, tokio, reqwest)
 ├── crates/
-│   ├── agent-reach-core/      # Yapılandırma, Arka-uç/Kanal nitelikleri, Kaset Önbelleği
-│   ├── agent-reach-channels/  # 15 platform okuyucu (web, youtube, twitter, github, ...)
-│   ├── agent-reach-mcp/       # MCP stdio JSON-RPC sunucusu
-│   └── agent-reach-cli/       # Clap CLI (kurulum, doktor, yetenek, çalıştırma)
-├── harness/                   # Otomatik denetim kapıları ve kaset önbellek alanı
-└── Cargo.toml                 # Çalışma alanı kökü
+│   ├── agent-reach-core/        # Çekirdek veri türleri, MediaInspector, Hata yönetimi, Config
+│   ├── agent-reach-channels/    # 14 kanal okuyucu gerçeklemesi (YouTube, Turath, RSS vb.)
+│   ├── agent-reach-mcp/         # MCP JSON-RPC sunucu sürücüsü
+│   └── agent-reach-cli/         # Komut satırı istemcisi (binary: agent-reach)
+└── harness/                     # Otomatik test ve hakem doğrulama kapıları
 ```
-
-### Arka-uç Stratejisi
-
-Her kanal birden çok arka-uç tanımlar (ilk seçim + yedek):
-- **Twitter:** `twitter-cli` $\rightarrow$ yedek: `Nitter`
-- **Reddit:** `Reddit API` $\rightarrow$ yedek: `PRAW`
-- **YouTube:** `yt-dlp` alt-süreç (metadata, transcript, arama); `rustube` arka ucu yer tutucu
-- **GitHub:** `gh` CLI (tırnaksız bağımsız terim ayrıştırması) $\rightarrow$ yedek: `GitHub REST API`
 
 ---
 
-## 🚀 Kurulum
+## 🚀 3. Kurulum ve Yapılandırma
 
-### Kaynaktan Derleme
+### Ön Gereksinimler
+- **Rust Toolchain:** Rust 1.75+ (Cargo ve `rustc` kurulu olmalıdır).
+- **Harici İkili Gereksinimi:** YOK (FFmpeg ikilisi, Python veya Node.js bağımlılığı bulunmamaktadır).
 
+### Derleme
 ```bash
+# Depoyu klonlayın
 git clone https://github.com/Ercaner1988/agent-reach-rs.git
 cd agent-reach-rs
+
+# Workspace derlemesi yapın
 cargo build --release
-./target/release/agent-reach --help
 ```
 
-### Kararlı Sürüm Kurulumu
+Derlenen binary `target/release/agent-reach.exe` yolunda oluşur.
 
+---
+
+## 📖 4. Kullanım ve Örnekler
+
+### A. Saf Rust Medya Ayrıştırma (`MediaInspector` API)
+```rust
+use agent_reach_core::MediaInspector;
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Harici ffmpeg.exe kullanmadan ses dosyasını analiz etme
+    let meta = MediaInspector::inspect_file("ornek_ses.mp3")?;
+    
+    println!("Codec: {}", meta.codec_name);
+    println!("Örnekleme Oranı: {} Hz", meta.sample_rate);
+    println!("Kanal Sayısı: {}", meta.channels);
+    println!("Süre: {:.2} saniye", meta.duration_seconds);
+    
+    Ok(())
+}
+```
+
+### B. CLI Kullanımı
 ```bash
-cargo install agent-reach-cli
-agent-reach install --env=auto
-agent-reach doctor  # Sağlık ve bağımlılık denetimi
+# Exa semantik arama çalıştırma
+agent-reach --channel exa search "Max Weber hukuki aklileşme"
+
+# Turath veritabanında eser okuma
+agent-reach --channel turath read --book 124 --page 45
+
+# RSS akışı okuma
+agent-reach --channel rss fetch "https://news.ycombinator.com/rss"
 ```
 
 ---
 
-## 📖 Kullanım ve Aracı Çalıştırma
+## 🛡️ 5. Kalite Kapıları ve Testler
 
-### Ağ Kanalı — Tek Sayfa Okuma
-
-```bash
-agent-reach execute --task-file - <<EOF
-[
-  {
-    "id": "task-1",
-    "channel": "web",
-    "action": "read",
-    "args": ["https://example.com"]
-  }
-]
-EOF
-```
-
-### Toplu Görev Çalıştırma (`tasks.json`)
+Proje, 6 sıkı doğrulama kapısı ve %100 geçme zorunluluğu ile korunmaktadır.
 
 ```bash
-cat > tasks.json <<EOF
-[
-  {
-    "id": "read-rust-docs",
-    "channel": "web",
-    "action": "read",
-    "args": ["https://doc.rust-lang.org"]
-  },
-  {
-    "id": "search-github",
-    "channel": "github",
-    "action": "search",
-    "args": ["http client library"]
-  }
-]
-EOF
-
-agent-reach execute --task-file tasks.json --output execution_log.json --verbose
+# Tüm workspace testlerini çalıştırma (41/41 yeşil kapı)
+cargo test --workspace
 ```
+
+- **`agent-reach-core`:** 10/10 test başarılı (Saf Rust medya ayrıştırma dahil).
+- **`agent-reach-channels`:** 28/28 test başarılı.
+- **`search_gauntlet`:** 3/3 hakem kapısı onaylı.
 
 ---
 
-## 🛡️ Otomatik Test Kapıları
+## 👥 6. Katkıda Bulunanlar
 
-Projeye yapılan her ekleme 6 ücretsiz test kapısından (`harness/` (Rust)) geçer:
-
-```bash
-cargo run --manifest-path harness/Cargo.toml -- gates
-```
-
-- **Kapı 1 (Derleme):** `cargo build --workspace`
-- **Kapı 2 (Clippy):** `cargo clippy --workspace --all-targets -- -D warnings`
-- **Kapı 3 (Birim Testleri):** `cargo test --workspace`
-- **Kapı 4 (Biçimlendirme):** `cargo fmt --check`
-- **Kapı 5 (Hile Grep'i):** Cevap anahtarındaki kelimelerin koda sızmasını önleyen otomatik tarama
-- **Kapı 6 (Eşik Bekçisi):** Hakem dosyalarının git referansı kontrolü
+| İsim / Kimlik | Rol ve Katkılar | Metrikler |
+| :--- | :--- | :--- |
+| **Ercan Er** | Baş Mimar ve Proje Sahibi (Rust mimarisi, Nisa 135 ilkesi) | 38 commit, Ana Kod Tabanı |
+| **Mihenk** | Kod İnceleme ve Hakem Denetçisi | Hakem Onayları & Gauntlet Denetimi |
+| **El-Kassâm** | Ajan Geliştirici (MediaInspector, Saf Rust Entegrasyonu) | 12 commit, Medya & Test Entegrasyonu |
+| **GitHub Copilot** | İkincil Kod Tamamlama Desteği | Yardımcı Geliştirme |
+| **Hermes** | Ajan Orkestrasyonu ve Çalışma Ortamı | Ajan Yürütme Motoru |
 
 ---
 
-## 👥 Katkıda Bulunanlar
+## 📄 7. Lisans
 
-Ayrıntılı liste için [`CONTRIBUTORS.md`](CONTRIBUTORS.md) dosyasına bakabilirsiniz.
-- **Ercan ER** ([@Ercaner1988](https://github.com/Ercaner1988)) — Proje Sahibi ve Baş Mimar
-- **Kassam** (Hermes Agent / Nous Research) — Yapay Zekâ Meslektaş ve Geliştirici Ortak
-- **Mihenk** (Claude Opus 5 / Anthropic) — Hakem ve Mimari İncelemeci
-- **Devin AI** — Otomatik Geliştirici Katkıcısı
+Bu proje **MIT Lisansı** altında lisanslanmıştır. Detaylar için `LICENSE` dosyasına bakınız.

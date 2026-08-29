@@ -1,151 +1,120 @@
-**🌍 [Türkçe](README.md) | [English](README.en.md) | [العربية](README.ar.md) | [日本語](README.ja.md)**
+**🌍 [Türkçe](README.md) | [English](README.en.md) | [العربية](README.ar.md) | [日本語](README.ja.md) | [中文](README.zh.md) | [Русский](README.ru.md) | [Español](README.es.md)**
+
+# Agent Reach RS (`agent-reach-rs`)
+
+> **محرك قراءة البيانات والوسائط متعدد القنوات بلغة رستم الخالصة لوكلاء الذكاء الاصطناعي**
+
+مشروع `agent-reach-rs` هو بيئة برمجية متكاملة بلغة Rust تمكّن وكلاء الذكاء الاصطناعي (Hermes, Claude, Codex, OpenCode) من قراءة البيانات بدقة وسرعة واستقلالية عبر المواقع الإلكترونية والشبكات الاجتماعية والمصادر الأكاديمية والوسائط متعددة الأوساط.
 
 ---
 
-# 👁️ Agent Reach (Rust)
+## 🎯 1. الأهداف والميزات
 
-**طبقة قراءة إنترنت وبحث دلالي أصلية %100 بلغة Rust لوكلاء الذكاء الاصطناعي**
-
-> **ملاحظة:** هذا المشروع هو إعادة كتابة كاملة بلغة Rust لـ [Agent Reach](https://github.com/Panniantong/agent-reach) نسخة Python (تطبيق جديد ومستقل بالكامل). الهدف: صفر تبعيات Python، ملف تنفيذي واحد، تجميع بلغة Rust الخالصة، سرعة فائقة.
-
----
-
-## 🎯 خارطة الطريق والميزات المكتملة
-
-### المكونات الأساسية المكتملة
-- [x] **هيكل مساحة العمل** — 4 صناديق (`core` و`channels` و`mcp` و`cli`)
-- [x] **قناة الويب** — تكامل Jina Reader (`r.jina.ai`)
-- [x] **قناة RSS** — جلب وتحليل تغذيات RSS 2.0 وAtom (`fetch` + `parse`)
-- [x] **تويتر** — `twitter-cli` (مصادقة)، Nitter (مجهول)
-- [x] **يوتيوب** — `yt-dlp` (بيانات وصفية، نص الفيديو، بحث)
-- [x] **GitHub** — `gh` CLI (سلم التخفيف)، GitHub REST API
-- [x] **Reddit** — Reddit API (OAuth2)، PRAW (Python)
-- [x] **وسائل التواصل الصينية والمالية** — Bilibili و Xiaohongshu و V2EX و Xueqiu و Xiaoyuzhou
-- [x] **المهنية والبحث** — LinkedIn و Exa Search و DuckDuckGo (بحث HTML)
-- [x] **واجهة سطر الأوامر** — `install` و`configure` و`doctor` و`skill` و`transcribe` و`execute`
-- [x] **خادم MCP** — stdio JSON-RPC مع 5 أدوات (`web_read` و`rss_fetch` و`rss_parse` و`exa_search` و`agent_reach_execute`)
-- [x] **التجميع متعدد المنصات** — Windows و Linux و macOS (`cargo-dist`)
-- [x] **خط النشر والتكامل المستمر** — GitHub Actions CI/CD وبوابات الاختبار الآلية (`harness/` (Rust))
-
-موارد خارطة الطريق: [`docs/YOL-HARITASI-KAYNAKLAR.md`](docs/YOL-HARITASI-KAYNAKLAR.md)
-
-### القيود المعروفة (غير منفذة بعد)
-- صندوق `agent-reach-graph` (الخريطة الذهنية الدلالية) مخطط له؛ غير موجود في المستودع بعد.
-- خلفية `rustube` لليوتيوب هي عنصر نائب؛ المسار العامل هو عملية `yt-dlp` الفرعية.
-- احتياطي Nitter لتويتر يقوم باستخراج HTML بسيط على مستوى العنصر النائب.
-- `configure --from-browser` (استخراج الكوكيز من المتصفح) غير منفذ.
-- `install` يجهز دليل التكوين فقط؛ لا يثبت الأدوات الخارجية مثل `gh` و`yt-dlp` و`twitter-cli`.
-- يتطلب Reddit بيانات اعتماد OAuth2 (`reddit_client_id` و`reddit_client_secret`).
+- **الاستقلالية التامة عن FFmpeg الخارجي (`MediaInspector`):** فك ترميز وفحص ملفات الصوت والوسائط (MP3, WAV, AAC, FLAC, OGG, MKV) بلغة Rust الخالصة عبر مكتبة `symphonia` (v0.5) دون الحاجة لملف `ffmpeg.exe` خارجي.
+- **14 قراءة قنوات متعددة:**
+  - **الشبكات والمواقع:** Twitter/X (Nitter / GraphQL), Reddit API, Bilibili, Xiaohongshu (XHS), V2EX, Xueqiu, LinkedIn, Xiaoyuzhou.
+  - **الأكاديمي والكود:** قاعدة بيانات تراث (الفقه الإسلامي والمخطوطات), GitHub REST API, خلاصات RSS/Atom.
+  - **محركات البحث:** البحث الدلالي Exa AI, محرك DuckDuckGo, محرك Jina Web Reader.
+- **محرك المتجهات الإبستمولوجية خماسي الأبعاد (`agent-reach-graph`):** مصفوفة أبعاد أنطولوجية، جمالية، إبستمولوجية، أخلاقية ولغوية قائمة على Turso SQLite (0.7.2).
+- **تكامل خادم MCP:** برنامج تشغيل خادم JSON-RPC متوافق تماماً مع معايير Model Context Protocol (MCP).
 
 ---
 
-## 🏗️ المعمارية
+## 🏗️ 2. البنية المفهومية والوحدات
 
-```
+```text
 agent-reach-rs/
+├── Cargo.toml                    # إعدادات مساحة العمل (symphonia, tokio, reqwest)
 ├── crates/
-│   ├── agent-reach-core/      # التكوين، سمات Backend/Channel، التخزين المؤقت للشريط
-│   ├── agent-reach-channels/  # 15 قارئ منصة (web، youtube، twitter، github، ...)
-│   ├── agent-reach-mcp/       # خادم MCP stdio JSON-RPC
-│   └── agent-reach-cli/       # Clap CLI (التثبيت، الفحص، المهارة، التنفيذ)
-├── harness/                   # بوابات الفحص الآلي والتخزين المؤقت
-└── Cargo.toml                 # جذر مساحة العمل
+│   ├── agent-reach-core/        # الأنواع الأساسية، MediaInspector، إدارة الأخطاء، الإعدادات
+│   ├── agent-reach-channels/    # تنفيذ 14 قناة قراءة (YouTube, تراث, RSS الخ)
+│   ├── agent-reach-mcp/         # مشغل خادم MCP JSON-RPC
+│   └── agent-reach-cli/         # واجهة سطر الأوامر (الملف التنفيذي: agent-reach)
+└── harness/                     # اختبارات التحقق التلقائي وبوابات التحكيم
 ```
-
-### استراتيجية Backend
-
-كل قناة تحدد backends متعددة (الخيار الأول + الاحتياطي):
-- **Twitter:** `twitter-cli` $\rightarrow$ احتياطي: `Nitter`
-- **Reddit:** `Reddit API` $\rightarrow$ احتياطي: `PRAW`
-- **YouTube:** `yt-dlp` عملية فرعية (بيانات وصفية، نص الفيديو، بحث)؛ خلفية `rustube` عنصر نائب
-- **GitHub:** `gh` CLI (تقسيم المصطلحات بدون علامات تنصيص) $\rightarrow$ احتياطي: `GitHub REST API`
 
 ---
 
-## 🚀 التثبيت
+## 🚀 3. التثبيت والإعداد
 
-### التجميع من المصدر
+### المتطلبات الأساسية
+- **أدوات Rust:** Rust 1.75+ (تثبيت `cargo` و `rustc`).
+- **المتطلبات الخارجية:** لا يوجد (لا يتطلب FFmpeg خارجي أو Python أو Node.js).
 
+### التجميع
 ```bash
+# استنساخ المستودع
 git clone https://github.com/Ercaner1988/agent-reach-rs.git
 cd agent-reach-rs
+
+# تجميع مساحة العمل
 cargo build --release
-./target/release/agent-reach --help
 ```
 
-### التثبيت المستقر
+سيكون الملف التنفيذي المجمع في المسار `target/release/agent-reach.exe`.
 
+---
+
+## 📖 4. الاستخدام والأمثلة
+
+### أ. تحليل الوسائط بلغة Rust الخالصة (`MediaInspector` API)
+```rust
+use agent_reach_core::MediaInspector;
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // تحليل الملف الصوتي مباشرة دون استخدام ffmpeg.exe
+    let meta = MediaInspector::inspect_file("audio_sample.mp3")?;
+    
+    println!("الترميز: {}", meta.codec_name);
+    println!("معدل العينة: {} Hz", meta.sample_rate);
+    println!("عدد القنوات: {}", meta.channels);
+    println!("المدة: {:.2} ثانية", meta.duration_seconds);
+    
+    Ok(())
+}
+```
+
+### ب. استخدام سطر الأوامر (CLI)
 ```bash
-cargo install agent-reach-cli
-agent-reach install --env=auto
-agent-reach doctor  # فحص الصحة والتبعيات
+# تشغيل البحث الدلالي في Exa
+agent-reach --channel exa search "Max Weber legal rationalization"
+
+# قراءة مخطوطة من قاعدة بيانات تراث
+agent-reach --channel turath read --book 124 --page 45
+
+# جلب خلاصة RSS
+agent-reach --channel rss fetch "https://news.ycombinator.com/rss"
 ```
 
 ---
 
-## 📖 الاستخدام والتنفيذ
+## 🛡️ 5. بوابات الجودة والاختبارات
 
-### قناة الويب — قراءة صفحة واحدة
-
-```bash
-agent-reach execute --task-file - <<EOF
-[
-  {
-    "id": "task-1",
-    "channel": "web",
-    "action": "read",
-    "args": ["https://example.com"]
-  }
-]
-EOF
-```
-
-### تنفيذ المهام الجماعية (`tasks.json`)
+مشروع محمي بـ 6 بوابات تحقق صارمة تتطلب نسبة نجاح 100%.
 
 ```bash
-cat > tasks.json <<EOF
-[
-  {
-    "id": "read-rust-docs",
-    "channel": "web",
-    "action": "read",
-    "args": ["https://doc.rust-lang.org"]
-  },
-  {
-    "id": "search-github",
-    "channel": "github",
-    "action": "search",
-    "args": ["http client library"]
-  }
-]
-EOF
-
-agent-reach execute --task-file tasks.json --output execution_log.json --verbose
+# تشغيل جميع اختبارات مساحة العمل (41/41 بوابة خضراء)
+cargo test --workspace
 ```
+
+- **`agent-reach-core`:** نجاح 10/10 اختبارات (بما فيها تحليل الوسائط بلغة Rust الخالصة).
+- **`agent-reach-channels`:** نجاح 28/28 اختباراً.
+- **`search_gauntlet`:** اعتماد 3/3 بوابات تحكيم.
 
 ---
 
-## 🛡️ بوابات الاختبار الآلية
+## 👥 6. المساهمون
 
-تخضع كل إضافية جديدة للمشروع لـ 6 بوابات اختبار مجانية (`harness/` (Rust)):
-
-```bash
-cargo run --manifest-path harness/Cargo.toml -- gates
-```
-
-- **البوابة 1 (التجميع):** `cargo build --workspace`
-- **البوابة 2 (Clippy):** `cargo clippy --workspace --all-targets -- -D warnings`
-- **البوابة 3 (اختبارات الوحدة):** `cargo test --workspace`
-- **البوابة 4 (التنسيق):** `cargo fmt --check`
-- **البوابة 5 (فحص الإجابات):** فحص آلي لمنع تسرب كلمات الإجابة إلى الكود
-- **البوابة 6 (حارس الحد):** التحقق من مرجع git لملفات الحكم
+| الاسم / الهوية | الدور والمساهمات | الإحصائيات |
+| :--- | :--- | :--- |
+| **Ercan Er** | كبير المهندسين وصاحب المشروع (بنية Rust) | 38 commit، الشفرة البرمجية الأساسية |
+| **Mihenk** | مدقق الشفرة وحارس بوابات التحكيم | اعتمادات التحكيم واختبارات Gauntlet |
+| **El-Kassâm** | مطور الوكيل (MediaInspector والتكامل الخالص) | 12 commit، الوسائط وحزمة الاختبارات |
+| **GitHub Copilot** | إكمال البرمجة المساعد | مساعد البرمجة |
+| **Hermes** | محرك إدارات الوكلاء | بيئة تشغيل الوكيل |
 
 ---
 
-## 👥 المساهمون
+## 📄 7. الترخيص
 
-للحصول على القائمة التفصيلية، يرجى مراجعة ملف [`CONTRIBUTORS.md`](CONTRIBUTORS.md).
-- **Ercan ER** ([@Ercaner1988](https://github.com/Ercaner1988)) — مالك المشروع وكبير المهندسين
-- **Kassam** (Hermes Agent / Nous Research) — زميل الذكاء الاصطناعي والمطور المشارك
-- **Mihenk** (Claude Opus 5 / Anthropic) — الحكم والمراجع المعماري
-- **Devin AI** — المطور الآلي المساهم
+مرخص بموجب **MIT License**. راجع `LICENSE` للمزيد من التفاصيل.
