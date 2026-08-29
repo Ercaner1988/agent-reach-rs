@@ -12,9 +12,11 @@ pub mod channel;
 pub mod config;
 pub mod doctor;
 pub mod error;
+pub mod media;
 
 pub use backend::{Backend, BackendStatus};
 pub use channel::{Channel, ChannelOutput};
 pub use config::Config;
 pub use doctor::{HealthCheck, HealthStatus};
 pub use error::{Error, Result};
+pub use media::{MediaInspector, MediaMetadata};
