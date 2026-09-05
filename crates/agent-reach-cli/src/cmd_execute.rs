@@ -2,7 +2,8 @@
 
 use agent_reach_channels::{
     BilibiliChannel, DuckDuckGoChannel, ExaChannel, GitHubChannel, LinkedinChannel, RedditChannel,
-    RssChannel, TurathChannel, TwitterChannel, V2exChannel, WebChannel, XiaohongshuChannel,
+    RssChannel, TurathChannel, TwitterChannel, UinjktChannel, V2exChannel, WebChannel,
+    XiaohongshuChannel,
     XiaoyuzhouChannel, XueqiuChannel, YouTubeChannel,
 };
 use agent_reach_core::{Channel, Config};
@@ -168,6 +169,7 @@ async fn execute_single_task(task: &Task, config: &Config, verbose: bool) -> Tas
         "exa" => Box::new(ExaChannel::new()),
         "duckduckgo" => Box::new(DuckDuckGoChannel::new()),
         "turath" => Box::new(TurathChannel::new()),
+        "uinjkt" => Box::new(UinjktChannel::new()),
         _ => {
             return TaskResult {
                 task_id: task.id.clone(),
