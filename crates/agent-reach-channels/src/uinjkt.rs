@@ -367,9 +367,8 @@ mod tests {
 
     #[test]
     fn a_resumption_token_continues_the_harvest() {
-        let (url, _) =
-            UinjktOaiBackend::route("articles", &args(&["ahkam", "TOKEN/123"]).unwrap()[..])
-                .unwrap();
+        let (url, _) = UinjktOaiBackend::route("articles", &args(&["ahkam", "TOKEN/123"])[..])
+            .unwrap();
         assert!(url.contains("verb=ListRecords&resumptionToken=TOKEN%2F123"), "{url}");
         // A token replaces the set: OAI-PMH forbids mixing them.
         assert!(!url.contains("set="), "{url}");
