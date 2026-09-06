@@ -4,7 +4,7 @@
 //! 1. xiaoyuzhou-web (HTTP) — Web API scraper for podcast info
 
 use agent_reach_core::{
-    backend::{Backend, BackendStatus},
+    backend::{require_payload, Backend, BackendStatus},
     channel::{Channel, ChannelOutput, ChannelResult},
     doctor::HealthStatus,
     Config, Error,
@@ -77,6 +77,11 @@ impl Backend for XiaoyuzhouWebBackend {
             .bytes()
             .await
             .map_err(|e| Error::Network(e.to_string()))?;
+
+        // The SPA serves its 404 ("找不到了") as a 200, so an unknown id looked like a
+        // hit. Real podcast and episode pages carry Open Graph tags; the not-found
+        // page does not — verified against both responses for id 67bfd1c305a90dfd0d20942b.
+        require_payload(self.name(), &bytes, &["og:title"])?;
 
         Ok(bytes.to_vec())
     }

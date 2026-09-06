@@ -1,7 +1,8 @@
 //! Execute subcommand — run tasks from JSON file (SkillOptOrchestrator integration)
 
 use agent_reach_channels::{
-    BilibiliChannel, DuckDuckGoChannel, ExaChannel, GitHubChannel, LinkedinChannel, RedditChannel,
+    BilibiliChannel, DuckDuckGoChannel, ExaChannel, GitHubChannel, LinkedinChannel,
+    MevzuatChannel, RedditChannel,
     RssChannel, TurathChannel, TwitterChannel, UinjktChannel, V2exChannel, WebChannel,
     XiaohongshuChannel,
     XiaoyuzhouChannel, XueqiuChannel, YouTubeChannel,
@@ -169,6 +170,7 @@ async fn execute_single_task(task: &Task, config: &Config, verbose: bool) -> Tas
         "exa" => Box::new(ExaChannel::new()),
         "duckduckgo" => Box::new(DuckDuckGoChannel::new()),
         "turath" => Box::new(TurathChannel::new()),
+        "mevzuat" => Box::new(MevzuatChannel::new()),
         "uinjkt" => Box::new(UinjktChannel::new()),
         _ => {
             return TaskResult {

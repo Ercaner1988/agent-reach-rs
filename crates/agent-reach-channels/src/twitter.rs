@@ -5,7 +5,7 @@
 //! 2. nitter (HTTP scraper) — no auth, rate-limited
 
 use agent_reach_core::{
-    backend::{Backend, BackendStatus},
+    backend::{require_payload, Backend, BackendStatus},
     channel::{Channel, ChannelOutput, ChannelResult},
     doctor::HealthStatus,
     Config, Error,
@@ -181,6 +181,15 @@ impl Backend for NitterBackend {
             .text()
             .await
             .map_err(|e| Error::Network(e.to_string()))?;
+
+        // Every public nitter instance answers 200 even when it is dead — nitter.net
+        // serves a "is offline" landing page. These are its tweet containers; without
+        // one the response holds no tweets, whichever mirror produced it.
+        require_payload(
+            self.name(),
+            html.as_bytes(),
+            &["timeline-item", "tweet-content", "tweet-body"],
+        )?;
 
         // Simple HTML extraction (placeholder — real impl would use scraper crate)
         Ok(html.as_bytes().to_vec())
