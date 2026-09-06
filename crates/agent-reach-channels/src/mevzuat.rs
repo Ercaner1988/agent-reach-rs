@@ -212,7 +212,10 @@ mod tests {
     fn tur_ve_tertip_varsayilani_tek_argumanla_gelir() {
         let b = MevzuatWebBackend;
         let (no, tur, tertip) = b.kimlik(&["5237".to_string()]).unwrap();
-        assert_eq!((no.as_str(), tur.as_str(), tertip.as_str()), ("5237", "1", "5"));
+        assert_eq!(
+            (no.as_str(), tur.as_str(), tertip.as_str()),
+            ("5237", "1", "5")
+        );
     }
 
     #[test]
@@ -220,7 +223,10 @@ mod tests {
         let b = MevzuatWebBackend;
         let args = ["5210".to_string(), "21".to_string(), "5".to_string()];
         let (no, tur, tertip) = b.kimlik(&args).unwrap();
-        assert_eq!((no.as_str(), tur.as_str(), tertip.as_str()), ("5210", "21", "5"));
+        assert_eq!(
+            (no.as_str(), tur.as_str(), tertip.as_str()),
+            ("5210", "21", "5")
+        );
     }
 
     #[test]
