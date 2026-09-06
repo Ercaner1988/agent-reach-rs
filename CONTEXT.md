@@ -72,8 +72,13 @@ whoever is being scored cannot move the threshold they are scored against.
 ## Gate
 
 A check that costs nothing and runs on every iteration: build, lint, unit tests,
-formatting, and the search for golden-set text inside source files. Distinct
-from the **gauntlet**, which costs network and runs rarely.
+formatting, the search for golden-set text inside source files, and the
+requirement that the gate run everything CI runs. Distinct from the
+**gauntlet**, which costs network and runs rarely.
+
+The last one exists because the gate and the CI workflow are two lists of the
+same intent, kept five directories apart in different languages. A check CI has
+and the gate lacks is invisible until a push fails.
 
 ## Gauntlet
 

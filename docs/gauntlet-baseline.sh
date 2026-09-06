@@ -1,6 +1,8 @@
 #!/bin/bash
 # Altin kume taban olcumu: her sorgu icin hedef URL ilk 10'da mi?
-cd "C:/Users/buzbe/OneDrive/Masaüstü/agent-reach-rs"
+# Depo kokunden calis. Sabit mutlak yol iki kez curudu: depo OneDrive'dan
+# Desktop'a tasindi ve betik olmayan bir dizine cd etmeye devam etti.
+cd "$(dirname "$0")/.." || exit 1
 BIN=./target/release/agent-reach-mcp.exe
 
 run() { # $1=channel $2=action $3=query

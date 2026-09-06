@@ -3,13 +3,13 @@
 //! Two commands:
 //!
 //! ```text
-//! harness gates                 the seven free checks — no network, seconds
+//! harness gates                 the eight free checks — no network, seconds
 //! harness run --ticket A        one round: agent, gates, gauntlet, review, stop
 //! ```
 //!
 //! This replaces a pair of PowerShell scripts. They worked, but they put a
 //! second language beside a project whose point is to have one, and they only
-//! ran on Windows. Nothing here is new behaviour; it is the same seven gates and
+//! ran on Windows. Nothing here is new behaviour; it is the same gates and
 //! the same loop, in the language of the thing it guards.
 
 use std::collections::HashSet;
@@ -21,6 +21,11 @@ const REFEREE: &[&str] = &["harness/kabul.json"];
 const GOLDEN: &str = "crates/agent-reach-channels/tests/golden_search.json";
 const GAUNTLET: &str = "crates/agent-reach-channels/tests/search_gauntlet.rs";
 const CRITERIA: &str = "harness/kabul.json";
+const CI_WORKFLOW: &str = ".github/workflows/ci.yml";
+
+/// Flags that change what CI prints, not what it checks. Requiring the gate to
+/// match these would make it noisier without making it stricter.
+const COSMETIC_FLAGS: &[&str] = &["--verbose", "-v", "--quiet", "-q", "--color"];
 
 /// Symbols proving the runner is still wired to the criteria file. Deleting an
 /// assertion is the quietest way to move a threshold; this makes it the loudest.
@@ -67,25 +72,30 @@ fn repo_root() -> PathBuf {
 
 // ── gates ────────────────────────────────────────────────────────────────────
 
-fn gates(root: &Path) -> u8 {
-    let cargo_checks: [(&str, &[&str]); 4] = [
-        ("build", &["build", "--workspace"]),
-        (
+/// The cargo half of the gate. Kept literally at least as strict as the CI
+/// workflow, and `gate_ci_parity` fails if it ever stops being.
+const CARGO_CHECKS: &[(&str, &[&str])] = &[
+    ("build", &["build", "--workspace"]),
+    (
+        "clippy",
+        &[
             "clippy",
-            &[
-                "clippy",
-                "--workspace",
-                "--all-targets",
-                "--",
-                "-D",
-                "warnings",
-            ],
-        ),
-        ("unit tests", &["test", "--workspace"]),
-        ("formatting", &["fmt", "--check"]),
-    ];
+            "--workspace",
+            "--all-targets",
+            "--all-features",
+            "--",
+            "-D",
+            "warnings",
+        ],
+    ),
+    ("unit tests", &["test", "--workspace"]),
+    ("formatting", &["fmt", "--all", "--", "--check"]),
+];
 
-    for (label, argv) in cargo_checks {
+fn gates(root: &Path) -> u8 {
+    let cargo_checks = CARGO_CHECKS;
+
+    for &(label, argv) in cargo_checks {
         eprintln!("-- {label}");
         let out = Command::new("cargo")
             .args(argv)
@@ -116,9 +126,75 @@ fn gates(root: &Path) -> u8 {
     if let Err(code) = gate_criteria_wired(root) {
         return code;
     }
+    if let Err(code) = gate_ci_parity(root) {
+        return code;
+    }
 
     eprintln!("\nAll gates green.");
     0
+}
+
+/// Gate 8 — the gate must run everything CI runs.
+///
+/// A push failed on `cargo fmt --all -- --check` for violations the gate already
+/// checks. Nothing was missing: the gate simply had not been run, and the fix
+/// arrived as a separate commit from a bot. That is a habit problem and this
+/// gate does not solve it.
+///
+/// What it does solve is the other direction, which is silent. A check added to
+/// CI and not to the gate looks exactly like a green tree until the push, and
+/// the two lists have no reason to stay in step — they are edited by different
+/// people for different reasons, in different languages, five directories apart.
+/// So read CI's cargo lines and require the gate to cover each one.
+///
+/// String matching over YAML, deliberately: a parser is a dependency and a
+/// second thing to keep correct, and the file it reads is nine lines of `run:`.
+fn gate_ci_parity(root: &Path) -> Result<(), u8> {
+    eprintln!("-- ci parity");
+    let Ok(text) = std::fs::read_to_string(root.join(CI_WORKFLOW)) else {
+        eprintln!("   RED: cannot read {CI_WORKFLOW}");
+        return Err(1);
+    };
+
+    for ci in ci_cargo_invocations(&text) {
+        let Some(sub) = ci.first() else { continue };
+        let Some((label, gate)) = CARGO_CHECKS
+            .iter()
+            .find(|(_, a)| a.first() == Some(&sub.as_str()))
+        else {
+            eprintln!(
+                "   RED: CI runs `cargo {}` and the gate has no such check.",
+                ci.join(" ")
+            );
+            eprintln!("   Add it to CARGO_CHECKS, or the next push finds out for you.");
+            return Err(1);
+        };
+        let uncovered: Vec<&String> = ci
+            .iter()
+            .skip(1)
+            .filter(|f| f.starts_with('-') && !COSMETIC_FLAGS.contains(&f.as_str()))
+            .filter(|f| !gate.contains(&f.as_str()))
+            .collect();
+        if !uncovered.is_empty() {
+            eprintln!("   RED: the {label} gate is weaker than CI's. CI passes, gate does not:");
+            for f in uncovered {
+                eprintln!("     {f}");
+            }
+            return Err(1);
+        }
+    }
+    eprintln!("   green");
+    Ok(())
+}
+
+/// Every `run: cargo …` line in a workflow, split into words.
+fn ci_cargo_invocations(yaml: &str) -> Vec<Vec<String>> {
+    yaml.lines()
+        .filter_map(|l| l.trim().strip_prefix("run:"))
+        .map(str::trim)
+        .filter_map(|c| c.strip_prefix("cargo "))
+        .map(|c| c.split_whitespace().map(str::to_string).collect())
+        .collect()
 }
 
 /// Gate 5 — no text from the answer key may appear in source.
@@ -756,6 +832,43 @@ mod tests {
         assert!(parse_opts(&["--dry-run".into()]).is_err());
         assert!(parse_opts(&["--ticket".into()]).is_err());
         assert!(parse_opts(&["--nope".into()]).is_err());
+    }
+
+    #[test]
+    fn the_gate_covers_every_cargo_check_ci_runs() {
+        // The live pair, not a fixture: this is the assertion that has to break
+        // when someone adds a check to CI and forgets the gate.
+        let root = repo_root();
+        let yaml = std::fs::read_to_string(root.join(CI_WORKFLOW)).expect("ci.yml");
+        let ci = ci_cargo_invocations(&yaml);
+        assert!(!ci.is_empty(), "no cargo lines parsed out of {CI_WORKFLOW}");
+        for inv in ci {
+            let sub = &inv[0];
+            let gate = CARGO_CHECKS
+                .iter()
+                .find(|(_, a)| a.first() == Some(&sub.as_str()))
+                .unwrap_or_else(|| panic!("CI runs `cargo {sub}`, the gate does not"));
+            for flag in inv.iter().skip(1) {
+                if flag.starts_with('-') && !COSMETIC_FLAGS.contains(&flag.as_str()) {
+                    assert!(
+                        gate.1.contains(&flag.as_str()),
+                        "CI passes {flag} to cargo {sub}, the gate does not"
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn parity_reads_flags_and_ignores_cosmetics() {
+        let got = ci_cargo_invocations(
+            "      - name: Check formatting\n        run: cargo fmt --all -- --check\n\
+             \x20       run: cargo test --verbose\n        run: echo not-cargo\n",
+        );
+        assert_eq!(got.len(), 2, "only the cargo lines: {got:?}");
+        assert_eq!(got[0], ["fmt", "--all", "--", "--check"]);
+        // --verbose is cosmetic, so `cargo test --workspace` covers it.
+        assert!(COSMETIC_FLAGS.contains(&"--verbose"));
     }
 
     #[test]

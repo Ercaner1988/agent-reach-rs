@@ -98,10 +98,17 @@ bu "bozuk" değil "yok" demektir, ikisini karıştırma.
 `backend.rs` içindeki `mod tests` desenini izle: gerçek yakalanmış gövdelerden
 alınmış kısa alıntılarla, biri reddedilen biri geçen en az iki iddia.
 
+Tek tek `cargo test -p …` koşturma. **Kapıyı koş** — CI'ın koştuğu her şeyi
+o koşar, ve `ci parity` kapısı CI'a eklenip kapıya eklenmemiş bir kontrol
+kalmadığını garanti eder:
+
 ```bash
-cargo test -p agent-reach-core --lib
-cargo clippy -p agent-reach-core -p agent-reach-channels
+cargo run --manifest-path harness/Cargo.toml -- gates
 ```
+
+Bu adım atlandığı için bir `cargo fmt` ihlali CI'a kadar gitti ve düzeltmesi
+ayrı bir commit olarak bot'tan geldi. Kapı o ihlali zaten yakalıyordu; sadece
+koşulmamıştı.
 
 ---
 
@@ -140,5 +147,6 @@ gerçek çıktı örneği. Şablon: [`rss.md`](rss.md).
 - [ ] Alt-dize çakışması denendi
 - [ ] `cmd_execute.rs` dağıtımına kaydedildi
 - [ ] Biri geçen biri düşen birim testi
+- [ ] `harness gates` yeşil (tek tek cargo değil)
 - [ ] Canlı koşuda hem ✓ hem ✗ görüldü
 - [ ] `docs/channels/<kanal>.md` yazıldı
