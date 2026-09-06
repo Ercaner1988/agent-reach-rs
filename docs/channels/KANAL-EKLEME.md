@@ -110,6 +110,16 @@ Bu adım atlandığı için bir `cargo fmt` ihlali CI'a kadar gitti ve düzeltme
 ayrı bir commit olarak bot'tan geldi. Kapı o ihlali zaten yakalıyordu; sadece
 koşulmamıştı.
 
+Unutmayı bıraksın diye `.githooks/pre-push` kapıyı push'tan önce kendisi
+koşturur ve kırmızıysa push'u durdurur. Taze bir klonda kancaları bir kez
+etkinleştir — yoksa dosya orada durur ama çalışmaz:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Tek seferlik atlatma: `git push --no-verify` ya da `ARR_SKIP_GATE=1 git push`.
+
 ---
 
 ## 5. Canlı doğrula — hem kabul hem ret

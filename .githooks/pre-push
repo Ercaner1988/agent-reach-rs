@@ -1,0 +1,68 @@
+#!/bin/sh
+# Altın kapı — push öncesi.
+#
+# post-commit ve post-push bloklamaz ve bloklamamalı: onlar arka planda pasli
+# tetikler, ve bunu senkron yapmak GitHub Desktop'ı kilitler (desktop#8847).
+# pre-push farklıdır. Arka planda bir şey başlatmaz; kapıyı çalıştırır, biter,
+# ve sonucunu çıkış koduyla söyler. Bloklaması işin ta kendisidir — bir push'un
+# CI'da kırmızı yanacağını öğrenmenin en ucuz yeri burasıdır.
+#
+# Neden var: bir `cargo fmt` ihlali CI'a kadar gitti ve düzeltmesi ayrı bir
+# commit olarak bot'tan geldi. Kapı o ihlali zaten yakalıyordu; kimse koşmadı.
+#
+# Atlatma yolları (ikisi de bilinçli, ikisi de görünür):
+#   git push --no-verify        tek seferlik
+#   ARR_SKIP_GATE=1 git push    aynısı, ama niyeti adıyla söyler
+
+[ -n "$ARR_SKIP_GATE" ] && {
+  echo "pre-push: ARR_SKIP_GATE ayarlı — altın kapı atlandı." >&2
+  exit 0
+}
+
+# Yalnızca silme itiyorsan çalıştıracak bir şey yok. pre-push stdin'den
+# "<yerel ref> <yerel sha> <uzak ref> <uzak sha>" alır; silmede yerel sha sıfırdır.
+itilecek_var=0
+while read -r _yerel_ref yerel_sha _uzak_ref _uzak_sha; do
+  case "$yerel_sha" in
+    "" | 0000000000000000000000000000000000000000) ;;
+    *) itilecek_var=1 ;;
+  esac
+done
+[ "$itilecek_var" = 1 ] || exit 0
+
+kok=$(git rev-parse --show-toplevel) || exit 0
+cd "$kok" || exit 0
+
+# Cargo'yu PATH'te ara, sonra rustup'ın standart yerinde. İkinci adım GitHub
+# Desktop için: kancaları dar bir ortamla çalıştırır ve ~/.cargo/bin çoğu zaman
+# içinde olmaz. post-commit'in pasli.exe için yaptığının aynısı.
+CARGO_BIN="$(command -v cargo 2>/dev/null || true)"
+[ -n "$CARGO_BIN" ] || for c in "$HOME/.cargo/bin/cargo" "$USERPROFILE/.cargo/bin/cargo.exe"; do
+  [ -x "$c" ] && { CARGO_BIN="$c"; break; }
+done
+
+# Cargo hiç yoksa kapı ölçüm yapamaz. Bu "yeşil" değildir; ADR 0003'ün diliyle
+# ölçülmemiştir. Ölçülmemişi geçmiş saymamak için yüksek sesle söyler, ama
+# push'u da kesmez: Rust kurulu olmayan bir makinede zaten hiçbir şey
+# doğrulanmamıştır ve son savunma CI'dır.
+[ -n "$CARGO_BIN" ] || {
+  echo "pre-push: cargo bulunamadı — altın kapı ÖLÇÜLMEDİ (yeşil değil). CI son savunma." >&2
+  exit 0
+}
+
+echo "pre-push: altın kapı çalışıyor (sıcak önbellekte ~20 sn, ağ yok)…" >&2
+basla=$(date +%s)
+"$CARGO_BIN" run --quiet --manifest-path harness/Cargo.toml -- gates >&2
+sonuc=$?
+echo "pre-push: kapı $(( $(date +%s) - basla )) sn sürdü." >&2
+
+[ "$sonuc" = 0 ] || {
+  echo "" >&2
+  echo "PUSH DURDURULDU — altın kapı kırmızı. Ayrıntı yukarıda." >&2
+  echo "  Tekrar üret : cargo run --manifest-path harness/Cargo.toml -- gates" >&2
+  echo "  Biçim ise   : cargo fmt --all" >&2
+  echo "  Yine de it  : git push --no-verify" >&2
+  exit 1
+}
+
+exit 0
