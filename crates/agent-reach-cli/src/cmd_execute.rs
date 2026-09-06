@@ -1,11 +1,9 @@
 //! Execute subcommand — run tasks from JSON file (SkillOptOrchestrator integration)
 
 use agent_reach_channels::{
-    BilibiliChannel, DuckDuckGoChannel, ExaChannel, GitHubChannel, LinkedinChannel,
-    MevzuatChannel, RedditChannel,
-    RssChannel, TurathChannel, TwitterChannel, UinjktChannel, V2exChannel, WebChannel,
-    XiaohongshuChannel,
-    XiaoyuzhouChannel, XueqiuChannel, YouTubeChannel,
+    BilibiliChannel, DuckDuckGoChannel, ExaChannel, GitHubChannel, LinkedinChannel, MevzuatChannel,
+    RedditChannel, RssChannel, TurathChannel, TwitterChannel, UinjktChannel, V2exChannel,
+    WebChannel, XiaohongshuChannel, XiaoyuzhouChannel, XueqiuChannel, YouTubeChannel,
 };
 use agent_reach_core::{Channel, Config};
 use anyhow::{Context, Result};

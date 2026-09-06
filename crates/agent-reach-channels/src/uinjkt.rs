@@ -59,10 +59,7 @@ impl UinjktOaiBackend {
 
         match action {
             // Repository identity — the cheapest possible liveness probe.
-            "identify" => Ok((
-                format!("{OAI}?verb=Identify"),
-                vec!["identify".into()],
-            )),
+            "identify" => Ok((format!("{OAI}?verb=Identify"), vec!["identify".into()])),
             // Every journal and issue as a set. A resumptionToken continues the
             // list; the portal pages at 100 sets.
             "journals" => {
@@ -74,7 +71,10 @@ impl UinjktOaiBackend {
                     ),
                     None => format!("{OAI}?verb=ListSets"),
                 };
-                Ok((url, vec!["journals".into(), token.cloned().unwrap_or_default()]))
+                Ok((
+                    url,
+                    vec!["journals".into(), token.cloned().unwrap_or_default()],
+                ))
             }
             // Articles of one journal set, Dublin Core metadata, 100 per page.
             // `set` is the journal's setSpec: `ahkam`, `iqtishad`,
@@ -203,7 +203,9 @@ fn tag_values<'a>(block: &'a str, tag: &str) -> Vec<&'a str> {
     let mut rest = block;
     while let Some(s) = rest.find(&open) {
         let from = s + open.len();
-        let Some(e) = rest[from..].find(&close) else { break };
+        let Some(e) = rest[from..].find(&close) else {
+            break;
+        };
         out.push(rest[from..from + e].trim());
         rest = &rest[from + e + close.len()..];
     }
@@ -226,7 +228,9 @@ fn oai_to_json(xml: &str) -> serde_json::Value {
     let mut records = Vec::new();
     let mut rest = xml;
     while let Some(s) = rest.find("<record>") {
-        let Some(e) = rest[s..].find("</record>") else { break };
+        let Some(e) = rest[s..].find("</record>") else {
+            break;
+        };
         let block = &rest[s..s + e];
         records.push(serde_json::json!({
             "identifier": tag_value(block, "identifier"),
@@ -367,9 +371,12 @@ mod tests {
 
     #[test]
     fn a_resumption_token_continues_the_harvest() {
-        let (url, _) = UinjktOaiBackend::route("articles", &args(&["ahkam", "TOKEN/123"])[..])
-            .unwrap();
-        assert!(url.contains("verb=ListRecords&resumptionToken=TOKEN%2F123"), "{url}");
+        let (url, _) =
+            UinjktOaiBackend::route("articles", &args(&["ahkam", "TOKEN/123"])[..]).unwrap();
+        assert!(
+            url.contains("verb=ListRecords&resumptionToken=TOKEN%2F123"),
+            "{url}"
+        );
         // A token replaces the set: OAI-PMH forbids mixing them.
         assert!(!url.contains("set="), "{url}");
     }
@@ -403,7 +410,10 @@ mod tests {
 </ListRecords></OAI-PMH>"#;
         let out = oai_to_json(xml);
         assert_eq!(out["records"][0]["title"], "Islamic Law in Indonesia");
-        assert_eq!(out["records"][0]["identifiers"][1], "10.15408/ajis.v13i2.929");
+        assert_eq!(
+            out["records"][0]["identifiers"][1],
+            "10.15408/ajis.v13i2.929"
+        );
         assert_eq!(out["records"][0]["sets"][0], "ahkam");
         assert_eq!(out["resumptionToken"], "NEXT");
     }
