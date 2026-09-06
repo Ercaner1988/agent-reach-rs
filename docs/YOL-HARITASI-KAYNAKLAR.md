@@ -1,6 +1,7 @@
 # Yol haritası — yeni kaynaklar ve kaynak anahtarı
 
 **Tarih:** 20 Ağustos 2026 · **Yazan:** Mihenk (Claude Opus 5)
+**Güncelleme:** 7 Eylül 2026 · Kassam — §2b'ye beş yeni kaynak eklendi (hukuk + anket)
 **Durum:** kaynak anahtarı **kuruldu** · **turath kanalı yazıldı** · kalanlar sırada
 
 ---
@@ -39,6 +40,8 @@ davranmalı.
 ---
 
 ## 2 · On üç kaynak, üç kuşak
+
+*(7 Eylül 2026'da beş kaynak daha eklendi — bkz. §2b. Toplam on sekiz.)*
 
 Sıralama zorluk değil **erişim biçimi**: kaynağın kendi açtığı kapı hangisi.
 
@@ -109,6 +112,83 @@ politikası — ama D için doğru ve yeterli.
 
 ---
 
+## 2b · Beş yeni kaynak — hukuk ve anket (7 Eylül 2026)
+
+Ercan'ın isteğiyle yol haritasına giren beş kaynak. Aşağıdaki her satır bugün
+`curl` ile ölçüldü; hiçbiri tahmin değil.
+
+### Kuşak A — açık kapı
+
+| Kaynak | Kapı | Ölçüm (7 Eyl 2026) |
+|---|---|---|
+| **Pew Research Center** | Açık HTML + ajanlar için özel uçlar | `robots.txt` `200`, içinde **`Content-Signal: ai-train=yes, search=yes, ai-input=yes`**, `Allow: /*/topline`, `Allow: /*/text`, `Allow: /religious-landscape-study/*.md`, beş ayrı `Sitemap:` satırı |
+| **UYAP Emsal** (`emsal.uyap.gov.tr`) | Anahtarsız JSON — aşağıda haritası | `POST /aramalist` `200`, gerçek karar listesi döndü |
+| **Yargıtay Karar Arama** (`karararama.yargitay.gov.tr`) | Anahtarsız JSON, aynı şema | `POST /aramalist` `200`, `recordsTotal: 2.299.372` |
+
+**Pew'in özel durumu:** listedeki en açık davetli kaynak. `robots.txt` ajanlara
+adıyla hitap ediyor, makine okunur bir dizin (`/llms.txt`) ve rapor başına
+`/topline` (ham anket tabloları) ile `/text` (düz metin) uçları ilan ediyor.
+Ancak ölçümde bir ayrıntı çıktı: `/llms.txt` doğrudan çekildiğinde JavaScript
+tabanlı bir **hashcash tarayıcı sınaması** (`Checking your browser...`,
+`POST /__challenge`, `X-Hashcash-Solution`) döndü. Yani izin açık, kapı
+sınamalı. Kanal yazılırken ya sitemap yolundan (`sitemap.xml`, `sitemap-rls.xml`)
+ya da sınamayı çözen bir tarayıcı katmanından geçilmeli — bu karar ölçülerek
+verilecek, varsayılarak değil.
+
+**UYAP ailesinin JSON haritası** (Yargıtay ve Emsal'de aynı, ölçüldü):
+
+```
+POST /aramalist        gövde: {"data":{"arananKelime":"<terim>",
+                                       "pageSize":N,"pageNumber":M}}
+    → {data:{data:[{id, daire, esasNo, kararNo, kararTarihi, durum, index}],
+             recordsTotal, recordsFiltered}, metadata:{FMTY:"SUCCESS", …}}
+
+GET  /getDokuman?id=<id>
+    → {data:"<html>…kararın tam metni…</html>"}
+```
+
+Ölçülen örnek: `arananKelime=kira tespiti` → Yargıtay'da **2.299.372** kayıt,
+ilki *Hukuk Genel Kurulu, 2012/320 E., 2012/552 K., 12.09.2012*; `getDokuman`
+aynı kararın gerekçeli tam metnini HTML olarak verdi. Emsal'de ilk kayıt
+*İstanbul BAM 35. Hukuk Dairesi, 2019/3641 E., 2022/1689 K.*, kesinleşme durumu
+alanıyla birlikte.
+
+**Neden Turath kadar değerli:** her isabet **daire + esas/karar numarası + tarih**
+ile geliyor ve tam metin ayrı bir çağrıyla alınabiliyor. Turath'ın cilt/sayfa
+verdiği yerde UYAP künye veriyor — ikisi de uydurmasız atfın hammaddesi.
+
+**Not:** `emsal.uyap.gov.tr/robots.txt` `404` (site her bilinmeyen yola kendi
+404 sayfasını döndürüyor); `karararama.yargitay.gov.tr/robots.txt` `200`. Açık
+yasak yok, açık izin de yok. Turath'taki kural burada da geçerli: **ölçülü hız**,
+istekler arası bekleme, kaset açıkken ağa çıkmama. Bunlar kamusal arşivler;
+kapıyı açık bulmak koşarak girmeyi haklı çıkarmaz.
+
+### Sırada, ama uç henüz çözülmedi
+
+| Kaynak | Durum | Ölçüm |
+|---|---|---|
+| **Danıştay Karar Arama** (`karararama.danistay.gov.tr`) | Uç var, gövde şeması farklı | `POST /aramalist` `200` döndü ama gövde `ADALET_RUNTIME_EXCEPTION`. Dört farklı gövde denendi (`arananKelime`, `aranan`, `andAlan/orAlan/notAlan`, tam alan seti) — üçü "Hata Oluştu!", biri "Lütfen arama kriterlerini giriniz!". Doğru alan adları tarayıcı ağ kaydından çıkarılmalı. |
+
+Danıştay, UYAP ailesinden (`ESN: danistay-karar-arama`, aynı hata sınıfı) ama
+arama gövdesi Yargıtay/Emsal ile aynı değil. Kanal yazılmadan önce gerçek
+istek gövdesi ölçülmeli.
+
+### Kuşak D — insan kapısı
+
+| Kaynak | Kapı | Ölçüm |
+|---|---|---|
+| **Lexpera** (`lexpera.com.tr`) | Ticari veritabanı, abonelik + giriş duvarı | Ana sayfa `200`; `robots.txt` `200`: `User-agent: *`, **`Crawl-delay: 10`**, `Disallow: /*.pdf$ /*.doc$ /*.docx$ /*.xls$ /*.xlsx$` |
+
+Lexpera'nın `robots.txt`'i iki şey söylüyor: HTML sayfaları serbest ama **belge
+indirme açıkça yasak**, ve istekler arasında **en az 10 saniye** beklenmeli.
+Üstüne abonelik duvarı var. Bu yüzden Lexpera Kuşak A değil, **Kuşak D**:
+YÖK Tez'deki insan kapısı modeliyle — insan bir kez giriş yapar, profil kalıcıdır,
+doğrulama duvarı çıkarsa ajan çözmez, şifre saklanmaz. Ayrıca `Crawl-delay: 10`
+kanalın koduna gömülecek, seçmeli bir ayar olmayacak; ve PDF/DOC yolları
+kanaldan hiç istenmeyecek.
+
+---
+
 ## 3 · Turath — listenin en kolayı ve en değerlisi
 
 `app.turath.io` bir SPA; arkasında **anahtarsız, girişsiz, sayfalı bir JSON
@@ -158,18 +238,27 @@ gerçekten işe yarar — yani ikisi birbirini tamamlıyor, ama farklı katmanla
    *İbn Teymiyye, Mecmûʿu'l-Fetâvâ, c. 20, s. 204*. Kalan iş: altın kümeye
    github dışı ilk vaka olarak girmesi.
 1. Substack — kod yok, yalnız yayın listesi.
-2. Wikipedia — REST API, tek kanal, kolay ölçülür.
-3. Stanford Encyclopedia + İslam Ansiklopedisi — statik okuyucu, ortak bir
+2. **UYAP Emsal + Yargıtay** — tek kanal ailesi, aynı JSON şeması (`aramalist`
+   + `getDokuman`), anahtarsız. Uçlar 7 Eyl 2026'da ölçüldü; §2b'de haritası var.
+   Tez tarafındaki atıf ihtiyacına en yakın duran ikinci kaynak.
+3. Wikipedia — REST API, tek kanal, kolay ölçülür.
+4. Stanford Encyclopedia + İslam Ansiklopedisi — statik okuyucu, ortak bir
    "belge sitesi" kanalı olabilir.
-4. Pew — rapor listesi + indirme.
-5. DergiPark — önce ucu bul, sonra karar ver.
+5. **Pew Research** — `robots.txt` ajanlara açıkça izin veriyor (`ai-input=yes`),
+   `/topline` ve `/text` uçları ilan edilmiş. Önce tarayıcı sınamasının
+   (`/__challenge`) sitemap yolundan aşılıp aşılmadığı ölçülecek.
+6. **Danıştay** — arama gövdesi çözülünce UYAP kanalına üçüncü hedef olarak
+   eklenir; ayrı kanal gerekmez.
+7. DergiPark — önce ucu bul, sonra karar ver.
 
 **Sonra (kuşak B):**
-6. OpenAlex / Semantic Scholar / Crossref — Scholar'ın işlevi, açık kapıdan.
-7. Elsevier — kurumsal anahtar geldiğinde.
+8. OpenAlex / Semantic Scholar / Crossref — Scholar'ın işlevi, açık kapıdan.
+9. Elsevier — kurumsal anahtar geldiğinde.
 
-**Sonra (kuşak D):**
-8. YÖK Tez — insan kapısı modeliyle, görünür pencere, şifresiz.
+**Sonra (kuşak D — insan kapısı, şifre saklanmadan):**
+10. YÖK Tez — görünür pencere, insan bir kez girer.
+11. **Lexpera** — abonelik duvarı + `Crawl-delay: 10` + belge indirme yasağı.
+    Aynı insan kapısı modeli, üstüne koda gömülü hız sınırı.
 
 **Yazılmayacaklar ve sebebi belgede:** Google Scholar, JSTOR, Quora, Play Books.
 

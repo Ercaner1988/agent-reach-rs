@@ -31,3 +31,9 @@ harness/kaset/
 harness/son-denetim*.txt
 harness/target/
 harness/.onceki_cwd
+
+# Python artifacts
+**/Python/
+**/__pycache__/
+*.pyc
+
